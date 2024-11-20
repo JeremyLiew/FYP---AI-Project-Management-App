@@ -1,0 +1,116 @@
+<template>
+	<div class="fill-height bg-default">
+		<v-container class="text-center justify-center fill-height bg-default">
+			<v-row justify="center" dense>
+				<v-col cols="12" md="8">
+					<v-card width="100%" class="bg-default nms-circle">
+						<v-card-title
+							class="text-capitalize primary white--text"
+							style="letter-spacing: 1px;"
+						>
+							Forgot Password
+						</v-card-title>
+						<v-divider></v-divider>
+						<v-card-text class="px-10 py-4">
+							<!-- loading -->
+							<v-skeleton-loader v-if="status == 'loading' " type="list-item-three-line"></v-skeleton-loader>
+							<!-- success -->
+							<div v-else-if="status == 'success' " class="pa-12">
+								<div class="pb-6">
+									<v-icon size="80" color="info">mdi-check-circle</v-icon>
+								</div>
+								<div class="title font-weight-bold">We have sent you a password recovery email.</div>
+								<div v-if="email" class="font-italic">( {{ email }} )</div>
+							</div>
+							<!-- form -->
+							<template v-else>
+								<div class="text-left pb-1 pt-2">
+									<div class="text-body-2 text-capitalize pb-1">Enter your email to reset your password :</div>
+								</div>
+								<div>
+									<v-row dense class="form-gap-2">
+										<v-col cols="12">
+											<v-text-field
+												v-model="form.email"
+												label="Email"
+												outlined
+												dense
+												:error-messages="errors.email"
+												@keyup.enter="submitForm()"
+											/>
+										</v-col>
+									</v-row>
+								</div>
+								<div class="text-right">
+									<v-btn
+										color="transparent"
+										type="submit"
+										:loading="submit_loading"
+										@click="submitForm()"
+									>
+										Submit
+									</v-btn>
+								</div>
+							</template>
+						</v-card-text>
+					</v-card>
+					<div class="py-6">
+						<router-link to="/login" class="text-body-2">Back to login page</router-link>
+					</div>
+				</v-col>
+			</v-row>
+		</v-container>
+	</div>
+</template>
+
+<script>
+import AuthClient from '../client'
+export default {
+	data() {
+		return {
+			email: null,
+			errors: {},
+			form:{},
+			submit_loading : false,
+			status : '',
+		}
+	},
+	methods:{
+		submitForm() {
+			this.forgotPassword()
+		},
+		forgotPassword(){
+			this.submit_loading = true
+			this.errors = {}
+			let payload = {
+				email: this.form.email,
+			}
+			AuthClient.forgotPassword(payload).then((res)=>{
+				this.status = "success"
+				this.email = res.data.data.email
+			}).catch(err=>{
+				this.errors = err.response.data.errors
+			}).finally(()=>{
+				this.submit_loading = false
+			});
+		},
+	}
+}
+</script>
+
+<style scoped>
+.nms-circle {
+  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+  animation: breathe 4s ease-in-out infinite; /* Use ease-in-out for a smoother animation */
+}
+
+@keyframes breathe {
+  0%, 100% {
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.25);
+  }
+
+  50% {
+    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3); /* Adjusted shadow at the midpoint */
+  }
+}
+</style>
