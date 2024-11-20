@@ -109,7 +109,7 @@ export default {
 	},
 	created(){
 		this.nav_links = [
-			{ title : "Product", to : { name: "product-page" } },
+			{ title : "Home", to : { name: "home-page" } },
 			// { title : "Contact Us", to : { name: "contact-us-page" } },
 		];
 		this.auth = false

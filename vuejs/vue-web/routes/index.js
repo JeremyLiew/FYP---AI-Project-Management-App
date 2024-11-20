@@ -1,16 +1,10 @@
 import * as BaseModule from '../modules/base/router'
 import * as GeneralModule from '../modules/_general/router'
-import * as ProductModule from '../modules/product/router'
 import * as AuthModule from '../modules/auth/router'
 
 import BaseLayout from '../layouts/BaseLayout.vue';
 
 const routes = [
-	// redirect route for default page setting
-	// {
-	//   path: '/',
-	//   redirect: '/normalizestrange',
-	// },
 
 	{ path: '/login', name: 'login-page', component: AuthModule.Login , meta: {
 		auth: false
@@ -21,18 +15,12 @@ const routes = [
 
 	{
 		path: '/',
-		name: 'home-page',
+		name: 'base-layout',
 		component: BaseLayout,
 		children: [
 			{
-				path: '/', name: 'product-page', component: ProductModule.ProductsPage,
+				path: '/', name: 'home-page', component: BaseModule.HomePage,
 			},
-			{
-				path: '/products/:model', name: 'products-info', component: ProductModule.ProductsInfo,
-			},
-			// {
-			// 	path: '/contact-us', name: 'contact-us-page', component: BaseModule.ContactUsPage,
-			// },
 			{
 				path: '/profile', name: 'profile-page', component: GeneralModule.ProfilePage,
 				meta: {

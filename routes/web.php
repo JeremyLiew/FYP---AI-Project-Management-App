@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\Web\{
     ProductController,
 };
@@ -16,8 +15,6 @@ use App\Http\Controllers\Web\{
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::get('/success-payment', [ProductController::class, 'successPayment']);
-
 Route::get('/{any}', function () {
     return view('welcome-vue-web');
 })->where('any', '.*');

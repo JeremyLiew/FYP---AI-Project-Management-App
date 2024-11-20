@@ -128,7 +128,7 @@ export default {
 				this.$toast.success("Logged in successfully")
 
 				setTimeout(() => {
-					this.$router.push({ name: 'product-page' });
+					this.$router.push({ name: 'home-page' });
 				}, 500); // Adjust the delay time as needed
 			}).catch((err)=>{
 				this.user.email = ''
@@ -143,11 +143,6 @@ export default {
 				this.is_loading = false
 			});
 		},
-		// redirectUser(){
-		// 	this.$router.push({
-		// 		name: "home-page"
-		// 	})
-		// },
 	}
 }
 </script>

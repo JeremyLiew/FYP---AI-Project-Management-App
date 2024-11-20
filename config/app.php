@@ -60,7 +60,7 @@ return [
 
     'web_url' => env('APP_WEB_URL', null),
 
-	'admin_url' => env('APP_ADMIN_URL', null),
+    'admin_url' => env('APP_ADMIN_URL', null),
 
     /*
     |--------------------------------------------------------------------------
@@ -197,7 +197,6 @@ return [
         App\Providers\AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
-        App\Providers\Filament\AdminPanelProvider::class,
         App\Providers\RouteServiceProvider::class,
 
     ],

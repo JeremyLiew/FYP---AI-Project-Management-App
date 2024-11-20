@@ -3,15 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable
 {
     use HasApiTokens;
     use HasFactory;
@@ -48,12 +45,6 @@ class User extends Authenticatable implements FilamentUser
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        // return str_ends_with($this->email, '@nms.com') && $this->hasVerifiedEmail() && $this->isAdmin;
-        return str_ends_with($this->email, '@nms.com') && $this->is_admin;
-    }
 
     ### Relationships
     public function orders()
