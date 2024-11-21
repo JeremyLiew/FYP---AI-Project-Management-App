@@ -23,7 +23,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'is_admin',
+        'application_role_id',
     ];
 
     /**
@@ -34,7 +34,6 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'is_admin',
     ];
 
     /**
@@ -47,9 +46,20 @@ class User extends Authenticatable
     ];
 
     ### Relationships
-    public function orders()
+    public function applicationRole()
     {
-        return $this->hasMany(Order::class);
+        return $this->belongsTo(ApplicationRole::class);
+    }
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'user_project_mappings')
+                    ->withPivot('responsibility');
+    }
+
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'user_task_mappings');
     }
 
 }
