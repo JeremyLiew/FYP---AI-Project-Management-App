@@ -10,12 +10,13 @@
 		@mouseleave="onHover(false)"
 	>
 		<!-- Sidebar Content -->
-		<v-list dense>
+		<v-list dense style="display:flex; flex-direction: column; height: 100%;">
 			<!-- User Profile (Optional) -->
 			<v-list-item
 				prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg"
 				subtitle="sandra_a88@gmail.com"
 				title="Sandra Adams"
+				@click="goToProfile"
 			></v-list-item>
 
 			<v-divider></v-divider>
@@ -40,10 +41,22 @@
 					</v-list-item-content>
 				</v-list-item>
 			</template>
+
+			<v-divider></v-divider>
+
+			<!-- Settings Link (at the bottom) -->
+			<v-list-item class="mt-auto" style="justify-self: end;" @click="goToSettings">
+				<v-list-item-content style="display: flex;">
+					<v-list-item-icon>
+						<v-icon>mdi-cog</v-icon>
+					</v-list-item-icon>
+					<v-list-item-title v-if="drawerHovered" class="pl-3">Settings</v-list-item-title>
+				</v-list-item-content>
+			</v-list-item>
 		</v-list>
 	</v-navigation-drawer>
 </template>
-	
+
 <script>
 export default {
 	data() {
@@ -61,7 +74,7 @@ export default {
 	created() {
 		this.nav_links = [
 			{ title: 'Home', icon: 'mdi-home', to: { name: 'home-page' } },
-			// { title : "Contact Us", to : { name: "contact-us-page" } },
+			// { title: "Contact Us", to : { name: "contact-us-page" } },
 		];
 		this.auth = false;
 		if (this.$auth.check()) {
@@ -72,18 +85,28 @@ export default {
 		onHover(status) {
 			this.drawerHovered = status;
 		},
+		goToProfile() {
+			// Navigate to the profile page
+			this.$router.push({ name: 'profile-page' });
+		},
+		goToSettings() {
+			// Navigate to the settings page
+			// this.$router.push({ name: 'settings-page' });
+		},
 	},
 };
 </script>
-	
-  <style scoped>
-  .btnActive {
+
+<style scoped>
+.btnActive {
 	color: #DE002B !important;
 	font-weight: bold;
-  }
-  .custom-icon {
+}
+.custom-icon {
 	width: 32px !important;
 	height: 32px !important;
-  }
-  </style>
-  
+}
+.mt-auto {
+	margin-top: auto;
+}
+</style>

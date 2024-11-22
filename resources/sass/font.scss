@@ -16,5 +16,27 @@
 }
 
 .bg-default {
-    background-color:#FFE1EA !important;
+    background-color: #212121 !important;
+    color: #EEEEEE !important;
+}
+
+.v-navigation-drawer {
+    background-color: #323232!important;
+}
+
+.v-list-item,
+.v-list-item-title {
+    color: #EEEEEE !important;
+}
+
+.v-list-item-icon {
+    color: #EEEEEE !important;
+}
+
+.v-divider {
+    border-color: #444 !important; /* Lighter divider color */
+}
+
+.v-icon {
+    color: #EEEEEE !important;
 }
