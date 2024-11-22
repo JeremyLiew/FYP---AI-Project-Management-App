@@ -2,11 +2,13 @@
 	<div class="d-flex flex-column fill-height">
 		<Topbar></Topbar>
 		<v-main class="bg-default">
-			<router-view v-slot="{ Component }">
-				<transition name="slide-fade">
-					<component :is="Component" />
-				</transition>
-			</router-view>
+			<div class="pa-2">
+				<router-view v-slot="{ Component }">
+					<transition name="slide-fade">
+						<component :is="Component" />
+					</transition>
+				</router-view>
+			</div>
 		</v-main>
 
 		<FooterVue></FooterVue>
