@@ -1,27 +1,11 @@
 <template>
 	<div class="fill-height bg-default">
-		<div class="video-player d-flex white--text justify-center font-family-secondary" :style="$vuetify.display.mdAndUp?'font-size:150px;':'font-size:80px;'">
-			welc
-			<video
-				id="vid" class="video px-2" muted
-				loop autoplay
-				playsinline style="margin-top:23px;"
-				:style="$vuetify.display.smAndUp?'width:8vw':'width:20vw'"
-			>
-				<source src="videos/nmscropglobe.mp4" type="video/mp4">
-			</video>
-			me
-		</div>
+		<div class="white--text text-center font-family-secondary" :style="$vuetify.display.mdAndUp?'font-size:150px;':'font-size:80px;'">welcome</div>
 		<v-container class="text-center justify-center">
 			<v-row
 				justify="center" dense
 				class="px-3" style="z-index: 1;"
 			>
-				<!-- <v-col cols="12" md="8">
-					<div>
-						<img src="/images/new-logo-without-title.png" width="100px">
-					</div>
-				</v-col> -->
 				<v-col cols="12" md="8">
 					<v-card width="100%" class="radius-05 bg-default nms-circle">
 						<v-card-title
@@ -129,7 +113,7 @@ export default {
 
 				setTimeout(() => {
 					this.$router.push({ name: 'home-page' });
-				}, 500); // Adjust the delay time as needed
+				}, 500);
 			}).catch((err)=>{
 				this.user.email = ''
 				this.user.password = ''
@@ -155,18 +139,13 @@ export default {
     border-bottom-left-radius: 50% 35px;
 }
 
-.nms-circle {
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-  animation: breathe 4s ease-in-out infinite; /* Use ease-in-out for a smoother animation */
-}
-
 @keyframes breathe {
   0%, 100% {
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.25);
   }
 
   50% {
-    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3); /* Adjusted shadow at the midpoint */
+    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3);
   }
 }
 </style>

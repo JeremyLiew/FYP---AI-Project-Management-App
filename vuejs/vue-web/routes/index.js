@@ -22,6 +22,9 @@ const routes = [
 				path: '/', name: 'home-page', component: BaseModule.HomePage,
 			},
 			{
+				path: '/contact-us', name: 'contact-us-page', component: BaseModule.ContactUsPage,
+			},
+			{
 				path: '/profile', name: 'profile-page', component: GeneralModule.ProfilePage,
 				meta: {
 					auth: true

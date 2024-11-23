@@ -36,9 +36,7 @@ export default {
 	data() {
 		return {
 			user: {
-				// Assuming you have user details here
 				email: 'example@email.com',
-				// Add more user details
 			},
 			is_loading : false,
 			modelLoading: true,

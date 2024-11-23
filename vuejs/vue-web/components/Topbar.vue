@@ -11,7 +11,7 @@
 	>
 		<!-- Sidebar Content -->
 		<v-list dense style="display:flex; flex-direction: column; height: 100%;">
-			<!-- User Profile (Optional) -->
+			<!-- User Profile -->
 			<v-list-item
 				prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg"
 				subtitle="sandra_a88@gmail.com"
@@ -74,7 +74,7 @@ export default {
 	created() {
 		this.nav_links = [
 			{ title: 'Home', icon: 'mdi-home', to: { name: 'home-page' } },
-			// { title: "Contact Us", to : { name: "contact-us-page" } },
+			{ title: "Contact Us",icon: 'mdi-card-account-mail-outline', to : { name: "contact-us-page" } },
 		];
 		this.auth = false;
 		if (this.$auth.check()) {

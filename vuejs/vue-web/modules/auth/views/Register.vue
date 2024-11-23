@@ -147,10 +147,9 @@ export default {
 				.then((res) => {
 					this.$toast.success("Account successfully created");
 
-					// Delay the redirection to give time for the toast to appear
 					setTimeout(() => {
 						this.$router.push({ name: 'login-page' });
-					}, 500); // Adjust the delay time as needed
+					}, 500);
 				})
 				.catch((err) => {
 					this.errors = err.response.data.errors
@@ -178,7 +177,7 @@ export default {
 
 .nms-circle {
   box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-  animation: breathe 4s ease-in-out infinite; /* Use ease-in-out for a smoother animation */
+  animation: breathe 4s ease-in-out infinite;
 }
 
 @keyframes breathe {
@@ -187,7 +186,7 @@ export default {
   }
 
   50% {
-    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3); /* Adjusted shadow at the midpoint */
+    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3);
   }
 }
 </style>
