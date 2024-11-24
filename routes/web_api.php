@@ -20,6 +20,7 @@ Route::prefix('api')->middleware([])->group(function () {
 Route::prefix('api')->middleware([])->group(function () {
     Route::prefix('project')->group(function () {
         Route::get('/listings', [ProjectController::class, 'getProjectListings']);
+        Route::post('/create', [ProjectController::class, 'createProject']);
     });
 
 });
