@@ -1,7 +1,7 @@
 <template>
 	<div class="d-flex flex-column fill-height">
 		<Topbar></Topbar>
-		<v-main class="bg-default">
+		<v-main>
 			<div class="pa-2">
 				<router-view v-slot="{ Component }">
 					<transition name="slide-fade">

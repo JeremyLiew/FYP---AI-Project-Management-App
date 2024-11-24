@@ -1,16 +1,7 @@
 <template>
-	<div class="fill-height bg-default">
-		<div class="video-player d-flex white--text justify-center font-family-secondary" :style="$vuetify.display.mdAndUp?'font-size:150px;':'font-size:80px;'">
-			welc
-			<video
-				id="vid" class="video px-2" muted
-				loop autoplay
-				playsinline style="margin-top:23px;"
-				:style="$vuetify.display.smAndUp?'width:8vw':'width:20vw'"
-			>
-				<source src="videos/nmscropglobe.mp4" type="video/mp4">
-			</video>
-			me
+	<div class="fill-height">
+		<div class="d-flex white--text justify-center font-family-secondary" :style="$vuetify.display.mdAndUp?'font-size:150px;':'font-size:80px;'">
+			welcome
 		</div>
 		<v-container class="text-center justify-center">
 			<v-row
@@ -18,7 +9,7 @@
 				class="px-3" style="z-index: 1;"
 			>
 				<v-col cols="12" md="8">
-					<v-card width="100%" class="radius-05 bg-default nms-circle">
+					<v-card width="100%" class="radius-05 pt-5">
 						<v-card-title
 							class="font-weight-bold justify-center primary white--text text-md-body-1"
 						>
@@ -55,7 +46,7 @@
 							>
 								<template #append>
 									<v-btn
-										small icon class="bg-default"
+										small icon
 										@click="show_pass = !show_pass"
 									>
 										<v-icon small>{{ show_pass ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
@@ -74,7 +65,7 @@
 							>
 								<template #append>
 									<v-btn
-										small icon class="bg-default"
+										small icon
 										@click="show_pass = !show_pass"
 									>
 										<v-icon small>{{ show_pass ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
@@ -166,27 +157,3 @@ export default {
 	},
 };
 </script>
-
-<style scoped>
-.rounded-banner {
-  position: fixed;
-  width: 100%;
-  border-bottom-right-radius: 50% 35px;
-  border-bottom-left-radius: 50% 35px;
-}
-
-.nms-circle {
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-  animation: breathe 4s ease-in-out infinite;
-}
-
-@keyframes breathe {
-  0%, 100% {
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.25);
-  }
-
-  50% {
-    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3);
-  }
-}
-</style>

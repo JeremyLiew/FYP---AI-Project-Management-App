@@ -1,9 +1,9 @@
 <template>
-	<div class="fill-height bg-default">
-		<v-container class="text-center justify-center fill-height bg-default">
+	<div class="fill-height">
+		<v-container class="text-center justify-center fill-height">
 			<v-row justify="center" dense>
 				<v-col cols="12" md="8">
-					<v-card width="100%" class="bg-default nms-circle">
+					<v-card width="100%" class="pt-5">
 						<v-card-title
 							class="text-capitalize primary white--text"
 							style="letter-spacing: 1px;"
@@ -97,20 +97,3 @@ export default {
 	}
 }
 </script>
-
-<style scoped>
-.nms-circle {
-  box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
-  animation: breathe 4s ease-in-out infinite;
-}
-
-@keyframes breathe {
-  0%, 100% {
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.25);
-  }
-
-  50% {
-    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3);
-  }
-}
-</style>

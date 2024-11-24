@@ -1,12 +1,12 @@
 <template>
-	<v-sheet class="fill-height bg-default">
+	<v-sheet class="fill-height">
 		<section>
 			<v-container>
 				<v-row>
 					<!-- Contact Form Section -->
 					<v-col cols="12" md="6">
 						<v-sheet
-							elevation="2" class="pa-6 bg-secondary-default"
+							elevation="2" class="pa-6"
 							style="border-radius: 12px;"
 						>
 							<div class="text-h5 font-weight-bold pb-4" style="color: white;">Get In Touch</div>

@@ -3,45 +3,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Nerko+One&family=Permanent+Marker&display=swap');
 
-.font-family-primary{
-	font-family: "DM Serif Display" , serif !important;
+.font-family-primary {
+    font-family: "DM Serif Display", serif !important;
 }
 
-.font-family-secondary{
+.font-family-secondary {
     font-family: 'Nerko One', cursive !important;
 }
 
-.font-family-default{
+.font-family-default {
     font-family: 'Nunito', serif !important;
 }
 
-.bg-default {
-    background-color: #212121 !important;
-    color: #EEEEEE !important;
-}
 
-.bg-secondary-default {
-    background-color: #323232 !important;
-    color: #EEEEEE !important;
-}
 
-.v-navigation-drawer {
-    background-color: #323232!important;
-}
-
-.v-list-item,
-.v-list-item-title {
-    color: #EEEEEE !important;
-}
-
-.v-list-item-icon {
-    color: #EEEEEE !important;
-}
-
-.v-divider {
-    border-color: #444 !important; /* Lighter divider color */
-}
-
-.v-icon {
-    color: #EEEEEE !important;
-}

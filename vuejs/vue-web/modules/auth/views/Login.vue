@@ -1,5 +1,5 @@
 <template>
-	<div class="fill-height bg-default">
+	<div class="fill-height">
 		<div class="white--text text-center font-family-secondary" :style="$vuetify.display.mdAndUp?'font-size:150px;':'font-size:80px;'">welcome</div>
 		<v-container class="text-center justify-center">
 			<v-row
@@ -7,7 +7,7 @@
 				class="px-3" style="z-index: 1;"
 			>
 				<v-col cols="12" md="8">
-					<v-card width="100%" class="radius-05 bg-default nms-circle">
+					<v-card width="100%" class="radius-05 pt-5">
 						<v-card-title
 							class="font-weight-bold justify-center primary white--text text-md-body-1"
 						>
@@ -35,7 +35,7 @@
 							>
 								<template #append>
 									<v-btn
-										small icon class="bg-default"
+										small icon
 										@click="show_pass = !show_pass"
 									>
 										<v-icon small>{{ show_pass ? 'mdi-eye-off' : 'mdi-eye' }}</v-icon>
@@ -130,22 +130,3 @@ export default {
 	}
 }
 </script>
-
-<style scoped>
-.rounded-banner {
-    position: fixed;
-    width: 100%;
-    border-bottom-right-radius: 50% 35px;
-    border-bottom-left-radius: 50% 35px;
-}
-
-@keyframes breathe {
-  0%, 100% {
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.25);
-  }
-
-  50% {
-    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3);
-  }
-}
-</style>

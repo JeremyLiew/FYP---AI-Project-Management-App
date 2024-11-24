@@ -1,6 +1,7 @@
 import * as BaseModule from '../modules/base/router'
 import * as GeneralModule from '../modules/_general/router'
 import * as AuthModule from '../modules/auth/router'
+import * as ProjectModule from '../modules/project/router'
 
 import BaseLayout from '../layouts/BaseLayout.vue';
 
@@ -22,6 +23,9 @@ const routes = [
 				path: '/', name: 'home-page', component: BaseModule.HomePage,
 			},
 			{
+				path: '/projects-listing', name: 'projects-listing-page', component: ProjectModule.ProjectsListingPage,
+			},
+			{
 				path: '/contact-us', name: 'contact-us-page', component: BaseModule.ContactUsPage,
 			},
 			{
@@ -29,6 +33,9 @@ const routes = [
 				meta: {
 					auth: true
 				}
+			},
+			{
+				path: '/settings', name: 'settings-page', component: GeneralModule.SettingsPage,
 			},
 		]
 	},

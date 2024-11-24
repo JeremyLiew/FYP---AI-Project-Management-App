@@ -1,1 +1,0 @@
-<img src="{{ asset('images/nmslogo-removebg-preview.png') }}" alt="Logo" class="h-32">

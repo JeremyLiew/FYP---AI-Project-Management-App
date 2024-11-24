@@ -4,7 +4,6 @@
 		rail
 		expand-on-hover
 		class="elevation-1"
-		style="background-color: #FFE1EA;"
 		permanent
 		@mouseenter="onHover(true)"
 		@mouseleave="onHover(false)"
@@ -74,6 +73,7 @@ export default {
 	created() {
 		this.nav_links = [
 			{ title: 'Home', icon: 'mdi-home', to: { name: 'home-page' } },
+			{ title: 'Projects Listing', icon: 'mdi-briefcase', to: { name: 'projects-listing-page' } },
 			{ title: "Contact Us",icon: 'mdi-card-account-mail-outline', to : { name: "contact-us-page" } },
 		];
 		this.auth = false;
@@ -90,8 +90,7 @@ export default {
 			this.$router.push({ name: 'profile-page' });
 		},
 		goToSettings() {
-			// Navigate to the settings page
-			// this.$router.push({ name: 'settings-page' });
+			this.$router.push({ name: 'settings-page' });
 		},
 	},
 };

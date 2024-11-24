@@ -1,5 +1,5 @@
 <template>
-	<v-sheet class="fill-width bg-default">
+	<v-sheet class="fill-width">
 		<v-container class="py-0" style="width:60%;">
 			<v-divider class="border-opacity-100 my-0"></v-divider>
 			<v-card
