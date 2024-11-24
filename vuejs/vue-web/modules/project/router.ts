@@ -1,5 +1,7 @@
-const ProjectsListingPage = () => import('./views/ProjectsListing.vue')
+const ProjectListingsPage = () => import('./views/ProjectListings.vue')
+const ProjectCreatePage = () => import('./views/ProjectCreate.vue')
 
 export {
-	ProjectsListingPage,
+	ProjectListingsPage,
+	ProjectCreatePage,
 }

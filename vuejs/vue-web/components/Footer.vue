@@ -1,7 +1,7 @@
 <template>
-	<v-sheet class="fill-width">
+	<v-sheet class="fill-width" color="transparent">
 		<v-container class="py-0" style="width:60%;">
-			<v-divider class="border-opacity-100 my-0"></v-divider>
+			<v-divider class="my-0"></v-divider>
 			<v-card
 				flat tile
 				color="transparent"
@@ -69,9 +69,3 @@ export default {
 	},
 }
 </script>
-
-<style scoped>
-.border-top-primary{
-	border-top: 4px solid #DE002B !important;
-}
-</style>

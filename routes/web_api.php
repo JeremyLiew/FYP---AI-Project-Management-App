@@ -2,15 +2,24 @@
 
 use App\Http\Controllers\Web\{
     ContactUsController,
+    ProjectController,
 };
 use App\Http\Controllers\Auth\{
     AuthController
 };
+
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->middleware([])->group(function () {
     Route::prefix('general')->group(function () {
         Route::post('/contact-us', [ContactUsController::class, 'sendEmail']);
+    });
+
+});
+
+Route::prefix('api')->middleware([])->group(function () {
+    Route::prefix('project')->group(function () {
+        Route::get('/listings', [ProjectController::class, 'getProjectListings']);
     });
 
 });

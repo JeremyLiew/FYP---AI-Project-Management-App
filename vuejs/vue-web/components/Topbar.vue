@@ -9,7 +9,7 @@
 		@mouseleave="onHover(false)"
 	>
 		<!-- Sidebar Content -->
-		<v-list dense style="display:flex; flex-direction: column; height: 100%;">
+		<v-list dense style="display: flex; flex-direction: column; height: 100%;">
 			<!-- User Profile -->
 			<v-list-item
 				prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg"
@@ -23,21 +23,17 @@
 			<!-- Navigation Links -->
 			<template v-for="(nav_link, i) in nav_links" :key="i">
 				<v-list-item
-					:to="nav_link.to"
-					exact
-					class="font-primary"
-					exact-active-class="btnActive"
+					:to="nav_link.to" exact class="font-primary d-flex"
 					:ripple="false"
 				>
-					<v-list-item-content style="display: flex;">
-						<v-list-item-icon>
-							<v-icon>{{ nav_link.icon }}</v-icon>
-						</v-list-item-icon>
-						<!-- Title only shown when drawer is hovered -->
-						<v-list-item-title v-if="drawerHovered" class="pl-3">
-							{{ nav_link.title }}
-						</v-list-item-title>
-					</v-list-item-content>
+					<v-list-item-media>
+						<!-- Use v-icon inside v-list-item-media for the icon -->
+						<v-icon>{{ nav_link.icon }}</v-icon>
+					</v-list-item-media>
+					<!-- Title only shown when drawer is hovered -->
+					<v-list-item-title v-if="drawerHovered" class="pl-3">
+						{{ nav_link.title }}
+					</v-list-item-title>
 				</v-list-item>
 			</template>
 
@@ -45,16 +41,16 @@
 
 			<!-- Settings Link (at the bottom) -->
 			<v-list-item class="mt-auto" style="justify-self: end;" @click="goToSettings">
-				<v-list-item-content style="display: flex;">
-					<v-list-item-icon>
-						<v-icon>mdi-cog</v-icon>
-					</v-list-item-icon>
-					<v-list-item-title v-if="drawerHovered" class="pl-3">Settings</v-list-item-title>
-				</v-list-item-content>
+				<v-list-item-media>
+					<!-- Use v-icon inside v-list-item-media for the icon -->
+					<v-icon>mdi-cog</v-icon>
+				</v-list-item-media>
+				<v-list-item-title v-if="drawerHovered" class="pl-3">Settings</v-list-item-title>
 			</v-list-item>
 		</v-list>
 	</v-navigation-drawer>
 </template>
+
 
 <script>
 export default {
@@ -73,7 +69,7 @@ export default {
 	created() {
 		this.nav_links = [
 			{ title: 'Home', icon: 'mdi-home', to: { name: 'home-page' } },
-			{ title: 'Projects Listing', icon: 'mdi-briefcase', to: { name: 'projects-listing-page' } },
+			{ title: 'Projects', icon: 'mdi-briefcase', to: { name: 'project-listings-page' } },
 			{ title: "Contact Us",icon: 'mdi-card-account-mail-outline', to : { name: "contact-us-page" } },
 		];
 		this.auth = false;
@@ -86,7 +82,6 @@ export default {
 			this.drawerHovered = status;
 		},
 		goToProfile() {
-			// Navigate to the profile page
 			this.$router.push({ name: 'profile-page' });
 		},
 		goToSettings() {
@@ -97,15 +92,11 @@ export default {
 </script>
 
 <style scoped>
-.btnActive {
-	color: #DE002B !important;
-	font-weight: bold;
-}
-.custom-icon {
-	width: 32px !important;
-	height: 32px !important;
-}
 .mt-auto {
 	margin-top: auto;
+}
+
+.v-list-item >>> .v-list-item__content{
+	display: flex;
 }
 </style>

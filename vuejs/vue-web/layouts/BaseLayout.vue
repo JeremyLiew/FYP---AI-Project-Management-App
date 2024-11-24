@@ -10,7 +10,6 @@
 				</router-view>
 			</div>
 		</v-main>
-
 		<FooterVue></FooterVue>
 	</div>
 </template>

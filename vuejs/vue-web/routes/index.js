@@ -23,7 +23,10 @@ const routes = [
 				path: '/', name: 'home-page', component: BaseModule.HomePage,
 			},
 			{
-				path: '/projects-listing', name: 'projects-listing-page', component: ProjectModule.ProjectsListingPage,
+				path: '/project-listings', name: 'project-listings-page', component: ProjectModule.ProjectListingsPage,
+			},
+			{
+				path: '/project-create', name: 'project-create-page', component: ProjectModule.ProjectCreatePage,
 			},
 			{
 				path: '/contact-us', name: 'contact-us-page', component: BaseModule.ContactUsPage,

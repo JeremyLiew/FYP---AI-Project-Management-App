@@ -1,17 +1,12 @@
 import axios from 'axios';
 
-const prefix = "/product"
+const prefix = "/project"
 
-const ProductClient = {
+const ProjectClient = {
 
-	// getHomePage(payload) {
-	// 	return axios.get( prefix + "/home", { params: payload} )
-	// },
-
-	// submitContactUs(payload){
-	// 	return axios.post( prefix + "/contact-us", payload)
-	// }
-
+	getProjectListings(payload) {
+		return axios.get( prefix + "/listings", { params: payload} )
+	},
 }
 
-export default ProductClient;
+export default ProjectClient;
