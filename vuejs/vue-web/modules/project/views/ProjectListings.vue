@@ -6,15 +6,6 @@
 				<h1 class="text-subtitle-1">Project Management</h1>
 			</v-col>
 		</v-row>
-
-		<v-snackbar
-			v-model="showNotification"
-			timeout="3000"
-			color="success"
-		>
-			{{ successMessage }}
-		</v-snackbar>
-
 		<!-- Header with Create Button -->
 		<v-row class="d-flex align-center mb-4">
 			<v-col cols="12" md="8">
@@ -126,9 +117,6 @@ export default {
 			paginator:{},
 			paginationLength: 0,
 			totalProjects: 0,
-
-			showNotification: false,
-			successMessage: "",
 		};
 	},
 	watch: {
@@ -137,14 +125,6 @@ export default {
 		currentPage: "fetchProjects",
 	},
 	mounted() {
-		if (this.$route.query.success) {
-			this.successMessage = this.$route.query.success;
-			this.showNotification = true;
-
-			// Optionally, remove the query parameter after displaying the notification
-			this.$router.replace({ query: null });
-		}
-
 		this.fetchProjects();
 	},
 	methods: {

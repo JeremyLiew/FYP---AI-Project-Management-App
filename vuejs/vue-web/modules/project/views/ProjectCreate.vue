@@ -90,6 +90,7 @@
 				<v-col cols="12" style="text-align: end;">
 					<v-btn
 						color="primary"
+						:loading="is_loading"
 						@click="submitProject"
 					>
 						Create Project
@@ -122,6 +123,7 @@ export default {
 			today: "",
 			tomorrow: "",
 			errors: {},
+			is_loading : false,
 		};
 	},
 	computed: {
@@ -160,12 +162,16 @@ export default {
 		},
 		// Submit project creation form
 		submitProject() {
+			this.is_loading = true;
 			this.errors = {}
 			ProjectClient.createProject(this.project)
 				.then((response) => {
-					console.log("Project created successfully", response);
+					this.is_loading = false
 					this.$refs.projectForm.reset();
-					this.$router.push({ name: "project-listings-page" , query: { success: "Project created successfully!" },});
+					this.$toast.success("Project created successfully")
+					setTimeout(() => {
+						this.$router.push({ name: "project-listings-page" });
+					}, 500);
 				})
 				.catch((error) => {
 					console.error("Error creating project", error);
