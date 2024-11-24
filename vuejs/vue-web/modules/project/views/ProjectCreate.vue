@@ -6,9 +6,9 @@
 			</v-col>
 		</v-row>
 		<v-form ref="projectForm">
-			<!-- Project Name -->
 			<v-row>
-				<v-col cols="12" md="6">
+				<!-- Project Name -->
+				<v-col cols="12">
 					<v-text-field
 						v-model="project.name"
 						label="Project Name *"
@@ -16,10 +16,9 @@
 						:error-messages="errors.name"
 					></v-text-field>
 				</v-col>
-			</v-row>
-			<!-- Project Description -->
-			<v-row>
-				<v-col cols="12" md="6">
+
+				<!-- Project Description -->
+				<v-col cols="12">
 					<v-textarea
 						v-model="project.description"
 						label="Project Description"
@@ -27,9 +26,8 @@
 						:error-messages="errors.description"
 					></v-textarea>
 				</v-col>
-			</v-row>
-			<!-- Project Start Date -->
-			<v-row>
+
+				<!-- Project Start Date -->
 				<v-col cols="12" md="6">
 					<v-text-field
 						v-model="project.start_date"
@@ -42,9 +40,8 @@
 						:min="today"
 					></v-text-field>
 				</v-col>
-			</v-row>
-			<!-- Project End Date -->
-			<v-row>
+
+				<!-- Project End Date -->
 				<v-col cols="12" md="6">
 					<v-text-field
 						v-model="project.end_date"
@@ -56,9 +53,8 @@
 						:error-messages="errors.end_date"
 					></v-text-field>
 				</v-col>
-			</v-row>
-			<!-- Project Status -->
-			<v-row>
+
+				<!-- Project Status -->
 				<v-col cols="12" md="6">
 					<v-select
 						v-model="project.status"
@@ -69,9 +65,8 @@
 						disabled
 					></v-select>
 				</v-col>
-			</v-row>
-			<!-- Project Budget -->
-			<v-row>
+
+				<!-- Project Budget -->
 				<v-col cols="12" md="6">
 					<v-select
 						v-model="project.budget_id"
@@ -85,11 +80,12 @@
 					></v-select>
 				</v-col>
 			</v-row>
+
 			<!-- Submit Button -->
 			<v-row>
 				<v-col cols="12" style="text-align: end;">
 					<v-btn
-						color="primary"
+						depressed
 						:loading="is_loading"
 						@click="submitProject"
 					>
