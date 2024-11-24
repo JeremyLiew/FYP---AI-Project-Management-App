@@ -176,8 +176,7 @@ export default {
 	},
 };
 </script>
-  
+
   <style scoped>
   /* You can add custom styles for the project create page here */
   </style>
-  

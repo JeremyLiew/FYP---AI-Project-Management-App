@@ -26,6 +26,9 @@ class ProjectController extends Controller
 
         $projects = $projectsQuery->paginate($perPage);
 
-        return response()->json($projects);
+        return response()->json([
+                'projects' => $projects,'total' => $projects->total()
+            ]
+        );
     }
 }

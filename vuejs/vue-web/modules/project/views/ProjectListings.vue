@@ -35,94 +35,89 @@
 			</v-col>
 		</v-row>
 
-		<v-list two-line class="px-6 transparent-list">
-			<v-divider></v-divider>
-			<v-list-item
-				v-for="project in paginatedProjects"
-				:key="project.id" class="px-0 hover-elevate"
-			>
-				<v-row class="pa-2">
-					<v-col cols="12" sm="10">
-						<v-list-item-title>{{ project.name }}</v-list-item-title>
-						<v-list-item-subtitle style="line-height:unset !important;">
-							{{ project.description || "No description available." }}
-						</v-list-item-subtitle>
-					</v-col>
-					<v-col cols="12" sm="2">
-						<v-list-item-action class="justify-content-md-end">
-							<v-menu>
-								<template #activator="{ props }">
-									<v-btn icon v-bind="props">
-										<v-icon>mdi-dots-vertical</v-icon>
-									</v-btn>
-								</template>
-								<v-list>
-									<v-list-item @click="editProject(project)">
-										<v-list-item-title>Edit</v-list-item-title>
-									</v-list-item>
-									<v-list-item @click="deleteProject(project.id)">
-										<v-list-item-title>Delete</v-list-item-title>
-									</v-list-item>
-								</v-list>
-							</v-menu>
-						</v-list-item-action>
-					</v-col>
-				</v-row>
-			</v-list-item>
-			<v-divider></v-divider>
-		</v-list>
+		<section v-if="hasData" style="height:100%;">
+			<template v-if="modelLoading">
+				<v-skeleton-loader type="article"></v-skeleton-loader>
+			</template>
+			<template v-else>
+				<!-- Display Projects if Available -->
+				<v-list two-line class="px-6 transparent-list">
+					<v-divider></v-divider>
+					<v-list-item
+						v-for="project in projects"
+						:key="project.id" class="px-0 hover-elevate"
+					>
+						<v-row class="pa-2">
+							<v-col cols="12" sm="10">
+								<v-list-item-title>{{ project.name }}</v-list-item-title>
+								<v-list-item-subtitle style="line-height:unset !important;">
+									{{ project.description || "No description available." }}
+								</v-list-item-subtitle>
+							</v-col>
+							<v-col cols="12" sm="2">
+								<v-list-item-action class="justify-content-md-end">
+									<v-menu>
+										<template #activator="{ props }">
+											<v-btn icon v-bind="props">
+												<v-icon>mdi-dots-vertical</v-icon>
+											</v-btn>
+										</template>
+										<v-list>
+											<v-list-item @click="editProject(project)">
+												<v-list-item-title>Edit</v-list-item-title>
+											</v-list-item>
+											<v-list-item @click="deleteProject(project.id)">
+												<v-list-item-title>Delete</v-list-item-title>
+											</v-list-item>
+										</v-list>
+									</v-menu>
+								</v-list-item-action>
+							</v-col>
+						</v-row>
+					</v-list-item>
+					<v-divider></v-divider>
+				</v-list>
+				<!-- Pagination -->
+				<v-pagination
+					v-model="currentPage"
+					:length="paginationLength"
+					class="mt-4 pl-0"
+				></v-pagination>
+				<!-- Project Count -->
+				<div class="text-end mt-2">Total Projects: {{ totalProjects }}</div>
+			</template>
+		</section>
 
-		<!-- Pagination -->
-		<v-pagination
-			v-model="currentPage"
-			:length="totalPages"
-			class="mt-4"
-		></v-pagination>
-
-		<!-- Project Count -->
-		<div class="text-end mt-2">Total Projects: {{ projects.length }}</div>
+		<section v-else style="height:100%;">
+			<!-- Show No Projects Image if No Projects Available -->
+			<v-row class="justify-center">
+				<v-col cols="12" class="text-center">
+					<img src="images/no-product-available.png" alt="No projects available" class="my-4" />
+					<p>No projects available.</p>
+				</v-col>
+			</v-row>
+		</section>
 	</v-container>
 </template>
+
 
 <script>
 import ProjectClient from "../client"
 export default {
 	data() {
 		return {
+			hasData: true,
+			modelLoading: true,
 			searchQuery: "",
 			selectedFilter: null,
 			currentPage: 1,
 			itemsPerPage: 10,
 			filters: ["All", "Pending", "Ongoing", "Completed"],
 			projects: [],
+			paginator:{},
+			paginationLength: 0,
+			totalProjects: 0,
 		};
-	},
-	computed: {
-		filteredProjects() {
-			let filtered = this.projects;
-
-			if (this.selectedFilter && this.selectedFilter !== "All") {
-				filtered = filtered.filter(
-					(project) => project.status === this.selectedFilter
-				);
-			}
-
-			if (this.searchQuery) {
-				filtered = filtered.filter((project) =>
-					project.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-				);
-			}
-
-			return filtered;
-		},
-		paginatedProjects() {
-			const start = (this.currentPage - 1) * this.itemsPerPage;
-			const end = start + this.itemsPerPage;
-			return this.filteredProjects.slice(start, end);
-		},
-		totalPages() {
-			return Math.ceil(this.filteredProjects.length / this.itemsPerPage);
-		},
 	},
 	watch: {
 		searchQuery: "fetchProjects",
@@ -145,19 +140,31 @@ export default {
 			this.projects = this.projects.filter((project) => project.id !== projectId);
 		},
 		fetchProjects() {
+			this.modelLoading = true;
+			this.hasData = true;
+			this.totalProjects = 0;
 			const payload = {
-				search: this.searchQuery,
-				filter: this.selectedFilter,
+				searchQuery: this.searchQuery,
+				selectedFilter: this.selectedFilter,
 				page: this.currentPage,
-				perPage: this.itemsPerPage,
+				itemsPerPage: this.itemsPerPage,
 			};
 
 			ProjectClient.getProjectListings(payload)
 				.then((response) => {
-					this.projects = response.data.data;
+					let {data,...pagination} = response.data.projects
+					this.projects = data
+					console.log(response.projects)
+					this.hasData = data.length > 0;
+					this.paginationLength = Math.ceil(pagination.total/pagination.per_page);
+					this.paginator = pagination
+					this.totalProjects = response.data.total;
 				})
 				.catch((error) => {
 					console.error("Error fetching projects:", error);
+					this.hasData = false;
+				}).finally(()=>{
+					this.modelLoading = false
 				});
 		},
 	},
