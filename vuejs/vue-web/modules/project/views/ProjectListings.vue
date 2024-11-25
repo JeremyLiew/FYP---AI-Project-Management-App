@@ -66,7 +66,7 @@
 											<v-list-item @click="editProject(project)">
 												<v-list-item-title>Edit</v-list-item-title>
 											</v-list-item>
-											<v-list-item @click="deleteProject(project.id)">
+											<v-list-item @click="confirmDelete(project.id)">
 												<v-list-item-title>Delete</v-list-item-title>
 											</v-list-item>
 										</v-list>
@@ -97,6 +97,26 @@
 				</v-col>
 			</v-row>
 		</section>
+
+		<!-- Confirmation Dialog -->
+		<v-dialog v-model="deleteDialog" max-width="500px">
+			<v-card>
+				<v-card-title class="text-h6">Confirm Delete</v-card-title>
+				<v-card-text>
+					Are you sure you want to delete this project? This action cannot be undone.
+				</v-card-text>
+				<v-card-actions>
+					<v-spacer></v-spacer>
+					<v-btn text @click="deleteDialog = false">Cancel</v-btn>
+					<v-btn
+						:loading="isLoading" color="red" text
+						@click="deleteProject"
+					>
+						Delete
+					</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
 	</v-container>
 </template>
 
@@ -117,6 +137,10 @@ export default {
 			paginator:{},
 			paginationLength: 0,
 			totalProjects: 0,
+			isLoading: false,
+
+			deleteDialog: false,
+			selectedProjectId: null,
 		};
 	},
 	watch: {
@@ -132,12 +156,33 @@ export default {
 			this.$router.push({ name: "project-create-page" });
 		},
 		editProject(project) {
-			// Logic to navigate to the edit project page
 			this.$router.push({ name: "project-edit-page", params: { id: project.id } });
 		},
-		deleteProject(projectId) {
-			// Logic to delete the project
-			this.projects = this.projects.filter((project) => project.id !== projectId);
+		confirmDelete(projectId) {
+			this.selectedProjectId = projectId;
+			this.deleteDialog = true;
+		},
+		deleteProject() {
+			this.isLoading = true;
+			if (this.selectedProjectId) {
+				ProjectClient.deleteProject(this.selectedProjectId)
+					.then(() => {
+						this.isLoading = false
+						this.projects = this.projects.filter(
+							(project) => project.id !== this.selectedProjectId
+						);
+						this.$toast.success("Project deleted successfully.");
+					})
+					.catch((error) => {
+						console.error("Error deleting project:", error);
+						this.$toast.error("Failed to delete project.");
+					})
+					.finally(() => {
+						this.isLoading = false
+						this.deleteDialog = false;
+						this.selectedProjectId = null;
+					});
+			}
 		},
 		fetchProjects() {
 			this.modelLoading = true;

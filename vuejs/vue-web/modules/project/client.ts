@@ -18,7 +18,11 @@ const ProjectClient = {
 
 	updateProject(payload){
 		return axios.post( prefix + "/update" , payload)
-	}
+	},
+
+	deleteProject(id) {
+		return axios.post(prefix + "/delete/" + id);
+	},
 }
 
 export default ProjectClient;

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\CreateProjectRequest;
 use App\Http\Requests\Web\UpdateProjectRequest;
 use App\Http\Requests\Web\GetProjectListingsRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ProjectController extends Controller
 {
@@ -86,5 +87,19 @@ class ProjectController extends Controller
             'message' => 'Project updated successfully.',
             'project' => $project
         ]);
+    }
+
+    public function deleteProject($id)
+    {
+        try {
+            $project = Project::findOrFail($id);
+            $project->delete();
+
+            return response()->json(['message' => 'Project deleted successfully.'], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Project not found.'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete project.'], 500);
+        }
     }
 }

@@ -23,6 +23,7 @@ Route::prefix('api')->middleware([])->group(function () {
         Route::post('/create', [ProjectController::class, 'createProject']);
         Route::post('/update', [ProjectController::class, 'updateProject']);
         Route::get('/info/{id}', [ProjectController::class, 'projectInfo']);
+        Route::post('/delete/{id}', [ProjectController::class, 'deleteProject']);
     });
 
 });
