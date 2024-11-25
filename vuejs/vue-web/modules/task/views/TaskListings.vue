@@ -137,24 +137,24 @@
 		</v-dialog>
 
 		<!-- Add Task Dialog -->
-		<v-dialog v-model="showAddDialog" max-width="600px">
+		<v-dialog v-model="showAddEditDialog" max-width="600px">
 			<v-card>
 				<v-card-title class="text-h6">{{ isEdit ? 'Edit Task' : 'Add New Task' }}</v-card-title>
 				<v-card-text>
 					<v-text-field
-						v-model="newTask.name" label="Task Name *" outlined
+						v-model="currentTask.name" label="Task Name *" outlined
 						dense
 						required
 						:error-messages="errors.name"
 					/>
 					<v-textarea
-						v-model="newTask.description"
+						v-model="currentTask.description"
 						label="Description"
 						outlined
 						dense
 					/>
 					<v-text-field
-						v-model="newTask.due_date"
+						v-model="currentTask.due_date"
 						label="Due Date *"
 						type="date"
 						required
@@ -163,7 +163,7 @@
 						:error-messages="errors.due_date"
 					></v-text-field>
 					<v-select
-						v-model="newTask.status"
+						v-model="currentTask.status"
 						:items="statusOptions"
 						label="Status *"
 						outlined
@@ -172,7 +172,7 @@
 						:error-messages="errors.status"
 					></v-select>
 					<v-select
-						v-model="newTask.priority"
+						v-model="currentTask.priority"
 						:items="priorityOptions"
 						label="Priority *"
 						outlined
@@ -181,7 +181,7 @@
 						:error-messages="errors.priority"
 					></v-select>
 					<v-select
-						v-model="newTask.assigned_to"
+						v-model="currentTask.assigned_to"
 						:items="members"
 						item-title="name"
 						item-value="id"
@@ -193,8 +193,8 @@
 					/>
 				</v-card-text>
 				<v-card-actions>
-					<v-btn text @click="resetNewTask();showAddDialog = false">Cancel</v-btn>
-					<v-btn :loading="isLoading" color="primary" @click="isEdit ? saveTask() : createTask()">Add</v-btn>
+					<v-btn text @click="resetNewTask();showAddEditDialog = false">Cancel</v-btn>
+					<v-btn :loading="isLoading" color="primary" @click="isEdit ? saveTask('edit') : saveTask('create')">Add</v-btn>
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
@@ -227,8 +227,8 @@ export default {
 
 			deleteDialog: false,
 			selectedTaskId: null,
-			showAddDialog: false,
-			newTask: {
+			showAddEditDialog: false,
+			currentTask: {
 				project_id: this.projectId,
 				name: "",
 				description: "",
@@ -270,7 +270,7 @@ export default {
 				});
 		},
 		resetNewTask() {
-			this.newTask = {
+			this.currentTask = {
 				project_id: this.projectId,
 				name: "",
 				description: "",
@@ -281,60 +281,44 @@ export default {
 			};
 			this.errors = {};
 		},
-		createTask() {
+		editTask(task) {
+			this.isEdit = true
+			this.currentTask = { ...task };
+			this.showAddEditDialog = true;
+		},
+		addTask(){
+			this.isEdit = false;
+			this.showAddEditDialog = true;
+			this.resetNewTask()
+		},
+		saveTask(action) {
 			this.isLoading = true;
 			this.errors = {};
 			const assignedBy = this.$auth.user().user.id;
 
 			const taskData = {
-				...this.newTask,
+				...this.currentTask,
 				assigned_by: assignedBy,
 			};
-			TaskClient.createTask(taskData)
+
+			const taskRequest = action === 'create'
+				? TaskClient.createTask(taskData)
+				: TaskClient.updateTask(taskData);
+
+			taskRequest
 				.then(() => {
-					this.$toast.success("Task created successfully!");
+					this.$toast.success(`${action === 'create' ? 'Task created' : 'Task updated'} successfully!`);
 					this.fetchTasks();
-					this.showAddDialog = false;
+					this.showAddEditDialog = false;
 					this.resetNewTask();
 				})
 				.catch((error) => {
-					console.error("Error adding task:", error);
+					console.error(`Error ${action === 'create' ? 'creating' : 'updating'} task:`, error);
 					this.errors = error.response?.data.errors || {};
 				})
 				.finally(() => {
 					this.isLoading = false;
 				});
-		},
-		editTask(task) {
-			this.isEdit = true
-			this.newTask = { ...task };
-			this.showAddDialog = true;
-		},
-		addTask(){
-			this.isEdit = false;
-			this.showAddDialog = true;
-			this.resetNewTask()
-		},
-		saveTask() {
-			this.isLoading = true;
-			this.errors = {};
-			const assignedBy = this.$auth.user().user.id;
-
-			const taskData = {
-				...this.newTask,
-				assigned_by: assignedBy,
-			};
-			TaskClient.updateTask(taskData).then(() => {
-				this.fetchTasks();
-				this.showAddDialog = false;
-				this.$toast.success("Task updated successfully!");
-				this.resetNewTask();
-			}).catch((error) => {
-				console.error("Error updating task:", error);
-				this.errors = error.response?.data.errors || {};
-			}).finally(() => {
-				this.isLoading = false;
-			});
 		},
 		infoTask(taskId){
 			// this.$router.push({ name: "task-info-page", params: { id: taskId } });
