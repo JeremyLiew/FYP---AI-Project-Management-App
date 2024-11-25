@@ -222,13 +222,13 @@ export default {
 			this.errors = {};
 			ProjectClient.createProject(this.project)
 				.then((response) => {
-					this.isLoading = false;
 					this.$toast.success("Project created successfully");
 					this.$router.push({ name: "project-listings-page" });
 				})
 				.catch((error) => {
-					this.isLoading = false;
 					this.errors = error.response?.data.errors || {};
+				}).finally(()=>{
+					this.isLoading = false;
 				});
 		},
 		updateProject() {
@@ -236,13 +236,13 @@ export default {
 			this.errors = {};
 			ProjectClient.updateProject(this.project)
 				.then((response) => {
-					this.isLoading = false;
 					this.$toast.success("Project updated successfully");
 					this.$router.push({ name: "project-listings-page" });
 				})
 				.catch((error) => {
-					this.isLoading = false;
 					this.errors = error.response?.data.errors || {};
+				}).finally(()=>{
+					this.isLoading = false;
 				});
 		},
 		fetchProject(id) {

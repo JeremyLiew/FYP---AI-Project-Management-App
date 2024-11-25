@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\CreateTaskRequest;
 use App\Http\Requests\Web\GetTaskListingsRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -49,5 +50,21 @@ class TaskController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to delete task.'], 500);
         }
+    }
+
+    public function createTask(CreateTaskRequest $request){
+        $task = Task::create([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'due_date' => $request->input('due_date'),
+            'status' => $request->input('status'),
+            'priority' => $request->input('priority'),
+            'project_id' => $request->input('project_id'),
+        ]);
+
+        return response()->json([
+            'message' => 'Project created successfully.',
+            'task' => $task
+        ]);
     }
 }

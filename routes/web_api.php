@@ -32,9 +32,9 @@ Route::prefix('api')->middleware([])->group(function () {
 Route::prefix('api')->middleware([])->group(function () {
     Route::prefix('task')->group(function () {
         Route::get('/listings', [TaskController::class, 'getTasksByProject']);
-        // Route::post('/create', [ProjectController::class, 'createProject']);
-        // Route::post('/update', [ProjectController::class, 'updateProject']);
-        // Route::get('/info/{id}', [ProjectController::class, 'projectInfo']);
+        Route::post('/create', [TaskController::class, 'createTask']);
+        Route::post('/update', [TaskController::class, 'updateTask']);
+        Route::get('/info/{id}', [TaskController::class, 'TaskInfo']);
         Route::post('/delete/{id}', [TaskController::class, 'deleteTask']);
     });
 });

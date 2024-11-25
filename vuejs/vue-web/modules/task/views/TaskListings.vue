@@ -46,6 +46,11 @@
 				<!-- Task Listings -->
 				<v-list two-line class="px-6 transparent-list">
 					<v-divider></v-divider>
+					<v-list-item class="text-center">
+						<v-btn @click="showAddDialog = true">
+							<v-icon>mdi-plus</v-icon> Add Item
+						</v-btn>
+					</v-list-item>
 					<v-list-item
 						v-for="task in tasks"
 						:key="task.id"
@@ -56,7 +61,7 @@
 							<!-- Task Details -->
 							<v-col cols="12" sm="4">
 								<v-list-item-title>{{ task.name }}</v-list-item-title>
-								<v-list-item-subtitle>Status: {{ task.status }}</v-list-item-subtitle>
+								<v-list-item-subtitle>{{ task.description }}</v-list-item-subtitle>
 							</v-col>
 							<!-- Status and Priority -->
 							<v-col cols="12" sm="3" class="d-flex flex-column align-center">
@@ -140,6 +145,58 @@
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
+
+		<!-- Add Task Dialog -->
+		<v-dialog v-model="showAddDialog" max-width="600px">
+			<v-card>
+				<v-card-title class="text-h6">Add New Task</v-card-title>
+				<v-card-text>
+					<v-text-field
+						v-model="newTask.name" label="Task Name *" outlined
+						dense
+						required
+						:error-messages="errors.name"
+					/>
+					<v-textarea
+						v-model="newTask.description"
+						label="Description"
+						outlined
+						dense
+					/>
+					<v-text-field
+						v-model="newTask.due_date"
+						label="Due Date *"
+						type="date"
+						required
+						outlined
+						:min="tomorrow"
+						:error-messages="errors.due_date"
+					></v-text-field>
+					<v-select
+						v-model="newTask.status"
+						:items="statusOptions"
+						label="Status *"
+						outlined
+						dense
+						required
+						:error-messages="errors.status"
+					></v-select>
+					<v-select
+						v-model="newTask.priority"
+						:items="priorityOptions"
+						label="Priority *"
+						outlined
+						dense
+						required
+						:error-messages="errors.priority"
+					></v-select>
+				</v-card-text>
+				<v-card-actions>
+					<v-btn text @click="resetNewTask();showAddDialog = false">Cancel</v-btn>
+					<v-btn :loading="isLoading" color="primary" @click="createTask">Add</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
 	</v-container>
 </template>
 
@@ -165,9 +222,21 @@ export default {
 			isLoading: false,
 			selectedPriority: null,
 			priorityFilters: ["All", "High", "Medium", "Low"],
+			priorityOptions: ["-", "High", "Medium", "Low"],
 
 			deleteDialog: false,
 			selectedTaskId: null,
+			showAddDialog: false,
+			newTask: {
+				project_id: this.projectId,
+				name: "",
+				description: "",
+				due_date: "",
+				status: "Pending",
+				priority: "-",
+			},
+			tomorrow: "",
+			errors: {},
 		};
 	},
 	watch: {
@@ -176,17 +245,47 @@ export default {
 		selectedPriority: "fetchTasks",
 	},
 	mounted() {
+		this.initializeDates();
 		this.fetchTasks();
 	},
 	methods: {
+		initializeDates() {
+			this.tomorrow = new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0];
+		},
+		resetNewTask() {
+			this.newTask = {
+				project_id: this.projectId,
+				name: "",
+				description: "",
+				due_date: "",
+				status: "Pending",
+				priority: "-",
+			};
+		},
 		createTask() {
-			// this.$router.push({ name: "project-create-page" });
+			this.isLoading = true;
+			this.errors = {};
+			TaskClient.createTask(this.newTask)
+				.then(() => {
+					this.$toast.success("Task created successfully!");
+					this.fetchTasks();
+					this.showAddDialog = false;
+				})
+				.catch((error) => {
+					console.error("Error adding task:", error);
+					this.$toast.error("Failed to create task.");
+					this.errors = error.response?.data.errors || {};
+				})
+				.finally(() => {
+					this.isLoading = false;
+					this.resetNewTask();
+				});
 		},
 		editTask(task) {
-			// this.$router.push({ name: "project-edit-page", params: { id: project.id } });
+			// this.$router.push({ name: "task-edit-page", params: { id: task.id } });
 		},
-		infoTask(projectId){
-			// this.$router.push({ name: "project-info-page", params: { id: projectId } });
+		infoTask(taskId){
+			// this.$router.push({ name: "task-info-page", params: { id: taskId } });
 		},
 		confirmDelete(taskId) {
 			this.selectedTaskId = taskId;
@@ -228,7 +327,6 @@ export default {
 
 			TaskClient.getTasksByProject({ id: this.projectId, ...payload })
 				.then((response) => {
-					console.log(response)
 					let data = response.data.tasks;
 					this.tasks = data;
 					this.hasData = data.length > 0;

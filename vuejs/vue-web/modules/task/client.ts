@@ -7,6 +7,18 @@ const TaskClient = {
 		return axios.get( prefix + "/listings" , { params: payload })
 	},
 
+	createTask(payload){
+		return axios.post( prefix + "/create" , payload)
+	},
+
+	fetchTask(id){
+		return axios.get( prefix + "/info/" + id )
+	},
+
+	updateTask(payload){
+		return axios.post( prefix + "/update" , payload)
+	},
+
 	deleteTask(id) {
 		return axios.post( prefix + "/delete/" + id);
 	},
