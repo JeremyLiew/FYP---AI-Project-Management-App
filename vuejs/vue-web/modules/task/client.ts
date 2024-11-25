@@ -22,6 +22,10 @@ const TaskClient = {
 	deleteTask(id) {
 		return axios.post( prefix + "/delete/" + id);
 	},
+
+	fetchMembers(projectId){
+		return axios.get( prefix + "/" + projectId + "/members")
+	}
 }
 
 export default TaskClient;

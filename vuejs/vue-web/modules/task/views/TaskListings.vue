@@ -190,6 +190,17 @@
 						required
 						:error-messages="errors.priority"
 					></v-select>
+					<v-select
+						v-model="newTask.assigned_to"
+						:items="members"
+						item-title="name"
+						item-value="id"
+						label="Assign to Member"
+						outlined
+						dense
+						required
+						:error-messages="errors.assigned_to"
+					/>
 				</v-card-text>
 				<v-card-actions>
 					<v-btn text @click="resetNewTask();showAddDialog = false">Cancel</v-btn>
@@ -234,9 +245,12 @@ export default {
 				due_date: "",
 				status: "Pending",
 				priority: "-",
+				assigned_to: null,
 			},
 			tomorrow: "",
 			errors: {},
+
+			members: [],
 		};
 	},
 	watch: {
@@ -247,10 +261,22 @@ export default {
 	mounted() {
 		this.initializeDates();
 		this.fetchTasks();
+		this.fetchMembers();
 	},
 	methods: {
 		initializeDates() {
 			this.tomorrow = new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0];
+		},
+		fetchMembers() {
+			// Fetch project members from the backend
+			TaskClient.fetchMembers(this.projectId)
+				.then((response) => {
+					this.members = response.data.members;
+				})
+				.catch((error) => {
+					console.error("Error fetching project members:", error);
+					this.$toast.error("Failed to fetch project members.");
+				});
 		},
 		resetNewTask() {
 			this.newTask = {
@@ -273,7 +299,6 @@ export default {
 				})
 				.catch((error) => {
 					console.error("Error adding task:", error);
-					this.$toast.error("Failed to create task.");
 					this.errors = error.response?.data.errors || {};
 				})
 				.finally(() => {

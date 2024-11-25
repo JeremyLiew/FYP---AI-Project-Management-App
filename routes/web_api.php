@@ -35,6 +35,7 @@ Route::prefix('api')->middleware([])->group(function () {
         Route::post('/create', [TaskController::class, 'createTask']);
         Route::post('/update', [TaskController::class, 'updateTask']);
         Route::get('/info/{id}', [TaskController::class, 'TaskInfo']);
+        Route::get('/{project}/members', [TaskController::class, 'fetchMembers']);
         Route::post('/delete/{id}', [TaskController::class, 'deleteTask']);
     });
 });

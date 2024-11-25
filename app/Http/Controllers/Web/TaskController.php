@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Models\Task;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\CreateTaskRequest;
@@ -53,6 +54,7 @@ class TaskController extends Controller
     }
 
     public function createTask(CreateTaskRequest $request){
+
         $task = Task::create([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
@@ -62,9 +64,34 @@ class TaskController extends Controller
             'project_id' => $request->input('project_id'),
         ]);
 
+        $assigneeId = $request->input('assigned_to');
+        if ($assigneeId != null) {
+            $task->users()->sync([$assigneeId]);
+        }
+
         return response()->json([
             'message' => 'Project created successfully.',
             'task' => $task
         ]);
+    }
+
+    public function fetchMembers($projectId)
+    {
+        try {
+            $project = Project::findOrFail($projectId);
+
+            $members = $project->users()->get();
+
+            return response()->json([
+                'success' => true,
+                'members' => $members,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch members.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

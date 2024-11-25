@@ -20,6 +20,7 @@ class CreateTaskRequest extends FormRequest
             'status' => 'required|in:Ongoing,Completed,Pending',
             'priority' => 'required|in:Low,Medium,High,-',
             'project_id' => 'required|exists:projects,id',
+            'assigned_to' => 'required|exists:users,id',
         ];
     }
 }
