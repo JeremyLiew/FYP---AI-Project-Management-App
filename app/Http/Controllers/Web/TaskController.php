@@ -7,6 +7,7 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\CreateTaskRequest;
+use App\Http\Requests\Web\UpdateTaskRequest;
 use App\Http\Requests\Web\GetTaskListingsRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -18,7 +19,7 @@ class TaskController extends Controller
         $statusFilter = $request->input('selectedFilter', 'All');
         $priorityFilter = $request->input('selectedPriority', 'All');
 
-        $query = Task::where('project_id', $request->input('id'));
+        $query = Task::with('users')->where('project_id', $request->input('id'));
 
         if ($searchQuery) {
             $query->where('name', 'like', '%' . $searchQuery . '%');
@@ -33,6 +34,10 @@ class TaskController extends Controller
         }
 
         $tasks = $query->get();
+
+        $tasks->each(function ($task) {
+            $task->assigned_to = $task->users->first()->id;
+        });
 
         return response()->json([
             'tasks' => $tasks
@@ -65,8 +70,42 @@ class TaskController extends Controller
         ]);
 
         $assigneeId = $request->input('assigned_to');
-        if ($assigneeId != null) {
-            $task->users()->sync([$assigneeId]);
+        $assignedById = $request->input('assigned_by');
+        if ($assigneeId && $assignedById) {
+            $task->users()->sync([
+                $assigneeId => ['assigned_by' => $assignedById]
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Project created successfully.',
+            'task' => $task
+        ]);
+    }
+
+    public function updateTask(UpdateTaskRequest $request){
+
+        $task = Task::find($request->input('id'));
+
+        if (!$task) {
+            return response()->json(['message' => 'Task not found'], 404);
+        }
+
+        $task->update([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'due_date' => $request->input('due_date'),
+            'status' => $request->input('status'),
+            'priority' => $request->input('priority'),
+            'project_id' => $request->input('project_id'),
+        ]);
+
+        $assigneeId = $request->input('assigned_to');
+        $assignedById = $request->input('assigned_by');
+        if ($assigneeId && $assignedById) {
+            $task->users()->sync([
+                $assigneeId => ['assigned_by' => $assignedById]
+            ]);
         }
 
         return response()->json([

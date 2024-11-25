@@ -38,93 +38,83 @@
 			</v-col>
 		</v-row>
 
-		<section v-if="hasData" style="height:100%;">
-			<template v-if="modelLoading">
-				<v-skeleton-loader type="article"></v-skeleton-loader>
-			</template>
-			<template v-else>
-				<!-- Task Listings -->
-				<v-list two-line class="px-6 transparent-list">
-					<v-divider></v-divider>
-					<v-list-item class="text-center">
-						<v-btn @click="showAddDialog = true">
-							<v-icon>mdi-plus</v-icon> Add Item
-						</v-btn>
-					</v-list-item>
-					<v-list-item
-						v-for="task in tasks"
-						:key="task.id"
-						class="px-0 hover-elevate"
-						@click="infoTask(task.id)"
-					>
-						<v-row class="pa-2 align-center">
-							<!-- Task Details -->
-							<v-col cols="12" sm="4">
-								<v-list-item-title>{{ task.name }}</v-list-item-title>
-								<v-list-item-subtitle>{{ task.description }}</v-list-item-subtitle>
-							</v-col>
-							<!-- Status and Priority -->
-							<v-col cols="12" sm="3" class="d-flex flex-column align-center">
-								<v-chip
-									:color="getStatusColor(task.status)"
-									dark
-									class="mb-1"
-									outlined
-									small
-								>
-									Status: {{ task.status }}
-								</v-chip>
-								<v-chip
-									v-if="task.priority !== '-'"
-									:color="getPriorityColor(task.priority)"
-									class="mb-1"
-									outlined
-									small
-								>
-									Priority: {{ task.priority }}
-								</v-chip>
-							</v-col>
-							<!-- Due Dates -->
-							<v-col cols="12" sm="3" class="text-end">
-								<p class="text-caption mb-1">
-									<strong>Due Date:</strong> {{ formatDate(task.due_date) }}
-								</p>
-							</v-col>
-							<!-- Actions -->
-							<v-col cols="12" sm="2" class="text-end">
-								<v-list-item-action class="justify-content-md-end">
-									<v-menu>
-										<template #activator="{ props }">
-											<v-btn icon v-bind="props">
-												<v-icon>mdi-dots-vertical</v-icon>
-											</v-btn>
-										</template>
-										<v-list>
-											<v-list-item @click="editTask(task)">
-												<v-list-item-title>Edit</v-list-item-title>
-											</v-list-item>
-											<v-list-item @click="confirmDelete(task.id)">
-												<v-list-item-title>Delete</v-list-item-title>
-											</v-list-item>
-										</v-list>
-									</v-menu>
-								</v-list-item-action>
-							</v-col>
-						</v-row>
-					</v-list-item>
-				</v-list>
-				<div class="text-end mt-2">Total Tasks: {{ totalTasks }}</div>
-			</template>
-		</section>
-		<section v-else style="height:100%;">
-			<!-- Show No Projects Image if No Projects Available -->
-			<v-row class="justify-center">
-				<v-col cols="12" class="text-center">
-					<img src="/images/no-product-available.png" alt="No projects available" class="my-4" />
-					<p>No tasks available.</p>
-				</v-col>
-			</v-row>
-		</section>
+		<template v-if="modelLoading">
+			<v-skeleton-loader type="article"></v-skeleton-loader>
+		</template>
+		<template v-else>
+			<!-- Task Listings -->
+			<v-list two-line class="px-6 transparent-list">
+				<v-divider></v-divider>
+				<v-list-item class="text-center">
+					<v-btn @click="addTask()">
+						<v-icon>mdi-plus</v-icon> Add Item
+					</v-btn>
+				</v-list-item>
+				<v-list-item
+					v-for="task in tasks"
+					:key="task.id"
+					class="px-0 hover-elevate"
+					@click="infoTask(task.id)"
+				>
+					<v-row class="pa-2 align-center">
+						<!-- Task Details -->
+						<v-col cols="12" sm="4">
+							<v-list-item-title>{{ task.name }}</v-list-item-title>
+							<v-list-item-subtitle>{{ task.description }}</v-list-item-subtitle>
+						</v-col>
+						<!-- Status and Priority -->
+						<v-col cols="12" sm="3" class="d-flex flex-column align-center">
+							<v-chip
+								:color="getStatusColor(task.status)"
+								dark
+								class="mb-1"
+								outlined
+								small
+							>
+								Status: {{ task.status }}
+							</v-chip>
+							<v-chip
+								v-if="task.priority !== '-'"
+								:color="getPriorityColor(task.priority)"
+								class="mb-1"
+								outlined
+								small
+							>
+								Priority: {{ task.priority }}
+							</v-chip>
+						</v-col>
+						<!-- Due Dates -->
+						<v-col cols="12" sm="3" class="text-end">
+							<p class="text-caption mb-1">
+								<strong>Due Date:</strong> {{ formatDate(task.due_date) }}
+							</p>
+						</v-col>
+						<!-- Actions -->
+						<v-col cols="12" sm="2" class="text-end">
+							<v-list-item-action class="justify-content-md-end">
+								<v-menu>
+									<template #activator="{ props }">
+										<v-btn icon v-bind="props">
+											<v-icon>mdi-dots-vertical</v-icon>
+										</v-btn>
+									</template>
+									<v-list>
+										<v-list-item @click="editTask(task)">
+											<v-list-item-title>Edit</v-list-item-title>
+										</v-list-item>
+										<v-list-item @click="confirmDelete(task.id)">
+											<v-list-item-title>Delete</v-list-item-title>
+										</v-list-item>
+									</v-list>
+								</v-menu>
+							</v-list-item-action>
+						</v-col>
+					</v-row>
+				</v-list-item>
+			</v-list>
+			<div v-if="!hasData" class="text-center"><p>No tasks available.</p></div>
+			<div class="text-end mt-2">Total Tasks: {{ totalTasks }}</div>
+		</template>
 
 		<!-- Confirmation Dialog -->
 		<v-dialog v-model="deleteDialog" max-width="500px">
@@ -149,7 +139,7 @@
 		<!-- Add Task Dialog -->
 		<v-dialog v-model="showAddDialog" max-width="600px">
 			<v-card>
-				<v-card-title class="text-h6">Add New Task</v-card-title>
+				<v-card-title class="text-h6">{{ isEdit ? 'Edit Task' : 'Add New Task' }}</v-card-title>
 				<v-card-text>
 					<v-text-field
 						v-model="newTask.name" label="Task Name *" outlined
@@ -204,7 +194,7 @@
 				</v-card-text>
 				<v-card-actions>
 					<v-btn text @click="resetNewTask();showAddDialog = false">Cancel</v-btn>
-					<v-btn :loading="isLoading" color="primary" @click="createTask">Add</v-btn>
+					<v-btn :loading="isLoading" color="primary" @click="isEdit ? saveTask() : createTask()">Add</v-btn>
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
@@ -251,6 +241,7 @@ export default {
 			errors: {},
 
 			members: [],
+			isEdit: false,
 		};
 	},
 	watch: {
@@ -286,16 +277,25 @@ export default {
 				due_date: "",
 				status: "Pending",
 				priority: "-",
+				assigned_to: null,
 			};
+			this.errors = {};
 		},
 		createTask() {
 			this.isLoading = true;
 			this.errors = {};
-			TaskClient.createTask(this.newTask)
+			const assignedBy = this.$auth.user().user.id;
+
+			const taskData = {
+				...this.newTask,
+				assigned_by: assignedBy,
+			};
+			TaskClient.createTask(taskData)
 				.then(() => {
 					this.$toast.success("Task created successfully!");
 					this.fetchTasks();
 					this.showAddDialog = false;
+					this.resetNewTask();
 				})
 				.catch((error) => {
 					console.error("Error adding task:", error);
@@ -303,11 +303,38 @@ export default {
 				})
 				.finally(() => {
 					this.isLoading = false;
-					this.resetNewTask();
 				});
 		},
 		editTask(task) {
-			// this.$router.push({ name: "task-edit-page", params: { id: task.id } });
+			this.isEdit = true
+			this.newTask = { ...task };
+			this.showAddDialog = true;
+		},
+		addTask(){
+			this.isEdit = false;
+			this.showAddDialog = true;
+			this.resetNewTask()
+		},
+		saveTask() {
+			this.isLoading = true;
+			this.errors = {};
+			const assignedBy = this.$auth.user().user.id;
+
+			const taskData = {
+				...this.newTask,
+				assigned_by: assignedBy,
+			};
+			TaskClient.updateTask(taskData).then(() => {
+				this.fetchTasks();
+				this.showAddDialog = false;
+				this.$toast.success("Task updated successfully!");
+				this.resetNewTask();
+			}).catch((error) => {
+				console.error("Error updating task:", error);
+				this.errors = error.response?.data.errors || {};
+			}).finally(() => {
+				this.isLoading = false;
+			});
 		},
 		infoTask(taskId){
 			// this.$router.push({ name: "task-info-page", params: { id: taskId } });

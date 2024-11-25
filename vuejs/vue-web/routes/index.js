@@ -24,19 +24,31 @@ const routes = [
 			},
 			{
 				path: '/project-listings', name: 'project-listings-page', component: ProjectModule.ProjectListingsPage,
+				meta: {
+					auth: true
+				}
 			},
 			{
 				path: '/project-create', name: 'project-create-page', component: ProjectModule.ProjectCreateEditPage,
 				props: { isEdit: false },
+				meta: {
+					auth: true
+				}
 			},
 			{
 				path: "/project/:id/edit",
 				name: "project-edit-page",
 				component: ProjectModule.ProjectCreateEditPage,
 				props: { isEdit: true },
+				meta: {
+					auth: true
+				}
 			},
 			{
 				path: '/project/:id/info', name: 'project-info-page', component: ProjectModule.ProjectInfoPage,
+				meta: {
+					auth: true
+				}
 			},
 			{
 				path: '/contact-us', name: 'contact-us-page', component: BaseModule.ContactUsPage,
