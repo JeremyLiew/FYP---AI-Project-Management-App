@@ -46,6 +46,7 @@
 					<v-list-item
 						v-for="project in projects"
 						:key="project.id" class="px-0 hover-elevate"
+						@click="infoProject(project.id)"
 					>
 						<v-row class="pa-2">
 							<v-col cols="12" sm="10">
@@ -92,7 +93,7 @@
 			<!-- Show No Projects Image if No Projects Available -->
 			<v-row class="justify-center">
 				<v-col cols="12" class="text-center">
-					<img src="images/no-product-available.png" alt="No projects available" class="my-4" />
+					<img src="/images/no-product-available.png" alt="No projects available" class="my-4" />
 					<p>No projects available.</p>
 				</v-col>
 			</v-row>
@@ -158,6 +159,9 @@ export default {
 		editProject(project) {
 			this.$router.push({ name: "project-edit-page", params: { id: project.id } });
 		},
+		infoProject(projectId){
+			this.$router.push({ name: "project-info-page", params: { id: projectId } });
+		},
 		confirmDelete(projectId) {
 			this.selectedProjectId = projectId;
 			this.deleteDialog = true;
@@ -175,7 +179,6 @@ export default {
 					})
 					.catch((error) => {
 						console.error("Error deleting project:", error);
-						this.$toast.error("Failed to delete project.");
 					})
 					.finally(() => {
 						this.isLoading = false

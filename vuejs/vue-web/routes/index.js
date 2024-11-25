@@ -30,10 +30,13 @@ const routes = [
 				props: { isEdit: false },
 			},
 			{
-				path: "/projects/:id/edit",
+				path: "/project/:id/edit",
 				name: "project-edit-page",
 				component: ProjectModule.ProjectCreateEditPage,
 				props: { isEdit: true },
+			},
+			{
+				path: '/project/:id/info', name: 'project-info-page', component: ProjectModule.ProjectInfoPage,
 			},
 			{
 				path: '/contact-us', name: 'contact-us-page', component: BaseModule.ContactUsPage,

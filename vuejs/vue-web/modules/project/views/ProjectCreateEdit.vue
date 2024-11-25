@@ -77,6 +77,35 @@
 					></v-select>
 				</v-col>
 			</v-row>
+
+			<!-- Select Users and Roles -->
+			<v-row>
+				<v-col cols="12">
+					<v-select
+						v-model="project.members"
+						:items="users"
+						item-value="id"
+						item-title="name"
+						label="Select Members"
+						multiple
+						outlined
+					></v-select>
+				</v-col>
+
+				<v-col cols="12">
+					<v-select
+						v-model="project.roles"
+						:items="roles"
+						item-value="id"
+						item-title="name"
+						label="Select Roles"
+						multiple
+						outlined
+						:error-messages="errors.roles"
+					></v-select>
+				</v-col>
+			</v-row>
+
 			<!-- Submit Button -->
 			<v-row>
 				<v-col cols="12" style="text-align: end;">
@@ -112,7 +141,11 @@ export default {
 				end_date: "",
 				status: "Pending",
 				budget_id: null,
+				members: [], // Holds selected members
+				roles: [], // Holds selected roles
 			},
+			users: [], // Holds users fetched from DB
+			roles: [], // Holds roles fetched for the project
 			budgets: [
 				{id: 1, name: 'Web', amount: 2000},
 				{id: 2, name: 'App', amount: 7000}
@@ -135,12 +168,14 @@ export default {
 	},
 	mounted() {
 		this.initializeDates();
-		this.fetchBudgets();
+		this.fetchUsersAndRoles();
 		if (this.isEdit) {
 			const projectId = this.$route.params.id;
 			if (projectId) {
 				this.fetchProject(projectId);
 			}
+		}else{
+			this.modelLoading = false;
 		}
 	},
 	methods: {
@@ -154,64 +189,63 @@ export default {
 			this.project.start_date = this.today;
 			this.tomorrow = new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0];
 		},
-		fetchBudgets() {
-			// API call to fetch budgets (if needed)
+		fetchUsersAndRoles() {
+			// Fetch users and roles from the backend
+			ProjectClient.fetchUsersAndRoles()
+				.then(response => {
+					this.users = response.data.users;
+					this.roles = response.data.projectRoles;
+				})
+				.catch(error => {
+					console.error("Error fetching users and roles", error);
+				});
 		},
 		submitProject() {
 			this.isLoading = true;
 			this.errors = {};
 			ProjectClient.createProject(this.project)
 				.then((response) => {
-					this.isLoading = false
-					console.log("Project created successfully", response);
-					this.$toast.success("Project created successfully")
-					setTimeout(() => {
-						this.$refs.projectForm.reset();
-						this.$router.push({ name: "project-listings-page" });
-					}, 500);
+					this.isLoading = false;
+					this.$toast.success("Project created successfully");
+					this.$router.push({ name: "project-listings-page" });
 				})
 				.catch((error) => {
-					console.error("Error saving project", error);
-					if (error.response && error.response.data.errors) {
-						this.errors = error.response.data.errors;
-					}
-				}).finally(() => {
-					this.isLoading = false
+					this.isLoading = false;
+					this.errors = error.response?.data.errors || {};
 				});
 		},
 		updateProject() {
-			this.model_loading = true;
+			this.isLoading = true;
 			this.errors = {};
-			const projectId = this.$route.params.id;
-			ProjectClient.updateProject({ id: projectId, ...this.project })
+			ProjectClient.updateProject(this.project)
 				.then((response) => {
-					this.isLoading = false
-					console.log("Project updated successfully", response);
-					this.$toast.success("Project updated successfully")
-					setTimeout(() => {
-						this.$router.push({ name: "project-listings-page" });
-					}, 500);
+					this.isLoading = false;
+					this.$toast.success("Project updated successfully");
+					this.$router.push({ name: "project-listings-page" });
 				})
 				.catch((error) => {
-					console.error("Error updating project", error);
-					if (error.response && error.response.data.errors) {
-						this.errors = error.response.data.errors;
-					}
-				}).finally(() => {
-					this.isLoading = false
+					this.isLoading = false;
+					this.errors = error.response?.data.errors || {};
 				});
 		},
-		fetchProject(id){
-			this.modelLoading = true;
+		fetchProject(id) {
 			ProjectClient.fetchProject(id)
-				.then((response) => {
-					this.project = response.data.project;
+				.then(response => {
+					const { project, members, roles } = response.data;
+
+					// Populate project fields
+					this.project = {
+						...project,
+						members: members.map(member => member.id),  // Map to user IDs
+						roles: members.map(member => member.role_id),  // Map to role IDs
+					};
+
+					// Update roles and users from response
+					this.roles = roles;  // All available roles for selection
 				})
-				.catch((error) => {
+				.catch(error => {
 					console.error("Error fetching project:", error);
-					this.$toast.error("Failed to fetch project details.");
-				})
-				.finally(() => {
+				}).finally(() => {
 					this.modelLoading = false;
 				});
 		}
