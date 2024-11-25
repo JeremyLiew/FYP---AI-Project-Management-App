@@ -6,14 +6,15 @@ use App\Models\Task;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\GetTaskListingsRequest;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TaskController extends Controller
 {
     public function getTasksByProject(GetTaskListingsRequest $request)
     {
-        $perPage = $request->input('itemsPerPage', 10);
         $searchQuery = $request->input('searchQuery', '');
         $statusFilter = $request->input('selectedFilter', 'All');
+        $priorityFilter = $request->input('selectedPriority', 'All');
 
         $query = Task::where('project_id', $request->input('id'));
 
@@ -25,11 +26,28 @@ class TaskController extends Controller
             $query->where('status', $statusFilter);
         }
 
-        $tasks = $query->paginate($perPage);
+        if ($priorityFilter !== 'All') {
+            $query->where('priority', $priorityFilter);
+        }
+
+        $tasks = $query->get();
 
         return response()->json([
-            'tasks' => $tasks,'total' => $tasks->total()
-        ]
-    );
+            'tasks' => $tasks
+            ]
+        );
+    }
+
+    public function deleteTask($id){
+        try {
+            $task = Task::findOrFail($id);
+            $task->delete();
+
+            return response()->json(['message' => 'Task deleted successfully.'], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Task not found.'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete task.'], 500);
+        }
     }
 }

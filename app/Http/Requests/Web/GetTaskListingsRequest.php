@@ -14,9 +14,9 @@ class GetTaskListingsRequest extends FormRequest
     public function rules()
     {
         return [
-            'itemsPerPage' => 'nullable|integer|min:1',
             'searchQuery' => 'nullable|string|max:255',
             'selectedFilter' => 'nullable|in:All,Ongoing,Completed,Pending',
+            'selectedPriority' => 'nullable|in:All,Low,Medium,High',
         ];
     }
 }

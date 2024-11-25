@@ -99,6 +99,7 @@
 									<strong>End:</strong> {{ formatDate(project.end_date) }}
 								</p>
 							</v-col>
+							<!-- Actions -->
 							<v-col cols="12" sm="2" class="text-end">
 								<v-list-item-action class="justify-content-md-end">
 									<v-menu>
@@ -132,7 +133,7 @@
 				<div class="text-end mt-2">Total Projects: {{ totalProjects }}</div>
 			</template>
 		</section>
-  
+
 		<section v-else style="height:100%;">
 			<!-- Show No Projects Image -->
 			<v-row class="justify-center">
@@ -221,7 +222,11 @@ export default {
 						this.projects = this.projects.filter(
 							(project) => project.id !== this.selectedProjectId
 						);
+						this.totalProjects = this.projects.length
 						this.$toast.success("Project deleted successfully.");
+						if(this.totalProjects == 0){
+							this.hasData = false;
+						}
 					})
 					.catch((error) => {
 						console.error("Error deleting project:", error);
