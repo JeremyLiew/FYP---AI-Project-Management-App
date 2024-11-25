@@ -4,7 +4,7 @@
 		<v-row>
 			<v-col cols="12">
 				<h1>{{ project.name }}</h1>
-				<p>{{ project.description }}</p>
+				<p>{{ project.description || "No description available." }}</p>
 			</v-col>
 		</v-row>
 
@@ -20,16 +20,51 @@
 				<v-container>
 					<h2>Project Overview</h2>
 					<v-row>
-						<v-col cols="12">
-							<p><strong>Details:</strong> {{ project.description }}</p>
-							<h3>Project Members</h3>
-							<ul>
-								<li v-for="member in projectMembers" :key="member.id">
-									{{ member.name }} - {{ getRoleName(member.role_id) }}
-								</li>
-							</ul>
+						<v-col cols="12" sm="6">
+							<p>
+								<strong>Status:</strong> <v-chip
+									:color="getStatusColor(project.status)"
+									dark
+									class="mb-1"
+									outlined
+									small
+								>
+									{{ project.status }}
+								</v-chip>
+							</p>
+							<p>
+								<strong>Priority:</strong> <v-chip
+									:color="getPriorityColor(project.priority)"
+									class="mb-1"
+									outlined
+									small
+								>
+									{{ project.priority }}
+								</v-chip>
+							</p>
+						</v-col>
+						<v-col cols="12" sm="6">
+							<p><strong>Start Date:</strong> {{ formatDate(project.start_date) }}</p>
+							<p><strong>End Date:</strong> {{ formatDate(project.end_date) }}</p>
 						</v-col>
 					</v-row>
+					<v-divider class="my-4"></v-divider>
+
+					<h3>Project Members</h3>
+					<ul>
+						<li v-for="member in projectMembers" :key="member.id">
+							{{ member.name }} - {{ getRoleName(member.role_id) }}
+						</li>
+					</ul>
+
+					<v-divider class="my-4"></v-divider>
+
+					<h3>Additional Information</h3>
+					<p>
+						<strong>Budget: </strong>
+						<span v-if="project.budget">{{ project.budget.amount | currency }}</span>
+						<span v-else>N/A</span>
+					</p>
 				</v-container>
 			</v-tab-item>
 
@@ -49,6 +84,15 @@ export default {
 	components: {
 		TaskListings,
 	},
+	// filters: {
+	// 	currency(value) {
+	// 		if (!value) return "N/A";
+	// 		return new Intl.NumberFormat("en-US", {
+	// 			style: "currency",
+	// 			currency: "USD",
+	// 		}).format(value);
+	// 	},
+	// },
 	data() {
 		return {
 			project: {},
@@ -74,9 +118,34 @@ export default {
 				});
 		},
 		getRoleName(roleId) {
-			const role = this.roles.find(role => role.id === roleId);
-			return role ? role.name : 'Unknown Role';
+			const role = this.roles.find((role) => role.id === roleId);
+			return role ? role.name : "Unknown Role";
+		},
+		formatDate(date) {
+			return date ? new Date(date).toLocaleDateString() : "N/A";
+		},
+		getStatusColor(status) {
+			const colors = {
+				Pending: "red",
+				Ongoing: "yellow",
+				Completed: "green",
+			};
+			return colors[status];
+		},
+		getPriorityColor(priority) {
+			const colors = {
+				High: "red",
+				Medium: "orange",
+				Low: "green",
+			};
+			return colors[priority];
 		},
 	},
 };
 </script>
+
+<style scoped>
+.v-tabs {
+	margin-bottom: 20px;
+}
+</style>

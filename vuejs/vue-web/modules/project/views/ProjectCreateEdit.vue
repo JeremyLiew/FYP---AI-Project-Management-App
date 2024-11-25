@@ -53,7 +53,7 @@
 					></v-text-field>
 				</v-col>
 				<!-- Project Status -->
-				<v-col cols="12" md="6">
+				<v-col cols="12" md="4">
 					<v-select
 						v-model="project.status"
 						:items="statusOptions"
@@ -63,8 +63,19 @@
 						:disabled="isEdit?false:true"
 					></v-select>
 				</v-col>
+				<!-- Project Priority -->
+				<v-col cols="12" md="4">
+					<v-select
+						v-model="project.priority"
+						:items="priorityOptions"
+						label="Priority"
+						required
+						outlined
+						:error-messages="errors.priority"
+					></v-select>
+				</v-col>
 				<!-- Project Budget -->
-				<v-col cols="12" md="6">
+				<v-col cols="12" md="4">
 					<v-select
 						v-model="project.budget_id"
 						:items="formattedBudgets"
@@ -80,7 +91,7 @@
 
 			<!-- Select Users and Roles -->
 			<v-row>
-				<v-col cols="12">
+				<v-col cols="12" md="6">
 					<v-select
 						v-model="project.members"
 						:items="users"
@@ -89,10 +100,12 @@
 						label="Select Members"
 						multiple
 						outlined
+						required
+						:error-messages="errors.members"
 					></v-select>
 				</v-col>
 
-				<v-col cols="12">
+				<v-col cols="12" md="6">
 					<v-select
 						v-model="project.roles"
 						:items="roles"
@@ -101,6 +114,7 @@
 						label="Select Roles"
 						multiple
 						outlined
+						required
 						:error-messages="errors.roles"
 					></v-select>
 				</v-col>
@@ -140,17 +154,20 @@ export default {
 				start_date: "",
 				end_date: "",
 				status: "Pending",
+				priority: "-",
 				budget_id: null,
-				members: [], // Holds selected members
-				roles: [], // Holds selected roles
+				members: [],
+				roles: [],
 			},
-			users: [], // Holds users fetched from DB
-			roles: [], // Holds roles fetched for the project
+			users: [],
+			roles: [],
+			// budgets to be updated
 			budgets: [
 				{id: 1, name: 'Web', amount: 2000},
 				{id: 2, name: 'App', amount: 7000}
 			],
 			statusOptions: ["Ongoing", "Completed", "Pending"],
+			priorityOptions: ["-","Low", "Medium", "High"],
 			today: "",
 			tomorrow: "",
 			errors: {},
@@ -236,12 +253,11 @@ export default {
 					// Populate project fields
 					this.project = {
 						...project,
-						members: members.map(member => member.id),  // Map to user IDs
-						roles: members.map(member => member.role_id),  // Map to role IDs
+						members: members.map(member => member.id),
+						roles: members.map(member => member.role_id),
 					};
 
-					// Update roles and users from response
-					this.roles = roles;  // All available roles for selection
+					this.roles = roles;
 				})
 				.catch(error => {
 					console.error("Error fetching project:", error);

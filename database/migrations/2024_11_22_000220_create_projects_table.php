@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->string('status');
+            $table->string('priority')->nullable();
             $table->foreignId('budget_id')->nullable()->constrained('budgets')->nullOnDelete();
             $table->timestamps();
         });

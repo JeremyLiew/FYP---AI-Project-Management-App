@@ -17,6 +17,7 @@ class GetProjectListingsRequest extends FormRequest
             'itemsPerPage' => 'nullable|integer|min:1',
             'searchQuery' => 'nullable|string|max:255',
             'selectedFilter' => 'nullable|in:All,Ongoing,Completed,Pending',
+            'selectedPriority' => 'nullable|in:All,Low,Medium,High',
         ];
     }
 }

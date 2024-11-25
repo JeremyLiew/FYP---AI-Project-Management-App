@@ -19,6 +19,7 @@ class ProjectController extends Controller
         $perPage = $request->input('itemsPerPage', 10);
         $searchQuery = $request->input('searchQuery', '');
         $statusFilter = $request->input('selectedFilter', 'All');
+        $priorityFilter = $request->input('selectedPriority', 'All');
 
         $projectsQuery = Project::query();
 
@@ -30,12 +31,16 @@ class ProjectController extends Controller
             $projectsQuery->where('status', $statusFilter);
         }
 
+        if ($priorityFilter !== 'All') {
+            $projectsQuery->where('priority', $priorityFilter);
+        }
+
         $projects = $projectsQuery->paginate($perPage);
 
         return response()->json([
-                'projects' => $projects,'total' => $projects->total()
-            ]
-        );
+                'projects' => $projects,
+                'total' => $projects->total()
+            ]);
     }
 
     public function projectInfo($id)
@@ -50,13 +55,12 @@ class ProjectController extends Controller
 
         // Fetch the members along with their roles
         $members = $project->users->map(function ($user) {
-            // Retrieve the project role based on the pivot project_role_id
             $projectRole = ProjectRole::find($user->pivot->project_role_id);
 
             return [
                 'id' => $user->id,
                 'name' => $user->name,
-                'role_id' => $user->pivot->project_role_id, // Save the role id for the form
+                'role_id' => $user->pivot->project_role_id,
             ];
         });
 
@@ -71,7 +75,7 @@ class ProjectController extends Controller
         return response()->json([
             'project' => $project,
             'members' => $members,
-            'roles' => $roles,  // Include roles for the select dropdown
+            'roles' => $roles,
         ]);
     }
 
@@ -83,6 +87,7 @@ class ProjectController extends Controller
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date'),
             'status' => $request->input('status'),
+            'priority' => $request->input('priority'),
             'budget_id' => $request->input('budget_id'),
         ]);
 
@@ -115,6 +120,7 @@ class ProjectController extends Controller
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date'),
             'status' => $request->input('status'),
+            'priority' => $request->input('priority'),
             'budget_id' => $request->input('budget_id'),
         ]);
 

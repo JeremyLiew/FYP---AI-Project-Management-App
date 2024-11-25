@@ -6,9 +6,10 @@
 				<h1 class="text-subtitle-1">Project Management</h1>
 			</v-col>
 		</v-row>
+  
 		<!-- Header with Create Button -->
 		<v-row class="d-flex align-center mb-4">
-			<v-col cols="12" md="8">
+			<v-col cols="12" md="4">
 				<v-text-field
 					v-model="searchQuery"
 					label="Search Projects"
@@ -22,8 +23,19 @@
 				<v-select
 					v-model="selectedFilter"
 					:items="filters"
-					label="Filter by"
+					label="Filter by Status"
 					placeholder="Select a filter"
+					clearable
+					outlined
+					dense
+				></v-select>
+			</v-col>
+			<v-col cols="12" md="4">
+				<v-select
+					v-model="selectedPriority"
+					:items="priorityFilters"
+					label="Filter by Priority"
+					placeholder="Select priority"
 					clearable
 					outlined
 					dense
@@ -34,28 +46,60 @@
 				<v-btn depressed @click="createProject">Create Project</v-btn>
 			</v-col>
 		</v-row>
-
+  
 		<section v-if="hasData" style="height:100%;">
 			<template v-if="modelLoading">
 				<v-skeleton-loader type="article"></v-skeleton-loader>
 			</template>
 			<template v-else>
-				<!-- Display Projects if Available -->
+				<!-- Display Projects -->
 				<v-list two-line class="px-6 transparent-list">
 					<v-divider></v-divider>
 					<v-list-item
 						v-for="project in projects"
-						:key="project.id" class="px-0 hover-elevate"
+						:key="project.id"
+						class="px-0 hover-elevate"
 						@click="infoProject(project.id)"
 					>
-						<v-row class="pa-2">
-							<v-col cols="12" sm="10">
-								<v-list-item-title>{{ project.name }}</v-list-item-title>
-								<v-list-item-subtitle style="line-height:unset !important;">
+						<v-row class="pa-2 align-center">
+							<!-- Project Details -->
+							<v-col cols="12" sm="4">
+								<v-list-item-title class="font-weight-bold">{{ project.name }}</v-list-item-title>
+								<v-list-item-subtitle style="line-height: unset !important;">
 									{{ project.description || "No description available." }}
 								</v-list-item-subtitle>
 							</v-col>
-							<v-col cols="12" sm="2">
+							<!-- Status and Priority -->
+							<v-col cols="12" sm="3" class="d-flex flex-column align-center">
+								<v-chip
+									:color="getStatusColor(project.status)"
+									dark
+									class="mb-1"
+									outlined
+									small
+								>
+									Status: {{ project.status }}
+								</v-chip>
+								<v-chip
+									v-if="project.priority !== '-'"
+									:color="getPriorityColor(project.priority)"
+									class="mb-1"
+									outlined
+									small
+								>
+									Priority: {{ project.priority }}
+								</v-chip>
+							</v-col>
+							<!-- Dates -->
+							<v-col cols="12" sm="3" class="text-end">
+								<p class="text-caption mb-1">
+									<strong>Start:</strong> {{ formatDate(project.start_date) }}
+								</p>
+								<p class="text-caption">
+									<strong>End:</strong> {{ formatDate(project.end_date) }}
+								</p>
+							</v-col>
+							<v-col cols="12" sm="2" class="text-end">
 								<v-list-item-action class="justify-content-md-end">
 									<v-menu>
 										<template #activator="{ props }">
@@ -88,9 +132,9 @@
 				<div class="text-end mt-2">Total Projects: {{ totalProjects }}</div>
 			</template>
 		</section>
-
+  
 		<section v-else style="height:100%;">
-			<!-- Show No Projects Image if No Projects Available -->
+			<!-- Show No Projects Image -->
 			<v-row class="justify-center">
 				<v-col cols="12" class="text-center">
 					<img src="/images/no-product-available.png" alt="No projects available" class="my-4" />
@@ -121,7 +165,6 @@
 	</v-container>
 </template>
 
-
 <script>
 import ProjectClient from "../client"
 export default {
@@ -139,6 +182,8 @@ export default {
 			paginationLength: 0,
 			totalProjects: 0,
 			isLoading: false,
+			selectedPriority: null,
+			priorityFilters: ["All", "High", "Medium", "Low"],
 
 			deleteDialog: false,
 			selectedProjectId: null,
@@ -148,6 +193,7 @@ export default {
 		searchQuery: "fetchProjects",
 		selectedFilter: "fetchProjects",
 		currentPage: "fetchProjects",
+		selectedPriority: "fetchProjects",
 	},
 	mounted() {
 		this.fetchProjects();
@@ -196,6 +242,7 @@ export default {
 				selectedFilter: this.selectedFilter,
 				page: this.currentPage,
 				itemsPerPage: this.itemsPerPage,
+				selectedPriority: this.selectedPriority,
 			};
 
 			ProjectClient.getProjectListings(payload)
@@ -213,6 +260,25 @@ export default {
 				}).finally(()=>{
 					this.modelLoading = false
 				});
+		},
+		getStatusColor(status) {
+			const colors = {
+				Pending: "red",
+				Ongoing: "yellow",
+				Completed: "green",
+			};
+			return colors[status];
+		},
+		getPriorityColor(priority) {
+			const colors = {
+				High: "red",
+				Medium: "orange",
+				Low: "green",
+			};
+			return colors[priority];
+		},
+		formatDate(date) {
+			return new Date(date).toLocaleDateString();
 		},
 	},
 };

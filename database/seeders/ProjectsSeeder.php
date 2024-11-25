@@ -22,6 +22,7 @@ class ProjectsSeeder extends Seeder
                 'start_date' => '2024-01-01',
                 'end_date' => '2024-12-31',
                 'status' => 'Pending',
+                'priority' => 'Low',
                 'budget_id' => $budget->id, // Linking with a budget
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -32,6 +33,7 @@ class ProjectsSeeder extends Seeder
                 'start_date' => '2024-02-01',
                 'end_date' => '2024-11-30',
                 'status' => 'Ongoing',
+                'priority' => 'Medium',
                 'budget_id' => $budget->id, // Linking with the same budget
                 'created_at' => now(),
                 'updated_at' => now(),

@@ -19,6 +19,7 @@ class CreateProjectRequest extends FormRequest
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'status' => 'required|in:Ongoing,Completed,Pending',
+            'priority' => 'required|in:Low,Medium,High,-',
             'budget_id' => 'required|exists:budgets,id',
             'members' => 'required|array',
             'members.*' => 'exists:users,id',

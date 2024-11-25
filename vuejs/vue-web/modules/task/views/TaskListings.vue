@@ -18,7 +18,7 @@
 				<v-select
 					v-model="selectedFilter"
 					:items="statusOptions"
-					label="Filter by"
+					label="Filter by Status"
 					placeholder="Select a filter"
 					clearable
 					dense
