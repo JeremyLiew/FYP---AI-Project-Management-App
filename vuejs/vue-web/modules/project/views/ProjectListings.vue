@@ -133,7 +133,7 @@ export default {
 		},
 		editProject(project) {
 			// Logic to navigate to the edit project page
-			this.$router.push({ name: "EditProject", params: { id: project.id } });
+			this.$router.push({ name: "project-edit-page", params: { id: project.id } });
 		},
 		deleteProject(projectId) {
 			// Logic to delete the project

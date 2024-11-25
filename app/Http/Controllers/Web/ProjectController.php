@@ -6,6 +6,7 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\CreateProjectRequest;
+use App\Http\Requests\Web\UpdateProjectRequest;
 use App\Http\Requests\Web\GetProjectListingsRequest;
 
 class ProjectController extends Controller
@@ -34,6 +35,19 @@ class ProjectController extends Controller
         );
     }
 
+    public function projectInfo($id)
+    {
+        $project = Project::find($id);
+
+        if (!$project) {
+            return response()->json(['message' => 'Project not found'], 404);
+        }
+
+        return response()->json([
+            'project' => $project
+        ]);
+    }
+
     public function createProject(CreateProjectRequest $request)
     {
         $project = Project::create([
@@ -47,6 +61,29 @@ class ProjectController extends Controller
 
         return response()->json([
             'message' => 'Project created successfully.',
+            'project' => $project
+        ]);
+    }
+
+    public function updateProject(UpdateProjectRequest $request)
+    {
+        $project = Project::find($request->input('id'));
+
+        if (!$project) {
+            return response()->json(['message' => 'Project not found'], 404);
+        }
+
+        $project->update([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
+            'status' => $request->input('status'),
+            'budget_id' => $request->input('budget_id'),
+        ]);
+
+        return response()->json([
+            'message' => 'Project updated successfully.',
             'project' => $project
         ]);
     }

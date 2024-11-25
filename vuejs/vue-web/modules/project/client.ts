@@ -10,6 +10,14 @@ const ProjectClient = {
 
 	createProject(payload){
 		return axios.post( prefix + "/create" , payload)
+	},
+
+	fetchProject(id){
+		return axios.get( prefix + "/info/" + id )
+	},
+
+	updateProject(payload){
+		return axios.post( prefix + "/update" , payload)
 	}
 }
 

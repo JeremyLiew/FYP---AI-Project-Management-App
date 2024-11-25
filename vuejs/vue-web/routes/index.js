@@ -26,7 +26,14 @@ const routes = [
 				path: '/project-listings', name: 'project-listings-page', component: ProjectModule.ProjectListingsPage,
 			},
 			{
-				path: '/project-create', name: 'project-create-page', component: ProjectModule.ProjectCreatePage,
+				path: '/project-create', name: 'project-create-page', component: ProjectModule.ProjectCreateEditPage,
+				props: { isEdit: false },
+			},
+			{
+				path: "/projects/:id/edit",
+				name: "project-edit-page",
+				component: ProjectModule.ProjectCreateEditPage,
+				props: { isEdit: true },
 			},
 			{
 				path: '/contact-us', name: 'contact-us-page', component: BaseModule.ContactUsPage,
