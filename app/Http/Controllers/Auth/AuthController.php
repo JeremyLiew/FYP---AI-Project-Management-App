@@ -27,7 +27,6 @@ class AuthController extends Controller
 {
     public function login(LoginFormRequest $request)
     {
-        // dd($request);
         $payload = $request->validated();
 
         $payload['credentials'] = [
@@ -93,7 +92,6 @@ class AuthController extends Controller
     public function user()
 	{
 		$result = auth()->user();
-        // dd($result);
 
 		return self::successResponse('Success', [
 			'user' => $result,

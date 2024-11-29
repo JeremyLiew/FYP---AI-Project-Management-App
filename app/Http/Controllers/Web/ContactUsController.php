@@ -14,25 +14,24 @@ class ContactUsController extends Controller
 {
     public function sendEmail(SendMailRequest $request)
     {
-        // dd($request);
-        $payload = $request->validated();
+        // $payload = $request->validated();
 
-        $result = DB::transaction(function () use ($payload){
-            {
-                $newsletter_subscriber = NewsletterSubscriber::create([
-                    'email' => $payload['email'],
-                ]);
-            }
+        // $result = DB::transaction(function () use ($payload){
+        //     {
+        //         $newsletter_subscriber = NewsletterSubscriber::create([
+        //             'email' => $payload['email'],
+        //         ]);
+        //     }
 
-            $data = [
-                "email" =>  $payload['email'],
-            ];
+        //     $data = [
+        //         "email" =>  $payload['email'],
+        //     ];
 
-            Mail::to($payload['email'])->send(new ContactUs($data));
+        //     Mail::to($payload['email'])->send(new ContactUs($data));
 
-            return $newsletter_subscriber;
+        //     return $newsletter_subscriber;
 
-        });
+        // });
 
 
         return self::successResponse("Success", $result);

@@ -4,6 +4,7 @@ use App\Http\Controllers\Web\{
     ContactUsController,
     ProjectController,
     TaskController,
+    NotificationController,
 };
 use App\Http\Controllers\Auth\{
     AuthController
@@ -11,14 +12,15 @@ use App\Http\Controllers\Auth\{
 
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('api')->middleware([])->group(function () {
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('general')->group(function () {
         Route::post('/contact-us', [ContactUsController::class, 'sendEmail']);
+        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
     });
 
 });
 
-Route::prefix('api')->middleware([])->group(function () {
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('project')->group(function () {
         Route::get('/listings', [ProjectController::class, 'getProjectListings']);
         Route::post('/create', [ProjectController::class, 'createProject']);
@@ -29,7 +31,7 @@ Route::prefix('api')->middleware([])->group(function () {
     });
 });
 
-Route::prefix('api')->middleware([])->group(function () {
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('task')->group(function () {
         Route::get('/listings', [TaskController::class, 'getTasksByProject']);
         Route::post('/create', [TaskController::class, 'createTask']);

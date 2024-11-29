@@ -10,6 +10,10 @@ const GeneralClient = {
 
 	getOrderHistory(payload){
 		return axios.get( prefix + "/order-history" , { params:payload } )
+	},
+
+	fetchNotificationCount(){
+		return axios.get( prefix + "/notifications/unread-count" )
 	}
 
 }

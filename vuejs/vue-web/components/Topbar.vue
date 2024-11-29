@@ -39,26 +39,38 @@
 
 			<v-divider></v-divider>
 
-			<!-- Settings Link (at the bottom) -->
-			<v-list-item class="mt-auto" style="justify-self: end;" @click="goToSettings">
-				<v-list-item-media>
-					<!-- Use v-icon inside v-list-item-media for the icon -->
-					<v-icon>mdi-cog</v-icon>
-				</v-list-item-media>
-				<v-list-item-title v-if="drawerHovered" class="pl-3">Settings</v-list-item-title>
-			</v-list-item>
+			<div class="d-flex flex-column justify-content-end h-100">
+				<v-list-item @click="goToNotifications">
+					<v-list-item-media>
+						<v-icon>mdi-bell</v-icon>
+						<!-- Notification Counter -->
+						<span v-if="notificationCount > 0" class="notification-counter">{{ notificationCount }}</span>
+					</v-list-item-media>
+					<v-list-item-title v-if="drawerHovered" class="pl-3">Notifications</v-list-item-title>
+				</v-list-item>
+				<!-- Settings Link (at the bottom) -->
+				<v-list-item @click="goToSettings">
+					<v-list-item-media>
+						<!-- Use v-icon inside v-list-item-media for the icon -->
+						<v-icon>mdi-cog</v-icon>
+					</v-list-item-media>
+					<v-list-item-title v-if="drawerHovered" class="pl-3">Settings</v-list-item-title>
+				</v-list-item>
+			</div>
 		</v-list>
 	</v-navigation-drawer>
 </template>
 
 
 <script>
+import GeneralClient from '../modules/_general/client';
 export default {
 	data() {
 		return {
 			nav_links: [],
 			auth: false,
 			drawerHovered: false,
+			notificationCount: 0,
 		};
 	},
 	computed: {
@@ -75,9 +87,19 @@ export default {
 		this.auth = false;
 		if (this.$auth.check()) {
 			this.auth = true;
+			this.fetchNotificationCount();
 		}
 	},
 	methods: {
+		fetchNotificationCount() {
+			GeneralClient.fetchNotificationCount()
+				.then((response) => {
+					this.notificationCount = response.data.unreadCount;
+				})
+				.catch((error) => {
+					console.error('Error fetching notifications:', error);
+				});
+		},
 		onHover(status) {
 			this.drawerHovered = status;
 		},
@@ -86,6 +108,9 @@ export default {
 		},
 		goToSettings() {
 			this.$router.push({ name: 'settings-page' });
+		},
+		goToNotifications() {
+			this.$router.push({ name: 'notifications-page' });
 		},
 	},
 };
@@ -98,5 +123,17 @@ export default {
 
 .v-list-item >>> .v-list-item__content{
 	display: flex;
+}
+
+.notification-counter {
+    position: absolute;
+    top: -5px;
+    right: 5px;
+    background-color: red;
+    color: white;
+    font-size: 8px;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 2px 6px;
 }
 </style>

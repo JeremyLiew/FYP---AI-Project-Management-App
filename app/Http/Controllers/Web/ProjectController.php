@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Web;
 use App\Models\User;
 use App\Models\Project;
 use App\Models\ProjectRole;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Models\UserNotificationMapping;
 use App\Http\Requests\Web\CreateProjectRequest;
 use App\Http\Requests\Web\UpdateProjectRequest;
 use App\Http\Requests\Web\GetProjectListingsRequest;
@@ -98,7 +101,32 @@ class ProjectController extends Controller
             $usersWithRoles[$userId] = ['project_role_id' => $roleId];
         }
 
+        // Get the current members before syncing
+        $existingUserIds = $project->users->pluck('id')->toArray();
+
+        // Sync users with the project
         $project->users()->sync($usersWithRoles);
+
+        // Get the new members after syncing
+        $newUserIds = array_keys($usersWithRoles);
+
+        // Determine newly added users
+        $addedUserIds = array_diff($newUserIds, $existingUserIds);
+
+        // Send notifications to newly added users only
+        foreach ($addedUserIds as $userId) {
+            $user = User::find($userId);
+            if ($user) {
+                $notification = Notification::create([
+                    'message' => "You have been added to the project '{$project->name}' by " . auth()->user()->name,
+                ]);
+
+                UserNotificationMapping::create([
+                    'user_id' => $userId,
+                    'notification_id' => $notification->id,
+                ]);
+            }
+        }
 
         return response()->json([
             'message' => 'Project created successfully.',
@@ -131,7 +159,48 @@ class ProjectController extends Controller
             $usersWithRoles[$userId] = ['project_role_id' => $roleId];
         }
 
+        // Get the current members before syncing
+        $existingUserIds = $project->users->pluck('id')->toArray();
+
+        // Sync users with the project
         $project->users()->sync($usersWithRoles);
+
+        // Get the new members after syncing
+        $newUserIds = array_keys($usersWithRoles);
+
+        // Determine newly added and removed users
+        $addedUserIds = array_diff($newUserIds, $existingUserIds);
+        $removedUserIds = array_diff($existingUserIds, $newUserIds);
+
+        // Notify newly added users
+        foreach ($addedUserIds as $userId) {
+            $user = User::find($userId); // Ensure user exists
+            if ($user) {
+                $notification = Notification::create([
+                    'message' => "You have been added to the project '{$project->name}' by " . auth()->user()->name,
+                ]);
+
+                UserNotificationMapping::create([
+                    'user_id' => $userId,
+                    'notification_id' => $notification->id,
+                ]);
+            }
+        }
+
+        // Notify removed users
+        foreach ($removedUserIds as $userId) {
+            $user = User::find($userId); // Ensure user exists
+            if ($user) {
+                $notification = Notification::create([
+                    'message' => "You have been removed from the project '{$project->name}' by " . auth()->user()->name,
+                ]);
+
+                UserNotificationMapping::create([
+                    'user_id' => $userId,
+                    'notification_id' => $notification->id,
+                ]);
+            }
+        }
 
         return response()->json([
             'message' => 'Project updated successfully.',

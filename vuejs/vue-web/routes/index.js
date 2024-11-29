@@ -60,6 +60,12 @@ const routes = [
 				}
 			},
 			{
+				path: '/notifications', name: 'notifications-page', component: GeneralModule.NotificationsPage,
+				meta: {
+					auth: true
+				}
+			},
+			{
 				path: '/settings', name: 'settings-page', component: GeneralModule.SettingsPage,
 			},
 		]

@@ -21,7 +21,6 @@ class ContactUs extends Mailable
     {
         //
         $this->data = $data;
-        // dd($this->data['email']);
     }
 
     /**

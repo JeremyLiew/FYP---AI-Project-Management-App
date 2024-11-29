@@ -5,13 +5,15 @@ namespace App\Http\Controllers\Web;
 use App\Models\Task;
 use App\Models\Comment;
 use App\Models\Project;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Web\CreateCommentRequest;
+use App\Models\UserNotificationMapping;
 use App\Http\Requests\Web\CreateTaskRequest;
 use App\Http\Requests\Web\UpdateTaskRequest;
-use App\Http\Requests\Web\GetTaskListingsRequest;
+use App\Http\Requests\Web\CreateCommentRequest;
 use App\Http\Requests\Web\UpdateCommentRequest;
+use App\Http\Requests\Web\GetTaskListingsRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TaskController extends Controller
@@ -75,9 +77,21 @@ class TaskController extends Controller
         $assigneeId = $request->input('assigned_to');
         $assignedById = $request->input('assigned_by');
         if ($assigneeId && $assignedById) {
-            $task->users()->sync([
+            $changes = $task->users()->sync([
                 $assigneeId => ['assigned_by' => $assignedById]
             ]);
+
+            // Notify newly assigned users
+            foreach ($changes['attached'] as $newUserId) {
+                $notification = Notification::create([
+                    'message' => "Task '{$task->name}' was assigned to you by " . auth()->user()->name,
+                ]);
+
+                UserNotificationMapping::create([
+                    'user_id' => $newUserId,
+                    'notification_id' => $notification->id,
+                ]);
+            }
         }
 
         return response()->json([
@@ -106,9 +120,33 @@ class TaskController extends Controller
         $assigneeId = $request->input('assigned_to');
         $assignedById = $request->input('assigned_by');
         if ($assigneeId && $assignedById) {
-            $task->users()->sync([
-                $assigneeId => ['assigned_by' => $assignedById]
+            $changes = $task->users()->sync([
+                $assigneeId => ['assigned_by' => $assignedById],
             ]);
+
+            // Notify newly assigned users
+            foreach ($changes['attached'] as $newUserId) {
+                $notification = Notification::create([
+                    'message' => "Task '{$task->name}' was assigned to you by " . auth()->user()->name,
+                ]);
+
+                UserNotificationMapping::create([
+                    'user_id' => $newUserId,
+                    'notification_id' => $notification->id,
+                ]);
+            }
+
+            // Notify removed users
+            foreach ($changes['detached'] as $removedUserId) {
+                $notification = Notification::create([
+                    'message' => "You have been removed from task '{$task->name}' by " . auth()->user()->name,
+                ]);
+
+                UserNotificationMapping::create([
+                    'user_id' => $removedUserId,
+                    'notification_id' => $notification->id,
+                ]);
+            }
         }
 
         return response()->json([
