@@ -16,6 +16,9 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('general')->group(function () {
         Route::post('/contact-us', [ContactUsController::class, 'sendEmail']);
         Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+        Route::get('/notifications', [NotificationController::class, 'getNotifications']);
+        Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
     });
 
 });

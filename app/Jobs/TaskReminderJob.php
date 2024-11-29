@@ -47,12 +47,10 @@ class TaskReminderJob implements ShouldQueue
                     'message' => "Reminder: Task '{$task->name}' is due in $daysLeft days.",
                 ]);
 
-                if ($task->user_id) {
-                    UserNotificationMapping::create([
-                        'user_id' => $task->user_id,
-                        'notification_id' => $notification->id,
-                    ]);
-                }
+                UserNotificationMapping::create([
+                    'user_id' => $task->user_id,
+                    'notification_id' => $notification->id,
+                ]);
             }
         }
     }

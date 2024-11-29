@@ -14,7 +14,15 @@ const GeneralClient = {
 
 	fetchNotificationCount(){
 		return axios.get( prefix + "/notifications/unread-count" )
-	}
+	},
+
+	fetchNotifications(){
+		return axios.get( prefix + "/notifications" )
+	},
+
+	markAsRead($id){
+		return axios.post( prefix + "/notifications/" + $id + "/read")
+	},
 
 }
 
