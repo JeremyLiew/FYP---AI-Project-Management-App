@@ -24,8 +24,24 @@ const TaskClient = {
 	},
 
 	fetchMembers(projectId){
-		return axios.get( prefix + "/" + projectId + "/members")
-	}
+		return axios.get( prefix + "/" + projectId + "/members");
+	},
+
+	fetchComments(id){
+		return axios.get( prefix + "/comments/" + id );
+	},
+
+	addComment(payload){
+		return axios.post( prefix + "/create/comment" , payload )
+	},
+
+	editComment(payload){
+		return axios.post( prefix + "/edit/comment" , payload )
+	},
+
+	deleteComment(id){
+		return axios.post( prefix + "/delete/comment/" + id )
+	},
 }
 
 export default TaskClient;

@@ -59,8 +59,12 @@
 					<v-row class="pa-2 align-center">
 						<!-- Task Details -->
 						<v-col cols="12" sm="4">
-							<v-list-item-title>{{ task.name }}</v-list-item-title>
-							<v-list-item-subtitle>{{ task.description }}</v-list-item-subtitle>
+							<v-list-item-title class="text-wrap">{{ task.name }}</v-list-item-title>
+							<v-list-item-subtitle>
+								<pre
+									class="text-wrap"
+								>{{ task.description }}</pre>
+							</v-list-item-subtitle>
 						</v-col>
 						<!-- Status and Priority -->
 						<v-col cols="12" sm="3" class="d-flex flex-column align-center">
@@ -194,7 +198,127 @@
 				</v-card-text>
 				<v-card-actions>
 					<v-btn text @click="resetNewTask();showAddEditDialog = false">Cancel</v-btn>
-					<v-btn :loading="isLoading" color="primary" @click="isEdit ? saveTask('edit') : saveTask('create')">Add</v-btn>
+					<v-btn :loading="isLoading" color="primary" @click="isEdit ? saveTask('edit') : saveTask('create')">{{ isEdit? "Update":"Add" }}</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
+
+		<v-dialog v-model="showViewDialog" max-width="600px">
+			<v-card>
+				<v-card-title class="text-h6">View Task</v-card-title>
+				<v-card-text>
+					<v-text-field
+						v-model="currentTask.name"
+						label="Task Name"
+						outlined
+						dense
+						readonly
+					/>
+					<v-textarea
+						v-model="currentTask.description"
+						label="Description"
+						outlined
+						dense
+						readonly
+					/>
+					<v-text-field
+						v-model="currentTask.due_date"
+						label="Due Date"
+						type="date"
+						outlined
+						dense
+						readonly
+					/>
+					<v-select
+						v-model="currentTask.status"
+						:items="statusOptions"
+						label="Status"
+						outlined
+						dense
+						readonly
+					></v-select>
+					<v-select
+						v-model="currentTask.priority"
+						:items="priorityOptions"
+						label="Priority"
+						outlined
+						dense
+						readonly
+					></v-select>
+					<v-select
+						v-model="currentTask.assigned_to"
+						:items="members"
+						item-title="name"
+						item-value="id"
+						label="Assigned to Member"
+						outlined
+						dense
+						readonly
+					/>
+
+					<!-- Comments Section -->
+					<v-divider class="mt-4"></v-divider>
+					<v-card-title class="text-h6">Comments</v-card-title>
+
+					<!-- Add Comment Button -->
+					<div class="text-center">
+						<v-btn class="mt-2" @click="addCommentInput"><v-icon>mdi-plus</v-icon> Add Comment</v-btn>
+					</div>
+
+					<!-- Display Comment Input (If Active) -->
+					<v-list>
+						<!-- Existing Comments -->
+						<template v-if="comments.length > 0">
+							<v-list-item v-for="(comment, index) in comments" :key="comment.id">
+								<v-row class="d-flex align-center">
+									<!-- Author and Comment -->
+									<v-col cols="10">
+										<v-list-item-title class="text-subtitle-1 font-weight-bold">
+											{{ comment.author }}
+										</v-list-item-title>
+										<v-list-item-subtitle>
+											<pre
+												class="text-wrap"
+											>{{ comment.text }}</pre>
+										</v-list-item-subtitle>
+									</v-col>
+
+									<!-- Actions (Edit and Delete) -->
+									<v-col class="d-flex justify-end" cols="2">
+										<v-btn size="small" icon @click="editComment(index)">
+											<v-icon>mdi-pencil</v-icon>
+										</v-btn>
+										<v-btn size="small" icon @click="deleteComment(index)">
+											<v-icon>mdi-delete</v-icon>
+										</v-btn>
+									</v-col>
+								</v-row>
+							</v-list-item>
+						</template>
+
+
+
+						<!-- No Comments Yet -->
+						<v-list-item v-else>
+							No comments yet.
+						</v-list-item>
+
+						<!-- New Comment Input -->
+						<v-list-item v-if="showCommentInput">
+							<v-textarea
+								v-model="newComment"
+								label="Write your comment..."
+								outlined
+								clearable
+								append-inner-icon="mdi-send"
+								@click:append-inner="submitComment"
+							></v-textarea>
+						</v-list-item>
+					</v-list>
+				</v-card-text>
+
+				<v-card-actions>
+					<v-btn text @click="showViewDialog = false">Close</v-btn>
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
@@ -228,6 +352,7 @@ export default {
 			deleteDialog: false,
 			selectedTaskId: null,
 			showAddEditDialog: false,
+			showViewDialog: false,
 			currentTask: {
 				project_id: this.projectId,
 				name: "",
@@ -242,6 +367,10 @@ export default {
 
 			members: [],
 			isEdit: false,
+
+			newComment: '',
+			comments: [],
+			showCommentInput: false,
 		};
 	},
 	watch: {
@@ -320,8 +449,12 @@ export default {
 					this.isLoading = false;
 				});
 		},
-		infoTask(taskId){
-			// this.$router.push({ name: "task-info-page", params: { id: taskId } });
+		infoTask(taskId) {
+			const task = this.tasks.find(t => t.id === taskId);
+			this.currentTask = { ...task };
+			this.showCommentInput = false;
+			this.showViewDialog = true;
+			this.fetchComments(taskId);
 		},
 		confirmDelete(taskId) {
 			this.selectedTaskId = taskId;
@@ -394,6 +527,80 @@ export default {
 		formatDate(date) {
 			return new Date(date).toLocaleDateString();
 		},
+		fetchComments(taskId) {
+			TaskClient.fetchComments(taskId)
+				.then((response) => {
+					this.comments = response.data.comments;
+				})
+				.catch((error) => {
+					console.error('Error fetching comments:', error);
+					this.$toast.error('Failed to fetch comments.');
+				});
+		},
+		addCommentInput() {
+			this.showCommentInput = true;
+			this.newComment = "";
+		},
+		submitComment() {
+			if (!this.newComment.trim()) {
+				this.$toast.error('Comment cannot be empty.');
+				return;
+			}
+
+			const createdBy = this.$auth.user().user.id;
+
+			TaskClient.addComment({
+				task_id: this.currentTask.id,
+				comment: this.newComment,
+				creator: createdBy,
+			})
+				.then((response) => {
+					this.comments.push(response.data.comment);
+					this.newComment = '';
+					this.$toast.success('Comment added successfully.');
+					this.showCommentInput = false;
+					this.fetchComments(this.currentTask.id)
+				})
+				.catch((error) => {
+					console.error('Error adding comment:', error);
+					this.$toast.error('Failed to add comment.');
+				});
+		},
+		editComment(index) {
+			const comment = this.comments[index];
+			const newText = prompt('Edit Comment:', comment.text);
+			if (newText !== null && newText.trim() !== '') {
+				TaskClient.editComment({comment_id: comment.id, comment: newText })
+					.then(() => {
+						this.fetchComments(this.currentTask.id)
+						this.$toast.success('Comment updated successfully.');
+					})
+					.catch((error) => {
+						console.error('Error updating comment:', error);
+						this.$toast.error('Failed to update comment.');
+					});
+			}
+		},
+		deleteComment(index) {
+			const comment = this.comments[index];
+			if (confirm('Are you sure you want to delete this comment?')) {
+				TaskClient.deleteComment(comment.id)
+					.then(() => {
+						this.fetchComments(this.currentTask.id)
+						this.$toast.success('Comment deleted successfully.');
+					})
+					.catch((error) => {
+						console.error('Error deleting comment:', error);
+						this.$toast.error('Failed to delete comment.');
+					});
+			}
+		},
 	},
 };
 </script>
+
+<style scoped>
+.v-row {
+  flex-wrap: wrap;
+}
+</style>

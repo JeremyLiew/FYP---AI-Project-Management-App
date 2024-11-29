@@ -14,9 +14,9 @@
 			<v-tab>Task Listings</v-tab>
 		</v-tabs>
 
-		<v-tabs-items v-model="activeTab">
+		<v-tabs-window v-model="activeTab">
 			<!-- Overview Tab -->
-			<v-tab-item v-if="activeTab === 0">
+			<v-tab-window-item v-if="activeTab === 0">
 				<v-container>
 					<h2>Project Overview</h2>
 					<v-row>
@@ -62,17 +62,17 @@
 					<h3>Additional Information</h3>
 					<p>
 						<strong>Budget: </strong>
-						<span v-if="project.budget">{{ project.budget.amount | currency }}</span>
+						<span v-if="project.budget">{{ project.budget.amount }}</span>
 						<span v-else>N/A</span>
 					</p>
 				</v-container>
-			</v-tab-item>
+			</v-tab-window-item>
 
 			<!-- Task Listings Tab -->
-			<v-tab-item v-if="activeTab === 1">
+			<v-tab-window-item v-if="activeTab === 1">
 				<TaskListings :project-id="project.id" />
-			</v-tab-item>
-		</v-tabs-items>
+			</v-tab-window-item>
+		</v-tabs-window>
 	</v-container>
 </template>
 

@@ -20,4 +20,9 @@ class Task extends Model
     {
         return $this->belongsToMany(User::class, 'user_task_mappings');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

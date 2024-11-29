@@ -64,9 +64,9 @@
 						<v-row class="pa-2 align-center">
 							<!-- Project Details -->
 							<v-col cols="12" sm="4">
-								<v-list-item-title class="font-weight-bold">{{ project.name }}</v-list-item-title>
+								<v-list-item-title class="font-weight-bold text-wrap">{{ project.name }}</v-list-item-title>
 								<v-list-item-subtitle style="line-height: unset !important;">
-									{{ project.description || "No description available." }}
+									<pre class="text-wrap">{{ project.description || "No description available." }}</pre>
 								</v-list-item-subtitle>
 							</v-col>
 							<!-- Status and Priority -->

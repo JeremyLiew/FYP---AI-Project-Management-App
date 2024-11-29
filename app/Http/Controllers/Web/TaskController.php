@@ -3,12 +3,15 @@
 namespace App\Http\Controllers\Web;
 
 use App\Models\Task;
+use App\Models\Comment;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\CreateCommentRequest;
 use App\Http\Requests\Web\CreateTaskRequest;
 use App\Http\Requests\Web\UpdateTaskRequest;
 use App\Http\Requests\Web\GetTaskListingsRequest;
+use App\Http\Requests\Web\UpdateCommentRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TaskController extends Controller
@@ -131,6 +134,84 @@ class TaskController extends Controller
                 'message' => 'Failed to fetch members.',
                 'error' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function getTaskComments($id)
+    {
+        try {
+            $task = Task::findOrFail($id);
+
+            $comments = $task->comments()->with('user')->get()->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'text' => $comment->comment,
+                    'author' => $comment->user->name ?? 'Unknown',
+                    'created_at' => $comment->created_at,
+                    'updated_at' => $comment->updated_at,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'comments' => $comments,
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Task not found.'], 404);
+        }
+    }
+
+
+    public function createTaskComment(CreateCommentRequest $request)
+    {
+
+        try {
+            $comment = Comment::create([
+                'task_id' => $request->input('task_id'),
+                'comment' => $request->input('comment'),
+                'user_id' => $request->input('creator'),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment created successfully.',
+                'comment' => $comment,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to create comment.'], 500);
+        }
+    }
+
+    public function editTaskComment(UpdateCommentRequest $request)
+    {
+
+        try {
+            $comment = Comment::findOrFail($request->input('comment_id'));
+            $comment->update(['comment' => $request->input('comment')]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment updated successfully.',
+                'comment' => $comment,
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Comment not found.'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to update comment.'], 500);
+        }
+    }
+
+    public function deleteTaskComment($id)
+    {
+        try {
+            $comment = Comment::findOrFail($id);
+            $comment->delete();
+
+            return response()->json(['message' => 'Comment deleted successfully.']);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Comment not found.'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete comment.'], 500);
         }
     }
 }

@@ -37,6 +37,10 @@ Route::prefix('api')->middleware([])->group(function () {
         Route::get('/info/{id}', [TaskController::class, 'TaskInfo']);
         Route::get('/{project}/members', [TaskController::class, 'fetchMembers']);
         Route::post('/delete/{id}', [TaskController::class, 'deleteTask']);
+        Route::get('/comments/{id}', [TaskController::class, 'getTaskComments']);
+        Route::post('/create/comment', [TaskController::class, 'createTaskComment']);
+        Route::post('/edit/comment', [TaskController::class, 'editTaskComment']);
+        Route::post('/delete/comment/{id}', [TaskController::class, 'deleteTaskComment']);
     });
 });
 
