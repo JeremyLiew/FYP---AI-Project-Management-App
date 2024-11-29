@@ -311,6 +311,7 @@
 								outlined
 								clearable
 								append-inner-icon="mdi-send"
+								:error-messages="errors.comment"
 								@click:append-inner="submitComment"
 							></v-textarea>
 						</v-list-item>
@@ -542,13 +543,8 @@ export default {
 			this.newComment = "";
 		},
 		submitComment() {
-			if (!this.newComment.trim()) {
-				this.$toast.error('Comment cannot be empty.');
-				return;
-			}
-
+			this.errors = {};
 			const createdBy = this.$auth.user().user.id;
-
 			TaskClient.addComment({
 				task_id: this.currentTask.id,
 				comment: this.newComment,
@@ -563,7 +559,7 @@ export default {
 				})
 				.catch((error) => {
 					console.error('Error adding comment:', error);
-					this.$toast.error('Failed to add comment.');
+					this.errors = error.response?.data.errors || {};
 				});
 		},
 		editComment(index) {
