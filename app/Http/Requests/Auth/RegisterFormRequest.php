@@ -17,7 +17,14 @@ class RegisterFormRequest extends FormRequest
         return [
             'name' => ["required"],
             'email' => ["required", "email"],
-            'password' => ['required'],
+            'password' => [
+            'required',
+            'string',
+            'min:6',
+            'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/',
+            'confirmed'
+        ],
+        'password_confirmation' => ['required', 'string', 'same:password'],
         ];
     }
 
@@ -29,7 +36,8 @@ class RegisterFormRequest extends FormRequest
     public function messages()
     {
         return [
-            // 'firstName.required' => 'Page\'s Title field is required.',
+            'password.regex' => 'Password must have at least 6 characters, include an uppercase letter, a lowercase letter, a number, and a special character.',
+            'password.confirmed' => 'Password confirmation does not match.',
         ];
 
     }

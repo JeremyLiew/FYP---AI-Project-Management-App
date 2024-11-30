@@ -2,25 +2,27 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Exceptions\BadRequestException;
+use App\Models\User;
+use Swift_TransportException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\AuthPasswordUpdateFormRequest;
-use App\Http\Requests\Auth\AuthProfileUpdateFormRequest;
-use App\Http\Requests\Auth\ForgotPasswordRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Exceptions\BadRequestException;
+use App\Http\Requests\IdOnlyFormRequest;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
 use App\Http\Requests\Auth\LoginFormRequest;
+use Illuminate\Auth\Passwords\PasswordBroker;
+use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\Auth\RegisterFormRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
-use App\Http\Requests\IdOnlyFormRequest;
-use App\Models\User;
-use Illuminate\Auth\Passwords\PasswordBroker;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Facades\Log;
-use Swift_TransportException;
+use App\Http\Requests\Auth\ForgotPasswordRequest;
 
+use App\Http\Requests\Auth\AuthProfileUpdateFormRequest;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use App\Http\Requests\Auth\AuthPasswordUpdateFormRequest;
 
 
 class AuthController extends Controller
@@ -34,15 +36,32 @@ class AuthController extends Controller
             'password' => $payload['password'],
         ];
 
-        return DB::transaction(function () use ($payload) {
+        $email = $payload['email'];
+        $key = 'login.attempts.' . $email;
+
+        // Check rate limits
+        if (RateLimiter::tooManyAttempts($key, 5)) {
+            $seconds = RateLimiter::availableIn($key);
+            return self::errorResponse(
+                "Too many login attempts. Please try again in $seconds seconds.",
+                null,
+                Response::HTTP_TOO_MANY_REQUESTS
+            );
+        }
+
+        return DB::transaction(function () use ($payload, $key) {
             $token = null;
 
-            if (!Auth::attempt($payload['credentials'])) {
-                return self::errorResponse('Credentials not match');
+            if (!Auth::attempt($payload['credentials'], $payload['remember'] ?? false)) {
+                RateLimiter::hit($key, 60);
+                return self::errorResponse('Credentials not match', null, Response::HTTP_UNAUTHORIZED);
             }
 
+            // Clear rate limiter on successful login
+            RateLimiter::clear($key);
+
             $user = auth()->user();
-            $token = $user->createToken('personal-token', expiresAt:now()->addHour());
+            $token = $user->createToken('personal-token', expiresAt: now()->addHour());
 
             return self::successResponse('Success', [
                 'token' => $token->plainTextToken,

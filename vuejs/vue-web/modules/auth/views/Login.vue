@@ -15,12 +15,16 @@
 						</v-card-title>
 						<v-divider></v-divider>
 						<v-card-text class="pa-6">
+							<div v-if="isLockedOut" class="text-caption error--text font-italic">
+								Locked out! Please wait {{ lockoutTimer }} seconds.
+							</div>
 							<v-text-field
 								v-model="user.email"
 								label="Email"
 								placeholder="Email"
 								prepend-icon="mdi-email"
 								:error-messages="errors.email"
+								:disabled="isLockedOut"
 								@keyup.enter="$refs['password'].focus()"
 							></v-text-field>
 							<v-text-field
@@ -31,6 +35,7 @@
 								placeholder="Enter Password"
 								prepend-icon="mdi-lock"
 								:error-messages="errors.password"
+								:disabled="isLockedOut"
 								@keyup.enter="login()"
 							>
 								<template #append>
@@ -46,12 +51,20 @@
 						<div class="text-caption error--text font-italic px-10">
 							{{ error_else }}
 						</div>
+						<v-card-actions class="d-flex justify-center pa-0">
+							<v-checkbox
+								v-model="user.remember"
+								label="Remember Me"
+							></v-checkbox>
+						</v-card-actions>
+						<v-divider></v-divider>
 						<v-card-actions class="pa-6 pt-3">
 							<v-btn
 								rounded block
 								color="primary"
 								class="white--text text-capitalize"
 								:loading="is_loading"
+								:disabled="isLockedOut"
 								@click="login()"
 							>
 								Login
@@ -80,12 +93,15 @@ export default {
 		return {
 			user:{
 				email : null,
-				password : null
+				password : null,
+				remember : null,
 			},
 			errors : {},
 			error_else: null,
 			is_loading : false,
 			show_pass: false,
+			isLockedOut: false,
+			lockoutTimer: 0,
 		}
 	},
 	created(){
@@ -104,6 +120,7 @@ export default {
 				data: {
 					email : this.user.email,
 					password : this.user.password,
+					remember : this.user.remember,
 				},
 				staySignedIn: true,
 				fetchUser: true,
@@ -115,17 +132,33 @@ export default {
 					this.$router.push({ name: 'home-page' });
 				}, 500);
 			}).catch((err)=>{
-				this.user.email = ''
-				this.user.password = ''
-				if(err.response.status == '404'){
-					this.$toast.error("Credentials not match")
-				}
-				else{
-					this.errors = err.response.data.errors
+				if (err.response.status === 429) {
+					const retryAfter = parseInt(err.response.headers["retry-after"], 10) || 60;
+					this.lockoutTimer = retryAfter;
+					this.isLockedOut = true;
+					this.$toast.error(
+						`Too many login attempts. Please try again in ${retryAfter} seconds.`
+					);
+					this.startLockoutTimer();
+				} else if (err.response.status === 401) {
+					this.$toast.error("Invalid credentials.");
+				} else {
+					this.errors = err.response.data.errors || {};
 				}
 			}).finally(()=>{
 				this.is_loading = false
 			});
+		},
+		startLockoutTimer() {
+			const interval = setInterval(() => {
+				if (this.lockoutTimer > 0) {
+					this.lockoutTimer -= 1;
+				} else {
+					this.isLockedOut = false;
+					clearInterval(interval);
+					this.$toast.success("You can now attempt to login.");
+				}
+			}, 1000);
 		},
 	}
 }

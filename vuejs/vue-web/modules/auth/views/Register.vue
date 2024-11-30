@@ -72,6 +72,16 @@
 									</v-btn>
 								</template>
 							</v-text-field>
+							<div class="d-flex justify-space-between"><div>Password Strength</div><div class="text-caption">{{ passwordStrengthText }}</div></div>
+							<v-progress-linear
+								:model-value="passwordStrength"
+								:color="passwordStrengthColor"
+								bg-color="transparent"
+								class="px-2 py-4"
+							>
+							</v-progress-linear>
+							<v-divider></v-divider>
+							<!-- <div class="pb-4">Use 6 or more characters with a mix of letters, numbers & symbols</div> -->
 						</v-card-text>
 						<div class="text-caption error--text font-italic px-10">
 							{{ error_else }}
@@ -110,9 +120,54 @@ export default {
 			error_else: null,
 			is_loading: false,
 			show_pass: false,
+			passwordStrength: 0,
 		};
 	},
+	computed: {
+		passwordStrengthColor() {
+			if (this.passwordStrength === 20) return 'red';
+			if (this.passwordStrength === 40) return 'red';
+			if (this.passwordStrength === 60) return 'orange';
+			if (this.passwordStrength === 80) return 'light-green';
+			if (this.passwordStrength === 100) return 'green';
+			return 'grey';
+		},
+		passwordStrengthText() {
+			if (this.passwordStrength === 20) return 'Very Weak';
+			if (this.passwordStrength === 40) return 'Weak';
+			if (this.passwordStrength === 60) return 'Normal';
+			if (this.passwordStrength === 80) return 'Good';
+			if (this.passwordStrength === 100) return 'Great';
+			return 'Poor';
+		},
+	},
+	watch: {
+		'user.password': function (newPassword) {
+			this.checkPasswordStrength(newPassword || "");
+		},
+	},
 	methods: {
+		checkPasswordStrength(password) {
+			const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+			let strength = 0;
+
+			if (password.length >= 6) strength += 20; // Length check
+			if (/[A-Z]/.test(password)) strength += 20; // Uppercase check
+			if (/[a-z]/.test(password)) strength += 20; // Lowercase check
+			if (/\d/.test(password)) strength += 20; // Number check
+			if (/[\W_]/.test(password)) strength += 20; // Special character check
+
+			if (!regex.test(password)) {
+				this.errors.password = [
+					"Password must have at least 6 characters, include an uppercase letter, a lowercase letter, a number, and a special character.",
+				];
+				this.passwordStrength = 0; // Reset if invalid
+			} else {
+				this.errors.password = null;
+			}
+
+			this.passwordStrength = strength;
+		},
 		register() {
 			this.errors = {};
 			this.error_else = null;

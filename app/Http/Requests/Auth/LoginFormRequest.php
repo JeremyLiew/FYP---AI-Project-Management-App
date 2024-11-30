@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Queue\Middleware\ThrottlesExceptions;
 use Illuminate\Validation\Rule;
 
 class LoginFormRequest extends FormRequest
@@ -18,6 +19,7 @@ class LoginFormRequest extends FormRequest
             'email' => ["required", "email"],
             'password' => ['required'],
             'device_name' => ['nullable', 'string'],
+            'remember' => ['nullable', 'boolean'],
         ];
     }
 
