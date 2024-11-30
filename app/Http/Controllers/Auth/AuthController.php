@@ -94,7 +94,7 @@ class AuthController extends Controller
 				'email' => $payload['email'],
 				'password' => Hash::make($payload['password']),
 				'email_verified_at' => $payload['email_verified_at'] ?? null,
-                'isAdmin' => false,
+                'application_role_id' => 3, // default to normal user
 			]);
 
 			// if ($sendEmail && $user->email)
