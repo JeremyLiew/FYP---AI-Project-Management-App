@@ -1,12 +1,8 @@
 <template>
 	<v-container>
 		<!-- Page Title -->
-		<v-row>
-			<v-col cols="12">
-				<h1 class="text-subtitle-1">Project Management</h1>
-			</v-col>
-		</v-row>
-  
+		<h2>Project Management</h2>
+		<v-divider></v-divider>
 		<!-- Header with Create Button -->
 		<v-row class="d-flex align-center mb-4">
 			<v-col cols="12" md="4">

@@ -1,7 +1,7 @@
 <template>
 	<v-container>
 		<h2>Task Listings</h2>
-
+		<v-divider></v-divider>
 		<!-- Search and Filter Section -->
 		<v-row>
 			<v-col cols="12" md="4">
@@ -272,7 +272,7 @@
 							<v-list-item v-for="(comment, index) in comments" :key="comment.id">
 								<v-row class="d-flex align-center">
 									<!-- Author and Comment -->
-									<v-col cols="10">
+									<v-col :cols="$auth.user().user.name == comment.author?'10':'12'">
 										<v-list-item-title class="text-subtitle-1 font-weight-bold">
 											{{ comment.author }}
 										</v-list-item-title>
@@ -284,7 +284,7 @@
 									</v-col>
 
 									<!-- Actions (Edit and Delete) -->
-									<v-col class="d-flex justify-end" cols="2">
+									<v-col v-if="$auth.user().user.name == comment.author" class="d-flex justify-end" cols="2">
 										<v-btn size="small" icon @click="editComment(index)">
 											<v-icon>mdi-pencil</v-icon>
 										</v-btn>
@@ -295,8 +295,6 @@
 								</v-row>
 							</v-list-item>
 						</template>
-
-
 
 						<!-- No Comments Yet -->
 						<v-list-item v-else>

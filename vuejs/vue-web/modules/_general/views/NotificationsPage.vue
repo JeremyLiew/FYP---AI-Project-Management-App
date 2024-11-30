@@ -2,44 +2,46 @@
 	<v-container>
 		<h2>Notifications</h2>
 
-		<!-- Notification List -->
-		<v-list two-line class="px-6 transparent-list">
-			<v-divider></v-divider>
-			<v-list-item
-				v-for="notification in notifications"
-				:key="notification.id"
-				class="px-0 hover-elevate"
-				@click="openNotificationDialog(notification)"
-			>
-				<v-row class="pa-2 align-center">
-					<!-- Notification Message -->
-					<v-col cols="12" sm="8">
-						<v-list-item-title class="text-wrap">{{ notification.message }}</v-list-item-title>
-						<v-list-item-subtitle>
-							<span>{{ formatDate(notification.created_at) }}</span>
-						</v-list-item-subtitle>
-					</v-col>
+		<template v-if="modelLoading">
+			<v-skeleton-loader type="article"></v-skeleton-loader>
+		</template>
 
-					<!-- Status Indicator (Unread/Read) -->
-					<v-col cols="12" sm="4" class="d-flex flex-column align-center">
-						<v-chip
-							:color="notification.is_read ? 'green' : 'gray'"
-							dark
-							class="mb-1"
-							outlined
-							small
-						>
-							{{ notification.is_read ? 'Read' : 'Unread' }}
-						</v-chip>
-					</v-col>
-				</v-row>
-			</v-list-item>
-		</v-list>
-
-		<!-- No Notifications Available -->
-		<div v-if="notifications.length === 0" class="text-center">
-			<v-alert type="info" outlined>No notifications available.</v-alert>
-		</div>
+		<template v-else>
+			<!-- Notification List -->
+			<v-list two-line class="px-6 transparent-list">
+				<v-divider></v-divider>
+				<v-list-item
+					v-for="notification in notifications"
+					:key="notification.id"
+					class="px-0 hover-elevate"
+					@click="openNotificationDialog(notification)"
+				>
+					<v-row class="pa-2 align-center">
+						<!-- Notification Message -->
+						<v-col cols="12" sm="8">
+							<v-list-item-title class="text-wrap">{{ notification.message }}</v-list-item-title>
+							<v-list-item-subtitle>
+								<span>{{ formatDate(notification.created_at) }}</span>
+							</v-list-item-subtitle>
+						</v-col>
+						<!-- Status Indicator (Unread/Read) -->
+						<v-col cols="12" sm="4" class="d-flex flex-column align-center">
+							<v-chip
+								:color="notification.is_read ? 'green' : 'gray'"
+								dark
+								class="mb-1"
+								outlined
+								small
+							>
+								{{ notification.is_read ? 'Read' : 'Unread' }}
+							</v-chip>
+						</v-col>
+					</v-row>
+				</v-list-item>
+			</v-list>
+			<!-- No Notifications Available -->
+			<div v-if="!hasData" class="text-center"><p>No notifications available.</p></div>
+		</template>
 
 		<!-- Notification Details Dialog -->
 		<v-dialog v-model="dialogOpen" max-width="600px">
@@ -66,7 +68,9 @@ export default {
 		return {
 			notifications: [],
 			dialogOpen: false,
-			selectedNotification: null
+			selectedNotification: null,
+			hasData: true,
+			modelLoading: true,
 		};
 	},
 	created() {
@@ -74,12 +78,18 @@ export default {
 	},
 	methods: {
 		fetchNotifications() {
+			this.modelLoading = true;
+			this.hasData = true;
 			GeneralClient.fetchNotifications()
 				.then(response => {
 					this.notifications = response.data;
+					this.hasData = this.notifications.length > 0;
 				})
 				.catch(error => {
 					console.error("Error fetching notifications", error);
+					this.hasData = false;
+				}).finally(()=>{
+					this.modelLoading = false
 				});
 		},
 		openNotificationDialog(notification) {
