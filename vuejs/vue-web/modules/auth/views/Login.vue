@@ -15,6 +15,13 @@
 						</v-card-title>
 						<v-divider></v-divider>
 						<v-card-text class="pa-6">
+							<!-- Success or Error Message -->
+							<div v-if="successMessage" class="text-caption success--text font-italic">
+								{{ successMessage }}
+							</div>
+							<div v-if="errorMessage" class="text-caption error--text font-italic">
+								{{ errorMessage }}
+							</div>
 							<div v-if="isLockedOut" class="text-caption error--text font-italic">
 								Locked out! Please wait {{ lockoutTimer }} seconds.
 							</div>
@@ -87,67 +94,76 @@
 </template>
 
 <script>
-
 export default {
 	data() {
 		return {
-			user:{
-				email : null,
-				password : null,
-				remember : null,
+			user: {
+				email: null,
+				password: null,
+				remember: null,
 			},
-			errors : {},
+			errors: {},
 			error_else: null,
-			is_loading : false,
+			is_loading: false,
 			show_pass: false,
 			isLockedOut: false,
 			lockoutTimer: 0,
+			successMessage: null,
+			errorMessage: null,
+		};
+	},
+	created() {
+		// Extract success and error messages from query parameters
+		const query = this.$route.query;
+		if (query.success) {
+			this.successMessage = query.success;
+		}
+		if (query.error) {
+			this.errorMessage = query.error;
 		}
 	},
-	created(){
-		// check is logined
-		// if(this.$auth.check()){
-		// 	this.redirectUser()
-		// }
-	},
-	methods:{
-		async login(){
-			this.errors = {}
-			this.error_else = null
+	methods: {
+		async login() {
+			this.errors = {};
+			this.error_else = null;
 			this.is_loading = true;
 
-			this.$auth.login({
-				data: {
-					email : this.user.email,
-					password : this.user.password,
-					remember : this.user.remember,
-				},
-				staySignedIn: true,
-				fetchUser: true,
-				redirect: false,
-			}).then((res)=>{
-				this.$toast.success("Logged in successfully")
+			this.$auth
+				.login({
+					data: {
+						email: this.user.email,
+						password: this.user.password,
+						remember: this.user.remember,
+					},
+					staySignedIn: true,
+					fetchUser: true,
+					redirect: false,
+				})
+				.then((res) => {
+					this.$toast.success("Logged in successfully");
 
-				setTimeout(() => {
-					this.$router.push({ name: 'home-page' });
-				}, 500);
-			}).catch((err)=>{
-				if (err.response.status === 429) {
-					const retryAfter = parseInt(err.response.headers["retry-after"], 10) || 60;
-					this.lockoutTimer = retryAfter;
-					this.isLockedOut = true;
-					this.$toast.error(
-						`Too many login attempts. Please try again in ${retryAfter} seconds.`
-					);
-					this.startLockoutTimer();
-				} else if (err.response.status === 401) {
-					this.$toast.error("Invalid credentials.");
-				} else {
-					this.errors = err.response.data.errors || {};
-				}
-			}).finally(()=>{
-				this.is_loading = false
-			});
+					setTimeout(() => {
+						this.$router.push({ name: "home-page" });
+					}, 500);
+				})
+				.catch((err) => {
+					if (err.response.status === 429) {
+						const retryAfter = parseInt(err.response.headers["retry-after"], 10) || 60;
+						this.lockoutTimer = retryAfter;
+						this.isLockedOut = true;
+						this.$toast.error(
+							`Too many login attempts. Please try again in ${retryAfter} seconds.`
+						);
+						this.startLockoutTimer();
+					} else if (err.response.status === 401) {
+						this.$toast.error("Invalid credentials.");
+					} else {
+						this.errors = err.response.data.errors || {};
+					}
+				})
+				.finally(() => {
+					this.is_loading = false;
+				});
 		},
 		startLockoutTimer() {
 			const interval = setInterval(() => {
@@ -160,6 +176,15 @@ export default {
 				}
 			}, 1000);
 		},
-	}
-}
+	},
+};
 </script>
+
+<style>
+.success--text {
+	color: green;
+}
+.error--text {
+	color: red;
+}
+</style>

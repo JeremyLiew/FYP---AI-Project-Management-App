@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\CustomVerificationEmail;
 use App\Exceptions\BadRequestException;
 use App\Http\Requests\IdOnlyFormRequest;
 use Illuminate\Support\Facades\Password;
@@ -17,9 +19,9 @@ use App\Http\Requests\Auth\LoginFormRequest;
 use Illuminate\Auth\Passwords\PasswordBroker;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Requests\Auth\RegisterFormRequest;
+
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
-
 use App\Http\Requests\Auth\AuthProfileUpdateFormRequest;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use App\Http\Requests\Auth\AuthPasswordUpdateFormRequest;
@@ -97,10 +99,9 @@ class AuthController extends Controller
                 'application_role_id' => 3, // default to normal user
 			]);
 
-			// if ($sendEmail && $user->email)
-			// {
-			// 	self::sendAccountVerifyEmail($user);
-			// }
+			// Send custom verification email
+            $verificationUrl = $user->generateVerificationUrl();
+            Mail::to($user->email)->send(new CustomVerificationEmail($verificationUrl));
 
 			return $user;
 		});
