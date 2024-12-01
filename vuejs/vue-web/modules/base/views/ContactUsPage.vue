@@ -102,6 +102,8 @@
 </template>
 
 <script>
+import GeneralClient from "../../_general/client"
+
 export default {
 	data() {
 		return {
@@ -125,11 +127,18 @@ export default {
 	methods: {
 		submitForm() {
 			this.loading = true;
-			setTimeout(() => {
-				this.loading = false;
-				this.$refs.contactForm.reset();
-				this.$toast.success("Form submitted successfully")
-			}, 2000);
+
+			GeneralClient.submitContactUs(this.form)
+				.then(() => {
+					this.$toast.success("Form submitted successfully!");
+					this.$refs.contactForm.reset();
+				})
+				.catch((err) => {
+					this.$toast.error(err.response.data.message || "An error occurred!");
+				})
+				.finally(() => {
+					this.loading = false;
+				});
 		},
 	},
 };

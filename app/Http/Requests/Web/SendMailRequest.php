@@ -24,7 +24,11 @@ class SendMailRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'bail|required|email|unique:newsletter_subscribers,email',
+            'firstName' => 'required|string|max:255',
+            'lastName' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'subject' => 'nullable|string|max:255',
+            'message' => 'required|string',
         ];
     }
 

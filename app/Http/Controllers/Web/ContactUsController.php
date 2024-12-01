@@ -14,26 +14,20 @@ class ContactUsController extends Controller
 {
     public function sendEmail(SendMailRequest $request)
     {
-        // $payload = $request->validated();
+        $payload = $request->validated();
 
-        // $result = DB::transaction(function () use ($payload){
-        //     {
-        //         $newsletter_subscriber = NewsletterSubscriber::create([
-        //             'email' => $payload['email'],
-        //         ]);
-        //     }
+        $data = [
+            'firstName' => $payload['firstName'],
+            'lastName' => $payload['lastName'],
+            'email' => $payload['email'],
+            'subject' => $payload['subject'] ?? 'No Subject',
+            'message' => $payload['message'],
+        ];
 
-        //     $data = [
-        //         "email" =>  $payload['email'],
-        //     ];
-
-        //     Mail::to($payload['email'])->send(new ContactUs($data));
-
-        //     return $newsletter_subscriber;
-
-        // });
+        // Send email to your address
+        Mail::to(env('MAIL_USERNAME'))->send(new ContactUs($data));
 
 
-        return self::successResponse("Success", $result);
+        return response()->json(['message' => 'Email sent successfully!'], 200);
     }
 }

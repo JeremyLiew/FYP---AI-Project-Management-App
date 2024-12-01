@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Send Email</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
 </head>
 <body>
-    <h2>Confirm Your Subscription to Our Newsletter</h2>
-    <p>Dear {{ $email  }}</p>
-    <p>Thank you for joining our community! We're excited to have you as a subscriber to our newsletter.</p>
-    <p>Thank You</p>
-    <p>Regards,</p>
-    {{ config('app.name') }}
-    <p><a target="_blank" href="https://www.instagram.com/normalizestrange/">@normalizestrange</a></p>
+    <h1>New Contact Us Submission</h1>
+    <p><strong>First Name:</strong> {{ $data['firstName'] }}</p>
+    <p><strong>Last Name:</strong> {{ $data['lastName'] }}</p>
+    <p><strong>Email:</strong> {{ $data['email'] }}</p>
+    <p><strong>Subject:</strong> {{ $data['subject'] }}</p>
+    <p><strong>Message:</strong></p>
+    <p>{{ $data['message'] }}</p>
 </body>
 </html>
-

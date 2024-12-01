@@ -21,7 +21,6 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
         Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
     });
-
 });
 
 Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {

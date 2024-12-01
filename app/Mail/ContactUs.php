@@ -29,7 +29,7 @@ class ContactUs extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'NMS Newsletter',
+            subject: $this->data['subject'],
         );
     }
 
@@ -41,7 +41,7 @@ class ContactUs extends Mailable
         return new Content(
             view: 'mail.send-mail',
             with: [
-                'email' => $this->data['email'],
+                'data' => $this->data,
             ]
         );
     }
