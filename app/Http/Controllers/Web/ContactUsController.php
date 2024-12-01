@@ -25,7 +25,7 @@ class ContactUsController extends Controller
         ];
 
         // Send email to your address
-        Mail::to(env('MAIL_USERNAME'))->send(new ContactUs($data));
+        Mail::to(env('MAIL_USERNAME','jliew1114@gmail.com'))->send(new ContactUs($data));
 
 
         return response()->json(['message' => 'Email sent successfully!'], 200);
