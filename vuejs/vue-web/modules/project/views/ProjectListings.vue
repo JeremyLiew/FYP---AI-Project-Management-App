@@ -42,7 +42,7 @@
 				<v-btn depressed @click="createProject">Create Project</v-btn>
 			</v-col>
 		</v-row>
-  
+
 		<section v-if="hasData" style="height:100%;">
 			<template v-if="modelLoading">
 				<v-skeleton-loader type="article"></v-skeleton-loader>

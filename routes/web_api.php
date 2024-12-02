@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Web\{
+    ActivityLogController,
     ContactUsController,
     ProjectController,
     TaskController,
@@ -59,6 +60,13 @@ Route::prefix('api')->middleware([])->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    });
+});
+
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('activity-log')->group(function () {
+        Route::get('/listings', [ActivityLogController::class, 'getActivityLogs']);
+        Route::get('/users', [ActivityLogController::class, 'fetchUsers']);
     });
 });
 

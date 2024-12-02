@@ -11,6 +11,10 @@ class ActivityLog extends Model
 
     protected $fillable = ['user_id', 'model_id', 'model_type', 'ip_address', 'action', 'changes', 'log_level'];
 
+    protected $casts = [
+        'changes' => 'array',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

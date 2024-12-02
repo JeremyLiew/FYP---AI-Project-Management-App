@@ -57,6 +57,12 @@
 			<v-divider></v-divider>
 
 			<div class="d-flex flex-column justify-content-end h-100">
+				<v-list-item @click="goToActivityLog">
+					<v-list-item-media>
+						<v-icon>mdi-math-log</v-icon>
+					</v-list-item-media>
+					<v-list-item-title v-if="drawerHovered" class="pl-3">Activity Log</v-list-item-title>
+				</v-list-item>
 				<v-list-item @click="goToNotifications">
 					<v-list-item-media>
 						<v-icon>mdi-bell</v-icon>
@@ -146,6 +152,9 @@ export default {
 		},
 		goToNotifications() {
 			this.$router.push({ name: 'notifications-page' });
+		},
+		goToActivityLog() {
+			this.$router.push({ name: 'activity-log-page' });
 		},
 	},
 };

@@ -6,17 +6,24 @@ use App\Models\User;
 use App\Models\Project;
 use App\Models\ProjectRole;
 use App\Models\Notification;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Models\UserNotificationMapping;
 use App\Http\Requests\Web\CreateProjectRequest;
 use App\Http\Requests\Web\UpdateProjectRequest;
 use App\Http\Requests\Web\GetProjectListingsRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
+use App\Services\ActivityLogger;
+
 class ProjectController extends Controller
 {
+    protected $activityLogger;
+
+    public function __construct(ActivityLogger $activityLogger)
+    {
+        $this->activityLogger = $activityLogger;
+    }
+
     public function getProjectListings(GetProjectListingsRequest $request)
     {
         $perPage = $request->input('itemsPerPage', 10);
@@ -39,6 +46,8 @@ class ProjectController extends Controller
         }
 
         $projects = $projectsQuery->paginate($perPage);
+
+        $this->activityLogger->logActivity('Viewed project listings', Project::class, 0);
 
         return response()->json([
                 'projects' => $projects,
@@ -74,6 +83,8 @@ class ProjectController extends Controller
                 'name' => $role->name,
             ];
         });
+
+        $this->activityLogger->logActivity('Viewed project details', Project::class, $id);
 
         return response()->json([
             'project' => $project,
@@ -128,6 +139,8 @@ class ProjectController extends Controller
             }
         }
 
+        $this->activityLogger->logActivity('Created a new project', Project::class, $project->id);
+
         return response()->json([
             'message' => 'Project created successfully.',
             'project' => $project
@@ -141,6 +154,8 @@ class ProjectController extends Controller
         if (!$project) {
             return response()->json(['message' => 'Project not found'], 404);
         }
+
+        $previousData = $project->getOriginal();
 
         $project->update([
             'name' => $request->input('name'),
@@ -202,6 +217,11 @@ class ProjectController extends Controller
             }
         }
 
+        $this->activityLogger->logActivity('Updated project details', Project::class, $project->id, [
+            'previous' => $previousData,
+            'updated' => $project->getAttributes()
+        ]);
+
         return response()->json([
             'message' => 'Project updated successfully.',
             'project' => $project
@@ -212,6 +232,9 @@ class ProjectController extends Controller
     {
         try {
             $project = Project::findOrFail($id);
+
+            $this->activityLogger->logActivity('Deleted a project', Project::class, $id);
+
             $project->delete();
 
             return response()->json(['message' => 'Project deleted successfully.'], 200);

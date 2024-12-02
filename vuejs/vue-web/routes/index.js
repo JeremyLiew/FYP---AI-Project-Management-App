@@ -2,6 +2,7 @@ import * as BaseModule from '../modules/base/router'
 import * as GeneralModule from '../modules/_general/router'
 import * as AuthModule from '../modules/auth/router'
 import * as ProjectModule from '../modules/project/router'
+import * as ActivityLogModule from '../modules/activity_log/router'
 
 import BaseLayout from '../layouts/BaseLayout.vue';
 
@@ -55,6 +56,12 @@ const routes = [
 			},
 			{
 				path: '/profile', name: 'profile-page', component: GeneralModule.ProfilePage,
+				meta: {
+					auth: true
+				}
+			},
+			{
+				path: '/activity-log', name: 'activity-log-page', component: ActivityLogModule.ActivityLogPage,
 				meta: {
 					auth: true
 				}
