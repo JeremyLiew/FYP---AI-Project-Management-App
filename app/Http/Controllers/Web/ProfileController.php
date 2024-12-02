@@ -51,4 +51,16 @@ class ProfileController extends Controller
         return response()->json(['message' => 'No file uploaded'], 400);
     }
 
+    public function updateUserName(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $user = Auth::user();
+        $user->name = $request->name;
+        $user->save();
+
+        return response()->json(['message' => 'Name updated successfully.']);
+    }
 }

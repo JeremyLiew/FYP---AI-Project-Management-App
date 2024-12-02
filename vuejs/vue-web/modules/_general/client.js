@@ -36,6 +36,10 @@ const GeneralClient = {
 		});
 	},
 
+	updateUserName(newName) {
+		return axios.post( prefix + '/user/update-user-name', { name: newName });
+	}
+
 }
 
 export default GeneralClient;

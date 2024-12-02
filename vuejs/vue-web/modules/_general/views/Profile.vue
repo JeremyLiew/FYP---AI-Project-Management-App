@@ -39,7 +39,14 @@
 							/>
 						</v-col>
 						<v-col cols="12" md="4">
-							<p><strong>Name:</strong> {{ user.name }}</p>
+							<v-text-field
+								v-model="user.name"
+								label="Name"
+								outlined
+								dense
+								:loading="is_loading"
+								@blur="updateName"
+							/>
 						</v-col>
 						<v-col cols="12" md="4">
 							<p><strong>Email:</strong> {{ user.email }}</p>
@@ -165,7 +172,7 @@ export default {
 				});
 		},
 		triggerFileInput() {
-			this.$refs.fileInput.click(); // Trigger the hidden file input
+			this.$refs.fileInput.click();
 		},
 		uploadProfilePicture(event) {
 			const file = event.target.files[0];
@@ -177,6 +184,7 @@ export default {
 					.then((response) => {
 						this.user.profilePicture = response.data.file_path;
 						this.$toast.success('Profile picture updated successfully.');
+						location.reload();
 					})
 					.catch((error) => {
 						console.error('Error uploading profile picture:', error);
@@ -184,6 +192,21 @@ export default {
 					});
 			}
 		},
+		updateName() {
+			this.is_loading = true;
+			GeneralClient.updateUserName(this.user.name)
+				.then((response) => {
+					this.$toast.success('Name updated successfully.');
+					location.reload();
+				})
+				.catch((error) => {
+					console.error('Error updating name:', error);
+					this.$toast.error('Failed to update name.');
+				})
+				.finally(() => {
+					this.is_loading = false;
+				});
+		}
 	},
 };
 </script>
