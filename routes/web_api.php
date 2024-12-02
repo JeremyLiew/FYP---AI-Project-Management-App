@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\{
     ProjectController,
     TaskController,
     NotificationController,
+    ProfileController,
 };
 use App\Http\Controllers\Auth\{
     AuthController,
@@ -20,6 +21,8 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/notifications', [NotificationController::class, 'getNotifications']);
         Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
         Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+        Route::get('/profile', [ProfileController::class, 'getUserProfile']);
+        Route::post('/user/profile-picture', [ProfileController::class, 'updateProfilePicture']);
     });
 });
 
@@ -76,7 +79,7 @@ Route::get('/email/verify', function () {
 
 Route::post('/email/resend', [CustomVerificationController::class, 'resend'])->name('resend.verification');
 
-// apply this to protect route from not verified email access 
+// apply this to protect route from not verified email access
 // Route::middleware(['auth', 'verified'])->group(function () {
 //     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 // });

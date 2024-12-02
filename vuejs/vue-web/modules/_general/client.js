@@ -24,6 +24,18 @@ const GeneralClient = {
 		return axios.post( prefix + "/notifications/" + $id + "/read")
 	},
 
+	fetchProfile(){
+		return axios.get ( prefix + "/profile")
+	},
+
+	uploadProfilePicture(formData) {
+		return axios.post(prefix + "/user/profile-picture", formData, {
+			headers: {
+				'Content-Type': 'multipart/form-data',
+			},
+		});
+	},
+
 }
 
 export default GeneralClient;

@@ -10,13 +10,30 @@
 	>
 		<!-- Sidebar Content -->
 		<v-list dense style="display: flex; flex-direction: column; height: 100%;">
-			<!-- User Profile -->
-			<v-list-item
-				prepend-avatar="https://randomuser.me/api/portraits/women/85.jpg"
-				subtitle="sandra_a88@gmail.com"
-				title="Sandra Adams"
-				@click="goToProfile"
-			></v-list-item>
+			<!-- User Profile Section in Sidebar -->
+			<v-list-item class="pa-0" @click="goToProfile">
+				<v-row v-if="drawerHovered" no-gutters class="d-flex flex-column align-center">
+					<v-col class="text-center">
+						<img
+							:src="user.profilePicture ? `/storage/${user.profilePicture}` : defaultAvatar"
+							alt="Profile Picture"
+							class="profile-picture"
+						/>
+					</v-col>
+					<v-col class="d-flex justify-center">
+						<v-list-item-title>{{ user.name || 'User Name' }}</v-list-item-title>
+					</v-col>
+				</v-row>
+				<v-row v-else no-gutters class="d-flex justify-center">
+					<v-col class="text-center">
+						<img
+							:src="user.profilePicture ? `/storage/${user.profilePicture}` : defaultAvatar"
+							alt="Profile Picture"
+							class="profile-picture"
+						/>
+					</v-col>
+				</v-row>
+			</v-list-item>
 
 			<v-divider></v-divider>
 
@@ -61,9 +78,9 @@
 	</v-navigation-drawer>
 </template>
 
-
 <script>
 import GeneralClient from '../modules/_general/client';
+
 export default {
 	data() {
 		return {
@@ -71,6 +88,12 @@ export default {
 			auth: false,
 			drawerHovered: false,
 			notificationCount: 0,
+
+			user: {},
+			projects: [],
+			tasks: [],
+			profile_picture: null,
+			defaultAvatar: '/images/avatar.jpg',
 		};
 	},
 	computed: {
@@ -82,12 +105,13 @@ export default {
 		this.nav_links = [
 			{ title: 'Home', icon: 'mdi-home', to: { name: 'home-page' } },
 			{ title: 'Projects', icon: 'mdi-briefcase', to: { name: 'project-listings-page' } },
-			{ title: "Contact Us",icon: 'mdi-card-account-mail-outline', to : { name: "contact-us-page" } },
+			{ title: "Contact Us", icon: 'mdi-card-account-mail-outline', to: { name: "contact-us-page" } },
 		];
 		this.auth = false;
 		if (this.$auth.check()) {
 			this.auth = true;
 			this.fetchNotificationCount();
+			this.fetchProfile();
 		}
 	},
 	methods: {
@@ -98,6 +122,17 @@ export default {
 				})
 				.catch((error) => {
 					console.error('Error fetching notifications:', error);
+				});
+		},
+		fetchProfile() {
+			GeneralClient.fetchProfile()
+				.then((response) => {
+					this.user = response.data.user;
+					this.projects = response.data.projects;
+					this.tasks = response.data.tasks;
+				})
+				.catch((error) => {
+					console.error("Error fetching profile data:", error);
 				});
 		},
 		onHover(status) {
@@ -116,24 +151,39 @@ export default {
 };
 </script>
 
-<style scoped>
-.mt-auto {
+  <style scoped>
+  .mt-auto {
 	margin-top: auto;
-}
+  }
 
-.v-list-item >>> .v-list-item__content{
+  .v-list-item >>> .v-list-item__content {
 	display: flex;
-}
+  }
 
-.notification-counter {
-    position: absolute;
-    top: -5px;
-    right: 5px;
-    background-color: red;
-    color: white;
-    font-size: 8px;
-    font-weight: bold;
-    border-radius: 50%;
-    padding: 2px 6px;
-}
-</style>
+  .notification-counter {
+	position: absolute;
+	top: -5px;
+	right: 5px;
+	background-color: red;
+	color: white;
+	font-size: 8px;
+	font-weight: bold;
+	border-radius: 50%;
+	padding: 2px 6px;
+  }
+
+  .profile-picture {
+	width: 40px;
+	height: 40px;
+	object-fit: cover;
+	border-radius: 50%;
+  }
+
+  .d-flex {
+	display: flex;
+  }
+
+  .flex-column {
+	flex-direction: column;
+  }
+  </style>
