@@ -116,6 +116,7 @@ export default {
 	},
 	created() {
 		// Extract success and error messages from query parameters
+		localStorage.setItem('userRole', null);
 		const query = this.$route.query;
 		if (query.success) {
 			this.successMessage = query.success;
