@@ -1,122 +1,121 @@
 <template>
 	<v-container>
-		<!-- Page Title -->
-		<h2>Activity Log</h2>
-		<v-divider></v-divider>
-
-		<!-- Filters -->
-		<v-row class="d-flex align-center mb-4">
-			<v-col cols="12" md="4">
-				<v-select
-					v-model="logLevelFilter"
-					:items="logLevels"
-					label="Filter by Log Level"
-					clearable
-					outlined
-					dense
-				></v-select>
-			</v-col>
-
-			<v-col cols="12" md="4">
-				<v-select
-					v-model="modelTypeFilter"
-					:items="modelTypes"
-					label="Filter by Model Type"
-					clearable
-					outlined
-					dense
-				></v-select>
-			</v-col>
-
-			<v-col cols="12" md="4">
-				<v-select
-					v-model="userFilter"
-					:items="users"
-					label="Filter by User"
-					clearable
-					outlined
-					dense
-					item-title="name"
-					item-value="id"
-				>
-					<template #prepend-item>
-						<v-list-item ripple @click="userFilter = 'All'">
-							<v-list-item-content>
-								<v-list-item-title>All Users</v-list-item-title>
-							</v-list-item-content>
-						</v-list-item>
-					</template>
-				</v-select>
-			</v-col>
-		</v-row>
-
-		<section v-if="hasData">
-			<template v-if="modelLoading">
-				<v-skeleton-loader type="article"></v-skeleton-loader>
-			</template>
-			<template v-else>
-				<!-- Logs Table with Horizontal Scroll -->
-				<div class="table-wrapper">
-					<v-table class="table-scroll">
-						<thead>
-							<tr>
-								<th>Action</th>
-								<th>User</th>
-								<th>Log Level</th>
-								<th>Model Type</th>
-								<th>Changes</th>
-								<th>IP Address</th>
-								<th>Timestamp</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="log in activityLogs" :key="log.id">
-								<td class="text-wrap py-2">{{ log.action }}</td>
-								<td>{{ log.user ? log.user.name : 'No user' }}</td>
-								<td>
-									<v-chip
-										:color="getLogLevelColor(log.log_level)" dark outlined
-										small
-									>
-										{{ log.log_level }}
-									</v-chip>
-								</td>
-								<td>
-									<v-chip
-										:color="getModelTypeColor(log.model_type)" dark outlined
-										small
-									>
-										{{ log.model_type }}
-									</v-chip>
-								</td>
-								<td><pre>{{ formatChanges(log.changes) }}</pre></td>
-								<td>{{ log.ip_address }}</td>
-								<td>{{ formatDate(log.created_at) }}</td>
-							</tr>
-						</tbody>
-					</v-table>
-				</div>
-
-				<!-- Pagination -->
-				<v-pagination
-					v-model="currentPage"
-					:length="paginationLength"
-					class="mt-4 pl-0"
-				></v-pagination>
-				<!-- Log Count -->
-				<div class="text-end mt-2">Total Logs: {{ totalLogs }}</div>
-			</template>
-		</section>
-
-		<section v-else>
-			<!-- Show No Logs Image -->
-			<v-row class="justify-center">
-				<v-col cols="12" class="text-center">
-					<img src="/images/no-product-available.png" alt="No logs available" class="my-4" />
-					<p>No logs available.</p>
+		<template v-if="isAuthorized">
+			<!-- Page Title -->
+			<h2>Activity Log</h2>
+			<v-divider></v-divider>
+			<!-- Filters -->
+			<v-row class="d-flex align-center mb-4">
+				<v-col cols="12" md="4">
+					<v-select
+						v-model="logLevelFilter"
+						:items="logLevels"
+						label="Filter by Log Level"
+						clearable
+						outlined
+						dense
+					></v-select>
+				</v-col>
+				<v-col cols="12" md="4">
+					<v-select
+						v-model="modelTypeFilter"
+						:items="modelTypes"
+						label="Filter by Model Type"
+						clearable
+						outlined
+						dense
+					></v-select>
+				</v-col>
+				<v-col cols="12" md="4">
+					<v-select
+						v-model="userFilter"
+						:items="users"
+						label="Filter by User"
+						clearable
+						outlined
+						dense
+						item-title="name"
+						item-value="id"
+					>
+						<template #prepend-item>
+							<v-list-item ripple @click="userFilter = 'All'">
+								<div>
+									<v-list-item-title>All Users</v-list-item-title>
+								</div>
+							</v-list-item>
+						</template>
+					</v-select>
 				</v-col>
 			</v-row>
-		</section>
+			<section v-if="hasData">
+				<template v-if="modelLoading">
+					<v-skeleton-loader type="article"></v-skeleton-loader>
+				</template>
+				<template v-else>
+					<!-- Logs Table with Horizontal Scroll -->
+					<div class="table-wrapper">
+						<v-table class="table-scroll">
+							<thead>
+								<tr>
+									<th>Action</th>
+									<th>User</th>
+									<th>Log Level</th>
+									<th>Model Type</th>
+									<th>Changes</th>
+									<th>IP Address</th>
+									<th>Timestamp</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr v-for="log in activityLogs" :key="log.id">
+									<td class="text-wrap py-2">{{ log.action }}</td>
+									<td>{{ log.user ? log.user.name : 'No user' }}</td>
+									<td>
+										<v-chip
+											:color="getLogLevelColor(log.log_level)" dark outlined
+											small
+										>
+											{{ log.log_level }}
+										</v-chip>
+									</td>
+									<td>
+										<v-chip
+											:color="getModelTypeColor(log.model_type)" dark outlined
+											small
+										>
+											{{ log.model_type }}
+										</v-chip>
+									</td>
+									<td><pre>{{ formatChanges(log.changes) }}</pre></td>
+									<td>{{ log.ip_address }}</td>
+									<td>{{ formatDate(log.created_at) }}</td>
+								</tr>
+							</tbody>
+						</v-table>
+					</div>
+					<!-- Pagination -->
+					<v-pagination
+						v-model="currentPage"
+						:length="paginationLength"
+						class="mt-4 pl-0"
+					></v-pagination>
+					<!-- Log Count -->
+					<div class="text-end mt-2">Total Logs: {{ totalLogs }}</div>
+				</template>
+			</section>
+			<section v-else>
+				<!-- Show No Logs Image -->
+				<v-row class="justify-center">
+					<v-col cols="12" class="text-center">
+						<img src="/images/no-product-available.png" alt="No logs available" class="my-4" />
+						<p>No logs available.</p>
+					</v-col>
+				</v-row>
+			</section>
+		</template>
+		<template v-else>
+			<p>You do not have permission to view this page.</p>
+		</template>
 	</v-container>
 </template>
 
@@ -141,6 +140,12 @@ export default {
 			hasData: true,
 			modelLoading: true,
 		};
+	},
+	computed: {
+		isAuthorized() {
+			const userRole = localStorage.getItem('userRole');
+			return userRole === 'Admin';
+		}
 	},
 	watch: {
 		logLevelFilter: "fetchLogs",

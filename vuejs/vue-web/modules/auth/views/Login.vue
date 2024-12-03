@@ -140,11 +140,22 @@ export default {
 					redirect: false,
 				})
 				.then((res) => {
-					this.$toast.success("Logged in successfully");
 
-					setTimeout(() => {
-						this.$router.push({ name: "home-page" });
-					}, 500);
+					GeneralClient.fetchProfile()
+						.then((response) => {
+							this.user = response.data.user;
+							const userRole = this.user.role
+							localStorage.setItem('userRole', userRole);
+
+							this.$toast.success("Logged in successfully");
+
+							setTimeout(() => {
+								this.$router.push({ name: "home-page" });
+							}, 500);
+						})
+						.catch((error) => {
+							console.error("Error fetching profile data:", error);
+						});
 				})
 				.catch((err) => {
 					if (err.response.status === 429) {

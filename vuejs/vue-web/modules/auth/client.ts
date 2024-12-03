@@ -9,7 +9,7 @@ const AuthClient = {
 	},
 	resetPassword(payload){
 		return axios.post( prefix + "/reset-password", payload)
-	}
+	},
 
 }
 

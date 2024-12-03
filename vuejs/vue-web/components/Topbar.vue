@@ -57,7 +57,7 @@
 			<v-divider></v-divider>
 
 			<div class="d-flex flex-column justify-content-end h-100">
-				<v-list-item @click="goToActivityLog">
+				<v-list-item v-if="isAuthorized()" @click="goToActivityLog">
 					<v-list-item-media>
 						<v-icon>mdi-math-log</v-icon>
 					</v-list-item-media>
@@ -121,6 +121,10 @@ export default {
 		}
 	},
 	methods: {
+		isAuthorized() {
+			const userRole = localStorage.getItem('userRole');
+			return userRole === 'Admin';
+		},
 		fetchNotificationCount() {
 			GeneralClient.fetchNotificationCount()
 				.then((response) => {
