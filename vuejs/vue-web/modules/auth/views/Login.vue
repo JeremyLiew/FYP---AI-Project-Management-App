@@ -94,6 +94,8 @@
 </template>
 
 <script>
+import GeneralClient from '../../_general/client';
+
 export default {
 	data() {
 		return {
