@@ -9,6 +9,7 @@ use App\Http\Controllers\Web\{
     ProfileController,
     BudgetController,
     ExpenseController,
+    UserMaintenanceController,
 };
 use App\Http\Controllers\Auth\{
     AuthController,
@@ -38,6 +39,15 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/info/{id}', [ProjectController::class, 'projectInfo']);
         Route::get('/users-and-roles', [ProjectController::class, 'fetchUsersAndRoles']);
         Route::post('/delete/{id}', [ProjectController::class, 'deleteProject']);
+    });
+});
+
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('user-maintenance')->group(function () {
+        Route::get('/users', [UserMaintenanceController::class, 'fetchUsers']);
+        Route::post('/update', [UserMaintenanceController::class, 'updateUser']);
+        Route::post('/delete/{id}', [UserMaintenanceController::class, 'deleteUser']);
+        Route::get('/application-roles', [UserMaintenanceController::class, 'fetchApplicationRoles']);
     });
 });
 

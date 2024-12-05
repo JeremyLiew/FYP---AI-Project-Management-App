@@ -57,12 +57,20 @@
 			<v-divider></v-divider>
 
 			<div class="d-flex flex-column justify-content-end h-100">
-				<v-list-item v-if="isAuthorized()" @click="goToActivityLog">
-					<v-list-item-media>
-						<v-icon>mdi-math-log</v-icon>
-					</v-list-item-media>
-					<v-list-item-title v-if="drawerHovered" class="pl-3">Activity Log</v-list-item-title>
-				</v-list-item>
+				<template v-if="isAuthorized()">
+					<v-list-item @click="goToUserMaintenance">
+						<v-list-item-media>
+							<v-icon>mdi-account-multiple</v-icon>
+						</v-list-item-media>
+						<v-list-item-title v-if="drawerHovered" class="pl-3">User Maintenance</v-list-item-title>
+					</v-list-item>
+					<v-list-item @click="goToActivityLog">
+						<v-list-item-media>
+							<v-icon>mdi-math-log</v-icon>
+						</v-list-item-media>
+						<v-list-item-title v-if="drawerHovered" class="pl-3">Activity Log</v-list-item-title>
+					</v-list-item>
+				</template>
 				<v-list-item @click="goToNotifications">
 					<v-list-item-media>
 						<v-icon>mdi-bell</v-icon>
@@ -166,6 +174,9 @@ export default {
 		goToActivityLog() {
 			this.$router.push({ name: 'activity-log-page' });
 		},
+		goToUserMaintenance() {
+			this.$router.push({ name: 'user-maintenance-page' });
+		}
 	},
 };
 </script>

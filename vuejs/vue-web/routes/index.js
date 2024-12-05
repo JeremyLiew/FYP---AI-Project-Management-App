@@ -6,6 +6,7 @@ import * as BudgetModule from '../modules/budget/router'
 import * as ExpenseModule from '../modules/expense/router'
 import * as CategoryModule from '../modules/category/router'
 import * as ActivityLogModule from '../modules/activity_log/router'
+import * as UserMaintenanceModule from '../modules/user_maintenance/router'
 
 import BaseLayout from '../layouts/BaseLayout.vue';
 
@@ -119,6 +120,12 @@ const routes = [
 			},
 			{
 				path: '/profile', name: 'profile-page', component: GeneralModule.ProfilePage,
+				meta: {
+					auth: true
+				}
+			},
+			{
+				path: '/user-maintenance', name: 'user-maintenance-page', component: UserMaintenanceModule.UserListingsPage,
 				meta: {
 					auth: true
 				}
