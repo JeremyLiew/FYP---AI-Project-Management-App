@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\{
     TaskController,
     NotificationController,
     ProfileController,
+    UserMaintenanceController,
 };
 use App\Http\Controllers\Auth\{
     AuthController,
@@ -36,6 +37,12 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/info/{id}', [ProjectController::class, 'projectInfo']);
         Route::get('/users-and-roles', [ProjectController::class, 'fetchUsersAndRoles']);
         Route::post('/delete/{id}', [ProjectController::class, 'deleteProject']);
+    });
+});
+
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('user-maintenance')->group(function () {
+        Route::get('/users', [UserMaintenanceController::class, 'fetchUsers']);
     });
 });
 

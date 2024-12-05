@@ -3,6 +3,7 @@ import * as GeneralModule from '../modules/_general/router'
 import * as AuthModule from '../modules/auth/router'
 import * as ProjectModule from '../modules/project/router'
 import * as ActivityLogModule from '../modules/activity_log/router'
+import * as UserMaintenanceModule from '../modules/user_maintenance/router'
 
 import BaseLayout from '../layouts/BaseLayout.vue';
 
@@ -56,6 +57,12 @@ const routes = [
 			},
 			{
 				path: '/profile', name: 'profile-page', component: GeneralModule.ProfilePage,
+				meta: {
+					auth: true
+				}
+			},
+			{
+				path: '/user-maintenance', name: 'user-maintenance-page', component: UserMaintenanceModule.UserListingsPage,
 				meta: {
 					auth: true
 				}
