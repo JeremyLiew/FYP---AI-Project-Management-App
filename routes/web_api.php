@@ -39,6 +39,9 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/info/{id}', [ProjectController::class, 'projectInfo']);
         Route::get('/users-and-roles', [ProjectController::class, 'fetchUsersAndRoles']);
         Route::post('/delete/{id}', [ProjectController::class, 'deleteProject']);
+        Route::get('/file/{id}', [ProjectController::class, 'fetchAttachment']);
+        Route::get('/download/{id}', [ProjectController::class, 'downloadAttachment']);
+        Route::get('/project/download/{projectId}', [ProjectController::class, 'downloadAttachment'])->name('download.attachment');
     });
 });
 

@@ -16,6 +16,11 @@ class Project extends Model
         return $this->belongsTo(Budget::class);
     }
 
+    public function attachment()
+    {
+        return $this->hasOne(Attachment::class);
+    }
+
     public function tasks()
     {
         return $this->hasMany(Task::class);
