@@ -69,6 +69,8 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('activity-log')->group(function () {
         Route::get('/listings', [ActivityLogController::class, 'getActivityLogs']);
         Route::get('/users', [ActivityLogController::class, 'fetchUsers']);
+    });
+
     Route::prefix('budget')->group(function () {
         Route::get('/listings', [BudgetController::class, 'getBudgetListings']);
         Route::post('/create', [BudgetController::class, 'createBudget']);
