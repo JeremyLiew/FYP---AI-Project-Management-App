@@ -94,7 +94,7 @@ const routes = [
 				}
 			},
 			{
-				path: '/expense--category-listings', name: 'expense-category-listings-page',  component: CategoryModule.ExpenseListingsPage, 
+				path: '/expense-category-listings', name: 'expense-category-listings-page',  component: CategoryModule.ExpenseListingsPage, 
 				meta: {
 					auth: true
 				}

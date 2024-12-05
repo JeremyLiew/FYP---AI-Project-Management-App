@@ -88,10 +88,10 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
 Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('categories')->group(function () {
         Route::get('/listings', [ExpenseController::class, 'getExpenseCategories']);
-        Route::post('/create', [ExpenseController::class, 'createExpenseCategories']);
-        Route::post('/update', [ExpenseController::class, 'updateExpenseCategories']);
-        Route::post('/delete/{id}', [ExpenseController::class, 'deleteExpenseCategories']);
-        Route::get('/info/{id}', [ExpenseController::class, 'categoriesInfo']);
+        Route::post('/create', [ExpenseController::class, 'createExpenseCategory']);
+        Route::post('/update', [ExpenseController::class, 'updateExpenseCategory']);
+        Route::post('/delete/{id}', [ExpenseController::class, 'deleteExpenseCategory']);
+        Route::get('/info/{id}', [ExpenseController::class, 'categoryInfo']);
     });
 });
 

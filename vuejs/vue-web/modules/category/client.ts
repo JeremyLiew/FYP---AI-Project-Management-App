@@ -20,12 +20,12 @@ const ExpenseClient = {
   },
 
   // Update an expense category
-  updateCategory(expenseCategoryId: number | string, payload: any) {
-    return axios.post(`${prefix}/update/${expenseCategoryId}`, payload);
+  updateCategory(payload: any) {
+    return axios.post(`${prefix}/update`, payload);
   },
 
   // Fetch list of expense categories
-  fetchCategories(Id: number | string) {
+  fetchCategory(Id: number | string) {
     return axios.get(`${prefix}/info/${Id}`);
   },
 };

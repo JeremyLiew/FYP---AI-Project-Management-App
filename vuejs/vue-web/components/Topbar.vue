@@ -84,6 +84,7 @@ export default {
 			{ title: 'Projects', icon: 'mdi-briefcase', to: { name: 'project-listings-page' } },
 			{ title: 'Budgets', icon: 'mdi-currency-usd', to: { name: 'budget-listings-page' } },
 			{ title: 'Expenses', icon: 'mdi-file-multiple', to: { name: 'expense-listings-page' } },
+			{ title: 'Expense Categories', icon: 'mdi-tag-multiple', to: { name: 'expense-category-listings-page' } },
 			{ title: "Contact Us",icon: 'mdi-card-account-mail-outline', to : { name: "contact-us-page" } },
 		];
 		this.auth = false;

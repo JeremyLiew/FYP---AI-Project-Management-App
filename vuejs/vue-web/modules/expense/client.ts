@@ -49,26 +49,6 @@ const ExpenseClient = {
   },
 
   // Fetch list of expense categories
-  getCategoryListings(payload: any) {
-    return axios.get(`${prefix}/${pre}/listings`, { params: payload });
-  },
-
-  // Create a new expense category
-  createCategory(payload: any) {
-    return axios.post(`${prefix}/create/${pre}`, payload);
-  },
-
-  // Delete an expense category
-  deleteCategory(expenseCategoryId: number | string) {
-    return axios.post(`${prefix}/delete/${pre}/${expenseCategoryId}`);
-  },
-
-  // Update an expense category
-  updateCategory(expenseCategoryId: number | string, payload: any) {
-    return axios.post(`${prefix}/update/${pre}/${expenseCategoryId}`, payload);
-  },
-
-  // Fetch list of expense categories
   fetchCategories(Id: number | string) {
     return axios.get(`${prefix}/${pre}/info/${Id}`);
   },

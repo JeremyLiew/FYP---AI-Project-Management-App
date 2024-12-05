@@ -137,6 +137,27 @@ class ExpenseController extends Controller
         return response()->json($categories->paginate($perPage));
     }
 
+    public function categoryInfo($id)
+    {
+        // Fetch the expense category by its ID
+        $category = ExpenseCategory::find($id);
+
+        if (!$category) {
+            return response()->json(['message' => 'Expense Category not found'], 404);
+        }
+
+        // Return the expense category details
+        return response()->json([
+            'expenseCategory' => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'description' => $category->description, // assuming the category has a description
+                // Add any other relevant fields you need from the ExpenseCategory model
+            ]
+        ]);
+    }
+
+
     public function createExpenseCategory(CreateExpenseCategoryRequest $request)
     {
         $category = ExpenseCategory::create($request->validated());
@@ -147,10 +168,20 @@ class ExpenseController extends Controller
         ]);
     }
 
-    public function updateExpenseCategory(UpdateExpenseCategoryRequest $request, $id)
+    public function updateExpenseCategory(UpdateExpenseCategoryRequest $request)
     {
-        $category = ExpenseCategory::findOrFail($id);
-        $category->update($request->validated());
+        $category = ExpenseCategory::find($request->input('id'));
+
+            // Check if the category exists
+        if (!$category) {
+            return response()->json(['message' => 'Expense category not found'], 404);
+        }
+
+        // Update the expense category details
+        $category->update([
+            'name' => $request->input('name'),
+            'description' => $request->input('description'),
+        ]);
     
         return response()->json([
             'message' => 'Expense category updated successfully.',
