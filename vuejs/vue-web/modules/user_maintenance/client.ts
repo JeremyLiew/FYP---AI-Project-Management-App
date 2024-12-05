@@ -10,7 +10,7 @@ const UserMaintenanceClient = {
 		return axios.post( prefix + "/update", user);
 	},
 	deleteUser(userId) {
-		return axios.post( prefix + "/delete" + userId);
+		return axios.post( prefix + "/delete/" + userId);
 	},
 	getApplicationRoles() {
 		return axios.get( prefix + "/application-roles");

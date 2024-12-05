@@ -7,6 +7,8 @@ use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\ApplicationRole;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserDeletedNotification;
 use App\Models\UserNotificationMapping;
 use App\Http\Requests\Web\UpdateUserRequest;
 
@@ -78,7 +80,13 @@ class UserMaintenanceController extends Controller
     public function deleteUser($id)
     {
         $user = User::findOrFail($id);
+        $adminName = auth()->user()->name;
+
+        // Delete the user
         $user->delete();
+
+        // Send the email notification
+        Mail::to($user->email)->send(new UserDeletedNotification($user, $adminName));
         return response()->json(['message' => 'User deleted successfully']);
     }
 
