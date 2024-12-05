@@ -3,8 +3,8 @@ import axios from 'axios';
 const prefix = "/user-maintenance"
 
 const UserMaintenanceClient = {
-	getAllUsers(){
-		return axios.get( prefix + "/users" );
+	getAllUsers(payload){
+		return axios.get( prefix + "/users" , { params: payload });
 	}
 }
 
