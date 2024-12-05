@@ -40,4 +40,18 @@ class UserMaintenanceController extends Controller
             'per_page' => $users->perPage(),
         ]);
     }
+
+    public function updateUser(Request $request)
+    {
+        $user = User::findOrFail($id);
+        $user->update($request->all());
+        return response()->json(['message' => 'User updated successfully']);
+    }
+
+    public function deleteUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+        return response()->json(['message' => 'User deleted successfully']);
+    }
 }

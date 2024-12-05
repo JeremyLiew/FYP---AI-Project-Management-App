@@ -43,6 +43,8 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
 Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('user-maintenance')->group(function () {
         Route::get('/users', [UserMaintenanceController::class, 'fetchUsers']);
+        Route::post('/update/{id}', [UserMaintenanceController::class, 'updateUser']);
+        Route::post('/delete/{id}', [UserMaintenanceController::class, 'deleteUser']);
     });
 });
 
