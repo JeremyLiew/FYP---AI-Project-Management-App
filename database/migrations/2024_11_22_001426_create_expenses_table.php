@@ -20,6 +20,7 @@ return new class extends Migration
             $table->decimal('amount', 15, 2);
             $table->text('description')->nullable();
             $table->date('date_incurred');
+            $table->foreignId('budget_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }

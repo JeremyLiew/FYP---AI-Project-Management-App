@@ -5,6 +5,8 @@ use App\Http\Controllers\Web\{
     ProjectController,
     TaskController,
     NotificationController,
+    BudgetController,
+    ExpenseController,
 };
 use App\Http\Controllers\Auth\{
     AuthController
@@ -55,6 +57,41 @@ Route::prefix('api')->middleware([])->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    });
+});
+
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('budget')->group(function () {
+        Route::get('/listings', [BudgetController::class, 'getBudgetListings']);
+        Route::post('/create', [BudgetController::class, 'createBudget']);
+        Route::post('/update', [BudgetController::class, 'updateBudget']);
+        Route::post('/delete/{id}', [BudgetController::class, 'deleteBudget']);
+        Route::get('/info/{id}', [BudgetController::class, 'budgetInfo']);
+    });
+});
+
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('expense')->group(function () {
+        Route::get('/listings', [ExpenseController::class, 'getExpenseListings']);
+        Route::post('/create', [ExpenseController::class, 'createExpense']);
+        Route::post('/update', [ExpenseController::class, 'updateExpense']);
+        Route::post('/delete/{id}', [ExpenseController::class, 'deleteExpense']);
+        Route::get('/projects', [ExpenseController::class, 'fetchProjects']); 
+        Route::get('/tasks', [ExpenseController::class, 'fetchTasks']);
+        Route::get('/expense-categories', [ExpenseController::class, 'fetchExpenseCategories']);
+        Route::get('/budgets', [ExpenseController::class, 'fetchBudgets']);
+
+        Route::get('/info/{id}', [ExpenseController::class, 'expenseInfo']);
+    });
+});
+
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('categories')->group(function () {
+        Route::get('/listings', [ExpenseController::class, 'getExpenseCategories']);
+        Route::post('/create', [ExpenseController::class, 'createExpenseCategories']);
+        Route::post('/update', [ExpenseController::class, 'updateExpenseCategories']);
+        Route::post('/delete/{id}', [ExpenseController::class, 'deleteExpenseCategories']);
+        Route::get('/info/{id}', [ExpenseController::class, 'categoriesInfo']);
     });
 });
 

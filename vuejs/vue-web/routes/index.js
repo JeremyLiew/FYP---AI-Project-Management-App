@@ -2,6 +2,9 @@ import * as BaseModule from '../modules/base/router'
 import * as GeneralModule from '../modules/_general/router'
 import * as AuthModule from '../modules/auth/router'
 import * as ProjectModule from '../modules/project/router'
+import * as BudgetModule from '../modules/budget/router'
+import * as ExpenseModule from '../modules/expense/router'
+import * as CategoryModule from '../modules/category/router'
 
 import BaseLayout from '../layouts/BaseLayout.vue';
 
@@ -50,6 +53,66 @@ const routes = [
 					auth: true
 				}
 			},
+			{
+				path: '/budget-listings', name: 'budget-listings-page',component: BudgetModule.BudgetListingsPage,
+				meta: {
+					auth: true
+				}
+			},
+			{
+				path: '/budget-create', name: 'budget-create-page', component: BudgetModule.BudgetCreatePage, 
+				props: { isEdit: false },
+				meta: {
+					auth: true
+				}
+			},
+			{
+				path: "/budgets/:id/edit", name: "budget-edit-page", component: BudgetModule.BudgetCreatePage,
+				props: { isEdit: true },
+				meta: {
+					auth: true
+				}
+			},
+			{
+				path: '/expense-listings', name: 'expense-listings-page',  component: ExpenseModule.ExpenseListingsPage, 
+				meta: {
+					auth: true
+				}
+			},
+			{
+				path: '/expense-create',  name: 'expense-create-page', component: ExpenseModule.ExpenseCreateEditPage, 
+				props: { isEdit: false },
+				meta: {
+					auth: true
+				}
+			},
+			{
+				path: "/expenses/:id/edit", name: "expense-edit-page", component: ExpenseModule.ExpenseCreateEditPage,
+				props: { isEdit: true },
+				meta: {
+					auth: true
+				}
+			},
+			{
+				path: '/expense--category-listings', name: 'expense-category-listings-page',  component: CategoryModule.ExpenseListingsPage, 
+				meta: {
+					auth: true
+				}
+			},
+			{
+				path: '/expense-category-create', name: 'expense-category-create-page', component: CategoryModule.ExpenseCategoryCreateEditPage, 
+				props: { isEdit: false },
+				meta: {
+				  auth: true
+				}
+			},
+			{
+				path: "/expense-category/:id/edit", name: "expense-category-edit-page", component: CategoryModule.ExpenseCategoryCreateEditPage,
+				props: { isEdit: true },
+				meta: {
+					auth: true
+				}
+			},		  
 			{
 				path: '/contact-us', name: 'contact-us-page', component: BaseModule.ContactUsPage,
 			},
