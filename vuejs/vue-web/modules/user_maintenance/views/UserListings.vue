@@ -34,7 +34,7 @@
 						v-for="(user) in users"
 						:key="user.id"
 						class="px-0 hover-elevate"
-						@click="viewUser(user.id)"
+						@click="viewUserDetails(user)"
 					>
 						<v-row class="pa-2 align-center">
 							<!-- User Details -->
@@ -47,17 +47,20 @@
 								</v-list-item-subtitle>
 							</v-col>
 							<!-- Role -->
-							<v-col cols="12" sm="3" class="d-flex flex-column align-center">
+							<v-col cols="12" :sm="$auth.user().user.name == user.name?'6':'4'" class="d-flex align-center">
 								<v-chip
 									class="mb-1"
 									outlined
 									small
 								>
-									Role: {{ user.application_role || "N/A" }}
+									Role: {{ getRoleName(user.application_role_id) || "N/A" }}
 								</v-chip>
 							</v-col>
 							<!-- Actions -->
-							<v-col cols="12" sm="3" class="text-end">
+							<v-col
+								v-if="$auth.user().user.name !== user.name" cols="12" sm="2"
+								class="text-end"
+							>
 								<v-list-item-action class="justify-content-md-end">
 									<v-menu>
 										<template #activator="{ props }">
@@ -123,6 +126,45 @@
 				</v-card-actions>
 			</v-card>
 		</v-dialog>
+
+		<!-- Dialog for Viewing/Editing User -->
+		<v-dialog v-model="showUserDialog" max-width="600px">
+			<v-card>
+				<v-card-title class="text-h6">
+					{{ isEditing ? "Edit User" : "View User" }}
+				</v-card-title>
+				<v-card-text>
+					<v-text-field
+						v-model="currentUser.name"
+						label="Name"
+						outlined
+						dense
+						:readonly="!isEditing"
+					/>
+					<v-text-field
+						v-model="currentUser.email"
+						label="Email"
+						outlined
+						dense
+						disabled
+					/>
+					<v-select
+						v-model="currentUser.application_role_id"
+						:items="roles"
+						item-value="id"
+						item-title="name"
+						label="Role"
+						outlined
+						required
+						:readonly="!isEditing"
+					></v-select>
+				</v-card-text>
+				<v-card-actions>
+					<v-btn text @click="showUserDialog = false">Close</v-btn>
+					<v-btn v-if="isEditing" color="primary" @click="saveUser">Save</v-btn>
+				</v-card-actions>
+			</v-card>
+		</v-dialog>
 	</v-container>
 </template>
 
@@ -142,6 +184,10 @@ export default {
 			deleteDialog: false,
 			selectedUserId: null,
 			isLoading: false,
+			showUserDialog: false,
+			isEditing: false,
+			currentUser: {},
+			roles: [],
 		};
 	},
 	watch: {
@@ -150,8 +196,23 @@ export default {
 	},
 	mounted() {
 		this.fetchUsers();
+		this.fetchApplicationRole();
 	},
 	methods: {
+		getRoleName(roleId) {
+			const role = this.roles.find(role => role.id === roleId);
+			return role ? role.name : null;
+		},
+		fetchApplicationRole() {
+			UserMaintenanceClient.getApplicationRoles()
+				.then((response) => {
+					this.roles = response.data;
+				})
+				.catch((error) => {
+					console.error("Error fetching application roles:", error);
+					this.$toast.error("Failed to fetch roles. Please try again.");
+				});
+		},
 		fetchUsers() {
 			this.modelLoading = true;
 			const params = {
@@ -175,8 +236,34 @@ export default {
 					this.modelLoading = false;
 				});
 		},
+		viewUserDetails(user) {
+			this.currentUser = { ...user };
+			this.isEditing = false;
+			this.showUserDialog = true;
+		},
 		editUser(user) {
-			this.$router.push({ name: "user-edit-page", params: { id: user.id } });
+			this.currentUser = { ...user };
+			this.isEditing = true;
+			this.showUserDialog = true;
+		},
+		saveUser() {
+			if (!this.currentUser || !this.currentUser.id) {
+				this.$toast.error("No user selected for update.");
+				return;
+			}
+
+			const payload = { ...this.currentUser }
+
+			UserMaintenanceClient.updateUser(payload)
+				.then(() => {
+					this.$toast.success("User updated successfully.");
+					this.showUserDialog = false;
+					this.fetchUsers();
+				})
+				.catch((error) => {
+					console.error("Error updating user:", error);
+					this.$toast.error("Failed to update user. Please try again.");
+				});
 		},
 		confirmDelete(userId) {
 			this.selectedUserId = userId;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\ApplicationRole;
 
 class UserMaintenanceController extends Controller
 {
@@ -29,7 +30,7 @@ class UserMaintenanceController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'application_role' => $user->applicationRole->name ?? 'N/A', // Using 'applicationRole' relationship
+                'application_role_id' => $user->applicationRole->id ?? 'N/A', // Using 'applicationRole' relationship
                 'profile_picture' => $user->profile_picture,
             ];
         });
@@ -43,7 +44,7 @@ class UserMaintenanceController extends Controller
 
     public function updateUser(Request $request)
     {
-        $user = User::findOrFail($id);
+        $user = User::findOrFail($request->input('id'));
         $user->update($request->all());
         return response()->json(['message' => 'User updated successfully']);
     }
@@ -53,5 +54,16 @@ class UserMaintenanceController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
         return response()->json(['message' => 'User deleted successfully']);
+    }
+
+    public function fetchApplicationRoles(){
+        $roles = ApplicationRole::all()->map(function ($role) {
+            return [
+                'id' => $role->id,
+                'name' => $role->name,
+            ];
+        });
+
+        return response()->json($roles);
     }
 }
