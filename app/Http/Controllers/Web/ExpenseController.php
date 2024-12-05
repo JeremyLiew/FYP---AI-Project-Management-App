@@ -35,7 +35,7 @@ class ExpenseController extends Controller
     public function expenseInfo($id)
     {
         // Fetch the expense by its ID
-        $expense = self::find($id);
+        $expense = Expense::find($id);
 
         if (!$expense) {
             return response()->json(['message' => 'Expense not found'], 404);
@@ -52,6 +52,7 @@ class ExpenseController extends Controller
                 'expense_category_id' => $expense->expense_category_id,
                 'project_id' => $expense->project_id,
                 'task_id' => $expense->task_id,
+                'budget_id' => $expense->budget_id,
             ]
         ]);
     }

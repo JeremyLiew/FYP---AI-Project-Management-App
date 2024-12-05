@@ -139,6 +139,7 @@ export default {
 				project_id: null,
 				expense_category_id: null,
 				task_id: null,
+				budget_id: null,
 			},
 			errors: {},
 			isLoading: false,
@@ -210,6 +211,7 @@ export default {
 					expense_category_id: response.data.expense.expense_category_id,
 					project_id: response.data.expense.project_id,
 					task_id: response.data.expense.task_id,
+					budget_id: response.data.expense.budget_id,
 				};
 				})
 				.catch((error) => {
