@@ -7,6 +7,8 @@ use App\Http\Controllers\Web\{
     TaskController,
     NotificationController,
     ProfileController,
+    BudgetController,
+    ExpenseController,
 };
 use App\Http\Controllers\Auth\{
     AuthController,
@@ -67,6 +69,37 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('activity-log')->group(function () {
         Route::get('/listings', [ActivityLogController::class, 'getActivityLogs']);
         Route::get('/users', [ActivityLogController::class, 'fetchUsers']);
+    Route::prefix('budget')->group(function () {
+        Route::get('/listings', [BudgetController::class, 'getBudgetListings']);
+        Route::post('/create', [BudgetController::class, 'createBudget']);
+        Route::post('/update', [BudgetController::class, 'updateBudget']);
+        Route::post('/delete/{id}', [BudgetController::class, 'deleteBudget']);
+        Route::get('/info/{id}', [BudgetController::class, 'budgetInfo']);
+    });
+});
+
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('expense')->group(function () {
+        Route::get('/listings', [ExpenseController::class, 'getExpenseListings']);
+        Route::post('/create', [ExpenseController::class, 'createExpense']);
+        Route::post('/update', [ExpenseController::class, 'updateExpense']);
+        Route::post('/delete/{id}', [ExpenseController::class, 'deleteExpense']);
+        Route::get('/projects', [ExpenseController::class, 'fetchProjects']);
+        Route::get('/tasks', [ExpenseController::class, 'fetchTasks']);
+        Route::get('/expense-categories', [ExpenseController::class, 'fetchExpenseCategories']);
+        Route::get('/budgets', [ExpenseController::class, 'fetchBudgets']);
+
+        Route::get('/info/{id}', [ExpenseController::class, 'expenseInfo']);
+    });
+});
+
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('categories')->group(function () {
+        Route::get('/listings', [ExpenseController::class, 'getExpenseCategories']);
+        Route::post('/create', [ExpenseController::class, 'createExpenseCategory']);
+        Route::post('/update', [ExpenseController::class, 'updateExpenseCategory']);
+        Route::post('/delete/{id}', [ExpenseController::class, 'deleteExpenseCategory']);
+        Route::get('/info/{id}', [ExpenseController::class, 'categoryInfo']);
     });
 });
 

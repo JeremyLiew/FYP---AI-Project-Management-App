@@ -9,7 +9,7 @@ class Budget extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'total_budget', 'allocated_amount', 'remaining_amount'];
+    protected $fillable = ['name', 'total_budget', 'remaining_amount'];
 
     public function project()
     {

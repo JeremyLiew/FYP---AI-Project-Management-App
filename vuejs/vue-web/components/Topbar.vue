@@ -111,7 +111,10 @@ export default {
 		this.nav_links = [
 			{ title: 'Home', icon: 'mdi-home', to: { name: 'home-page' } },
 			{ title: 'Projects', icon: 'mdi-briefcase', to: { name: 'project-listings-page' } },
-			{ title: "Contact Us", icon: 'mdi-card-account-mail-outline', to: { name: "contact-us-page" } },
+			{ title: 'Budgets', icon: 'mdi-currency-usd', to: { name: 'budget-listings-page' } },
+			{ title: 'Expenses', icon: 'mdi-file-multiple', to: { name: 'expense-listings-page' } },
+			{ title: 'Expense Categories', icon: 'mdi-tag-multiple', to: { name: 'expense-category-listings-page' } },
+			{ title: "Contact Us",icon: 'mdi-card-account-mail-outline', to : { name: "contact-us-page" } },
 		];
 		this.auth = false;
 		if (this.$auth.check()) {
@@ -153,6 +156,9 @@ export default {
 		},
 		goToSettings() {
 			this.$router.push({ name: 'settings-page' });
+		},
+		goToBudgets() {
+    	this.$router.push({ name: 'budget-listings-page' });
 		},
 		goToNotifications() {
 			this.$router.push({ name: 'notifications-page' });

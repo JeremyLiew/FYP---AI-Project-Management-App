@@ -9,7 +9,7 @@ class Expense extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'expense_category_id', 'project_id', 'task_id', 'amount', 'description', 'date_incurred'];
+    protected $fillable = ['name', 'expense_category_id', 'project_id', 'task_id', 'amount', 'description', 'date_incurred', 'budget_id'];
 
     public function expenseCategory()
     {
@@ -24,5 +24,10 @@ class Expense extends Model
     public function task()
     {
         return $this->belongsTo(Task::class);
+    }
+
+    public function budget()
+    {
+        return $this->belongsTo(Budget::class);
     }
 }

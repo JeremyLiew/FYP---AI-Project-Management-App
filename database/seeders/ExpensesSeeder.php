@@ -16,6 +16,7 @@ class ExpensesSeeder extends Seeder
         $expenseCategories = DB::table('expense_categories')->get(); // Fetch expense categories
         $projects = DB::table('projects')->get(); // Fetch projects
         $tasks = DB::table('tasks')->get(); // Fetch tasks
+        $budget = DB::table('budgets')->first(); // Fetch the first budget for seeding projects
 
         DB::table('expenses')->insert([
             [
@@ -28,6 +29,7 @@ class ExpensesSeeder extends Seeder
                 'date_incurred' => '2024-01-05',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'budget_id' => $budget->id,
             ],
             [
                 'name' => 'Flight for Team Lead',
@@ -39,6 +41,7 @@ class ExpensesSeeder extends Seeder
                 'date_incurred' => '2024-02-15',
                 'created_at' => now(),
                 'updated_at' => now(),
+                'budget_id' => $budget->id,
             ]
         ]);
 

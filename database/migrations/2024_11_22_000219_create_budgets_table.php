@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->decimal('total_budget', 15, 2);
-            $table->decimal('allocated_amount', 15, 2)->default(0);
             $table->decimal('remaining_amount', 15, 2)->default(0);
             $table->timestamps();
         });

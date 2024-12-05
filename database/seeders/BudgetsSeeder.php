@@ -17,7 +17,6 @@ class BudgetsSeeder extends Seeder
             [
                 'name' => 'General Budget',
                 'total_budget' => 500000.00,
-                'allocated_amount' => 200000.00,
                 'remaining_amount' => 300000.00,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -25,7 +24,6 @@ class BudgetsSeeder extends Seeder
             [
                 'name' => 'Marketing Budget',
                 'total_budget' => 100000.00,
-                'allocated_amount' => 60000.00,
                 'remaining_amount' => 40000.00,
                 'created_at' => now(),
                 'updated_at' => now(),
