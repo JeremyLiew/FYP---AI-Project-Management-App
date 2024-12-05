@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Web;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Models\ApplicationRole;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Web\UpdateUserRequest;
 
 class UserMaintenanceController extends Controller
 {
@@ -42,7 +43,7 @@ class UserMaintenanceController extends Controller
         ]);
     }
 
-    public function updateUser(Request $request)
+    public function updateUser(UpdateUserRequest $request)
     {
         $user = User::findOrFail($request->input('id'));
         $user->update($request->all());

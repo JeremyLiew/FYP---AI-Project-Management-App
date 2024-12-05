@@ -140,6 +140,7 @@
 						outlined
 						dense
 						:readonly="!isEditing"
+						:error-messages="errors.name"
 					/>
 					<v-text-field
 						v-model="currentUser.email"
@@ -188,6 +189,7 @@ export default {
 			isEditing: false,
 			currentUser: {},
 			roles: [],
+			errors: {},
 		};
 	},
 	watch: {
@@ -247,6 +249,7 @@ export default {
 			this.showUserDialog = true;
 		},
 		saveUser() {
+			this.errors = {};
 			if (!this.currentUser || !this.currentUser.id) {
 				this.$toast.error("No user selected for update.");
 				return;
@@ -263,6 +266,7 @@ export default {
 				.catch((error) => {
 					console.error("Error updating user:", error);
 					this.$toast.error("Failed to update user. Please try again.");
+					this.errors = error.response?.data.errors || {};
 				});
 		},
 		confirmDelete(userId) {
