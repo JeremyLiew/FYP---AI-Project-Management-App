@@ -243,14 +243,12 @@ export default {
 				// Directly append the file
 				formData.append("attachment", this.project.attachment); // Attach file
 			}
-			console.log(this.project.attachment);
-
 			// Append the rest of the project data
 			formData.append("project", JSON.stringify(this.project));
-			console.log(formData);
+			console.log(this.project);
 
 			// Send the data to the server
-			ProjectClient.createProject(this.project)
+			ProjectClient.createProject(formData)
 				.then((response) => {
 					this.$toast.success("Project created successfully");
 					this.$router.push({ name: "project-listings-page" });

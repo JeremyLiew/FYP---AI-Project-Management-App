@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Project;
 use App\Models\ProjectRole;
 use App\Models\Notification;
+use App\Models\Attachment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -84,6 +85,7 @@ class ProjectController extends Controller
 
     public function createProject(CreateProjectRequest $request)
     {
+        // Create the project
         $project = Project::create([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
@@ -100,19 +102,19 @@ class ProjectController extends Controller
             $roleId = $request->input('roles')[$index];
             $usersWithRoles[$userId] = ['project_role_id' => $roleId];
         }
-
-        // Get the current members before syncing
+    
+        // Get the current users before syncing
         $existingUserIds = $project->users->pluck('id')->toArray();
-
-        // Sync users with the project
+    
+        // Sync users with the project (update the pivot table)
         $project->users()->sync($usersWithRoles);
-
+    
         // Get the new members after syncing
         $newUserIds = array_keys($usersWithRoles);
-
-        // Determine newly added users
+    
+        // Determine the newly added users
         $addedUserIds = array_diff($newUserIds, $existingUserIds);
-
+    
         // Send notifications to newly added users only
         foreach ($addedUserIds as $userId) {
             $user = User::find($userId);
@@ -120,19 +122,66 @@ class ProjectController extends Controller
                 $notification = Notification::create([
                     'message' => "You have been added to the project '{$project->name}' by " . auth()->user()->name,
                 ]);
-
+    
                 UserNotificationMapping::create([
                     'user_id' => $userId,
                     'notification_id' => $notification->id,
                 ]);
             }
         }
-
+    
+        // Return response
         return response()->json([
             'message' => 'Project created successfully.',
             'project' => $project
         ]);
     }
+
+
+    public function updateAttachment(Request $request)
+    {
+        // Validate input
+        $request->validate([
+            'file' => 'nullable|file|mimes:jpg,png,pdf,doc,docx|max:2048', // Validate file type and size
+            'project_id' => 'required|integer', // Assuming project_id is mandatory
+        ]);
+
+        // Find the existing attachment by project_id
+        $attachment = Attachment::where('project_id', $request->input('project_id'))->first();
+
+        if (!$attachment) {
+            return response()->json(['error' => 'Attachment not found for the given project'], 404); // Return error if attachment doesn't exist
+        }
+
+        // Check if a new file is uploaded
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+
+            // Get the original name
+            $fileName = $file->getClientOriginalName();
+
+            // Get the file MIME type
+            $fileType = $file->getMimeType();
+
+            // Store the file and get the path
+            $filePath = $file->store('attachments', 'public');
+
+            // Update the attachment using update() method
+            $attachment->update([
+                'file_path' => $filePath,
+                'attachmentable_type' => $fileType, // Update the file type (you can change this if needed)
+                'project_id' => $request->input('project_id'), // You can change project_id if necessary
+            ]);
+        }
+
+        // Return response with the updated attachment details
+        return response()->json([
+            'message' => 'Attachment updated successfully',
+            'attachment' => $attachment,
+        ]);
+    }
+
+
 
     public function updateProject(UpdateProjectRequest $request)
     {
