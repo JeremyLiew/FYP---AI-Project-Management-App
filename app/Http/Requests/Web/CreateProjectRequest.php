@@ -26,7 +26,7 @@ class CreateProjectRequest extends FormRequest
             'roles' => 'required|array',
             'roles.*' => 'exists:project_roles,id',
             'roles' => 'size:' . count($this->input('members')),
-            'attachment' => 'required',
+             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,pdf',
         ];
     }
 

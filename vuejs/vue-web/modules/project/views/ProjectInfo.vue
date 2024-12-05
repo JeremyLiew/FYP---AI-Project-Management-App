@@ -59,6 +59,15 @@
 
 					<v-divider class="my-4"></v-divider>
 
+					<h3>Attachment</h3>
+						<p v-if="attachment">
+							<strong>Attachment Type:</strong> {{ attachment.file_type }} <br />
+							<a :href="downloadUrl" :download="attachment.file_name" target="_blank">Download</a>
+						</p>
+					<p v-else>No attachment found</p>
+
+					<v-divider class="my-4"></v-divider>
+
 					<h3>Additional Information</h3>
 					<p>
 						<strong>Budget: </strong>
@@ -97,6 +106,7 @@ export default {
 		return {
 			project: {},
 			projectMembers: [],
+			attachment: null,  // Store the attachment data
 			activeTab: 0,
 			roles: [],
 		};
@@ -104,7 +114,13 @@ export default {
 	mounted() {
 		const projectId = this.$route.params.id;
 		this.fetchProjectDetails(projectId);
+		this.fetchAttachment(projectId); 
 	},
+	computed: {
+		downloadUrl() {
+		return `/api/project/download/${this.project.id}`;
+		}
+  	},
 	methods: {
 		fetchProjectDetails(id) {
 			ProjectClient.fetchProject(id)
@@ -116,6 +132,19 @@ export default {
 				.catch((error) => {
 					console.error("Error fetching project details:", error);
 				});
+		},
+		fetchAttachment(id) {
+			ProjectClient.fetchAttachment(id)  // Call the API to fetch attachment details
+				.then((response) => {
+					this.attachment = response.data;  // Store attachment details
+				})
+				.catch((error) => {
+					console.error("Error fetching attachment:", error);
+				});
+		},
+		getFileName(filePath) {
+		// Extract the file name from the file path
+		return filePath.split('/').pop();
 		},
 		getRoleName(roleId) {
 			const role = this.roles.find((role) => role.id === roleId);

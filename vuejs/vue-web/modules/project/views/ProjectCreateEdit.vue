@@ -235,32 +235,35 @@ export default {
 				});
 		},
 		submitProject() {
-			this.isLoading = true;
-			this.errors = {};
+		this.isLoading = true;
+		this.errors = {};
 
-			const formData = new FormData();
-			if (this.project.attachment) {
-				// Directly append the file
-				formData.append("attachment", this.project.attachment); // Attach file
-			}
-			console.log(this.project.attachment);
+		const projectData = {
+			name: this.project.name,
+			description: this.project.description,
+			start_date: this.project.start_date,
+			end_date: this.project.end_date,
+			status: this.project.status,
+			priority: this.project.priority,
+			budget_id: this.project.budget_id,
+			members: this.project.members,
+			roles: this.project.roles,
+			attachment: this.project.attachment[0],
+		};
 
-			// Append the rest of the project data
-			formData.append("project", JSON.stringify(this.project));
-			console.log(formData);
+		console.log(this.project.attachment[0]);
 
-			// Send the data to the server
-			ProjectClient.createProject(this.project)
-				.then((response) => {
-					this.$toast.success("Project created successfully");
-					this.$router.push({ name: "project-listings-page" });
-				})
-				.catch((error) => {
-					this.errors = error.response?.data.errors || {};
-				})
-				.finally(() => {
-					this.isLoading = false;
-				});
+		ProjectClient.createProject(projectData)
+			.then((response) => {
+			this.$toast.success("Project created successfully");
+			this.$router.push({ name: "project-listings-page" });
+			})
+			.catch((error) => {
+			this.errors = error.response?.data.errors || {};
+			})
+			.finally(() => {
+			this.isLoading = false;
+			});
 		},
 		updateProject() {
 			this.isLoading = true;

@@ -85,6 +85,8 @@ class ProjectController extends Controller
 
     public function createProject(CreateProjectRequest $request)
     {
+        
+
         // Create the project
         $project = Project::create([
             'name' => $request->input('name'),
@@ -95,6 +97,29 @@ class ProjectController extends Controller
             'priority' => $request->input('priority'),
             'budget_id' => $request->input('budget_id'),
         ]);
+
+        // Initialize attachment variables
+        $fileName = null;
+        $fileType = null;
+        $filePath = null;
+
+        // Handle the file upload if it exists
+        if ($request->hasFile('attachment')) {
+            $attachment = $request->file('attachment');
+            
+            // Get file details
+            $fileName = $attachment->getClientOriginalName();  // Get original file name
+            $fileType = $attachment->getClientMimeType();     // Get file type (MIME type)
+            $filePath = $attachment->store('attachments');    // Store the file and get its path
+            
+            // Optional: You can also use storeAs() if you want to specify the filename
+            // $filePath = $attachment->storeAs('attachments', $fileName); // Store with the original file name
+            $attachment = Attachment::create([
+                'file_type' => $fileType,
+                'file_path' => $filePath,
+                'project_id' => $project->id,  // Attach the file to the created project
+            ]);
+        }
 
         $usersWithRoles = [];
 
@@ -281,4 +306,45 @@ class ProjectController extends Controller
             'projectRoles' => $projectRoles,
         ]);
     }
+
+    public function fetchAttachment($projectId)
+    {
+        $attachment = Attachment::where('project_id', $projectId)->first();
+
+        if (!$attachment) {
+            return response()->json(['error' => 'No attachment found for this project'], 404);
+        }
+
+        $filePath = storage_path('app/' . $attachment->file_path);
+        
+        if (!file_exists($filePath)) {
+            return response()->json(['error' => 'File not found'], 404);
+        }
+
+        return response()->json([
+            'file_type' => $attachment->file_type,
+            'file_path' => route('download.attachment', ['projectId' => $projectId]),
+            'file_name' => basename($attachment->file_path),
+        ]);
+    }
+
+    public function downloadAttachment($projectId)
+    {
+        $attachment = Attachment::where('project_id', $projectId)->first();
+    
+        if (!$attachment) {
+            return response()->json(['error' => 'No attachment found for this project'], 404);
+        }
+    
+        $filePath = storage_path('app/' . $attachment->file_path);
+        
+        if (!file_exists($filePath)) {
+            return response()->json(['error' => 'File not found'], 404);
+        }
+    
+        return response()->download($filePath, basename($attachment->file_path), [
+            'Content-Type' => $attachment->file_type,
+        ]);
+    }
+
 }
