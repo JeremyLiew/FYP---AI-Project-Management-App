@@ -125,12 +125,12 @@
 			<v-row>
 				<v-col cols="12" md="6">
 					<v-file-input
-					v-model="project.attachment"
-					label="Project Attachment"
-					accept="image/*, .pdf, .docx, .xlsx"
-					outlined
-					:error-messages="errors.file"
-					required
+						v-model="project.attachment"
+						label="Project Attachment"
+						accept="image/*, .pdf, .docx, .xlsx"
+						outlined
+						:error-messages="errors.file"
+						required
 					></v-file-input>
 				</v-col>
 			</v-row>
@@ -153,6 +153,7 @@
 
 <script>
 import ProjectClient from "../client";
+import BudgetClient from "../../budget/client";
 
 export default {
 	props: {
@@ -178,10 +179,7 @@ export default {
 			users: [],
 			roles: [],
 			// budgets to be updated
-			budgets: [
-				{id: 1, name: 'Web', amount: 2000},
-				{id: 2, name: 'App', amount: 7000}
-			],
+			budgets: [],
 			statusOptions: ["Ongoing", "Completed", "Pending"],
 			priorityOptions: ["-","Low", "Medium", "High"],
 			today: "",
@@ -195,14 +193,15 @@ export default {
 		formattedBudgets() {
 			return this.budgets.map((budget) => ({
 				...budget,
-				formattedName: `${budget.name} - RM${budget.amount.toLocaleString()}`,
+				formattedName: `${budget.name} - RM${budget.total_budget.toLocaleString()}`,
 			}));
 		},
 	},
 	mounted() {
 		this.initializeDates();
 		this.fetchUsersAndRoles();
-		console.log("File:", 0);
+		this.fetchBudgets();
+
 		if (this.isEdit) {
 			const projectId = this.$route.params.id;
 			if (projectId) {
@@ -223,6 +222,15 @@ export default {
 			this.project.start_date = this.today;
 			this.tomorrow = new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0];
 		},
+		fetchBudgets(){
+			ProjectClient.fetchBudgets()
+				.then(response => {
+					this.budgets = response.data.data
+				})
+				.catch(error => {
+					console.error("Error fetching budgets", error);
+				});
+		},
 		fetchUsersAndRoles() {
 			// Fetch users and roles from the backend
 			ProjectClient.fetchUsersAndRoles()
@@ -235,35 +243,33 @@ export default {
 				});
 		},
 		submitProject() {
-		this.isLoading = true;
-		this.errors = {};
+			this.isLoading = true;
+			this.errors = {};
 
-		const projectData = {
-			name: this.project.name,
-			description: this.project.description,
-			start_date: this.project.start_date,
-			end_date: this.project.end_date,
-			status: this.project.status,
-			priority: this.project.priority,
-			budget_id: this.project.budget_id,
-			members: this.project.members,
-			roles: this.project.roles,
-			attachment: this.project.attachment[0],
-		};
+			const projectData = {
+				name: this.project.name,
+				description: this.project.description,
+				start_date: this.project.start_date,
+				end_date: this.project.end_date,
+				status: this.project.status,
+				priority: this.project.priority,
+				budget_id: this.project.budget_id,
+				members: this.project.members,
+				roles: this.project.roles,
+				attachment: this.project.attachment[0],
+			};
 
-		console.log(this.project.attachment[0]);
-
-		ProjectClient.createProject(projectData)
-			.then((response) => {
-			this.$toast.success("Project created successfully");
-			this.$router.push({ name: "project-listings-page" });
-			})
-			.catch((error) => {
-			this.errors = error.response?.data.errors || {};
-			})
-			.finally(() => {
-			this.isLoading = false;
-			});
+			ProjectClient.createProject(projectData)
+				.then((response) => {
+					this.$toast.success("Project created successfully");
+					this.$router.push({ name: "project-listings-page" });
+				})
+				.catch((error) => {
+					this.errors = error.response?.data.errors || {};
+				})
+				.finally(() => {
+					this.isLoading = false;
+				});
 		},
 		updateProject() {
 			this.isLoading = true;

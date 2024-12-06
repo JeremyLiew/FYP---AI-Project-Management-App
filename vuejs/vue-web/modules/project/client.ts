@@ -11,9 +11,9 @@ const ProjectClient = {
 	createProject(formData){
 		return axios.post(prefix + "/create", formData, {
 			headers: {
-			  "Content-Type": "multipart/form-data" // Ensure the request is sent as multipart/form-data
+				"Content-Type": "multipart/form-data"
 			}
-		  });
+		});
 	},
 
 	fetchProject(id){
@@ -38,6 +38,10 @@ const ProjectClient = {
 
 	downloadAttachment(id){
 		return axios.get( prefix + "/download/" + id )
+	},
+
+	fetchBudgets(){
+		return axios.get( prefix + "/budgets")
 	},
 
 }

@@ -3,19 +3,20 @@
 namespace App\Http\Controllers\Web;
 
 use App\Models\User;
+use App\Models\Budget;
 use App\Models\Project;
+use App\Models\Attachment;
 use App\Models\ProjectRole;
 use App\Models\Notification;
-use App\Models\Attachment;
 use Illuminate\Http\Request;
+use App\Services\ActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\UserNotificationMapping;
 use App\Http\Requests\Web\CreateProjectRequest;
 use App\Http\Requests\Web\UpdateProjectRequest;
+
 use App\Http\Requests\Web\GetProjectListingsRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-
-use App\Services\ActivityLogger;
 
 class ProjectController extends Controller
 {
@@ -368,6 +369,26 @@ class ProjectController extends Controller
         return response()->download($filePath, basename($attachment->file_path), [
             'Content-Type' => $attachment->file_type,
         ]);
+    }
+
+    public function getBudgets(){
+        try {
+            // Fetch all budgets from the database
+            $budgets = Budget::all();
+
+            // Return the budgets in a JSON response
+            return response()->json([
+                'success' => true,
+                'data' => $budgets
+            ], 200);
+        } catch (\Exception $e) {
+            // Handle any errors and return an error response
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching budgets.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
 }

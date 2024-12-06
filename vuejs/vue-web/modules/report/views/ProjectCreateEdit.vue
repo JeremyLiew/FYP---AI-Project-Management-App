@@ -202,7 +202,7 @@ export default {
 	mounted() {
 		this.initializeDates();
 		this.fetchUsersAndRoles();
-		console.log("File:", 0);
+
 		if (this.isEdit) {
 			const projectId = this.$route.params.id;
 			if (projectId) {
@@ -245,7 +245,6 @@ export default {
 			}
 			// Append the rest of the project data
 			formData.append("project", JSON.stringify(this.project));
-			console.log(this.project);
 
 			// Send the data to the server
 			ProjectClient.createProject(formData)

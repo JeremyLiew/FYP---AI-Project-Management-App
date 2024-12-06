@@ -289,10 +289,6 @@ export default {
 					this.isLoading = false;
 				});
 		},
-		viewUser(userId) {
-			console.log("Viewing user details for ID:", userId);
-			// Implement navigation or logic for viewing user details
-		},
 	},
 };
 </script>

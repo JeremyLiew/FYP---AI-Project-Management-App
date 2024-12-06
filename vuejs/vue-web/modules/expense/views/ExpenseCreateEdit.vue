@@ -161,7 +161,6 @@ export default {
 			const expenseId = this.$route.params.id;
 			if (expenseId) {
 				this.fetchExpense(expenseId);
-				console.log(this.expense);
 			}
 		} else {
 			this.modelLoading = false;
@@ -186,7 +185,6 @@ export default {
 		updateExpense() {
 			this.isLoading = true;
 			this.errors = {};
-			console.log(this.expense);
 			ExpenseClient.updateExpense(this.expense)
 				.then(() => {
 					this.$toast.success("Expense updated successfully");
@@ -203,16 +201,16 @@ export default {
 			ExpenseClient.fetchExpense(id)
 				.then((response) => {
 					this.expense = {
-					id: response.data.expense.id,
-					name: response.data.expense.name,
-					amount: response.data.expense.amount,
-					description: response.data.expense.description,
-					date_incurred: response.data.expense.date_incurred,
-					expense_category_id: response.data.expense.expense_category_id,
-					project_id: response.data.expense.project_id,
-					task_id: response.data.expense.task_id,
-					budget_id: response.data.expense.budget_id,
-				};
+						id: response.data.expense.id,
+						name: response.data.expense.name,
+						amount: response.data.expense.amount,
+						description: response.data.expense.description,
+						date_incurred: response.data.expense.date_incurred,
+						expense_category_id: response.data.expense.expense_category_id,
+						project_id: response.data.expense.project_id,
+						task_id: response.data.expense.task_id,
+						budget_id: response.data.expense.budget_id,
+					};
 				})
 				.catch((error) => {
 					console.error("Error fetching expense:", error);

@@ -42,6 +42,7 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/file/{id}', [ProjectController::class, 'fetchAttachment']);
         Route::get('/download/{id}', [ProjectController::class, 'downloadAttachment']);
         Route::get('/project/download/{projectId}', [ProjectController::class, 'downloadAttachment'])->name('download.attachment');
+        Route::get('/budgets', [ProjectController::class, 'getBudgets']);
     });
 });
 
