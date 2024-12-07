@@ -22,16 +22,16 @@ class ExpenseController extends Controller
     {
         $perPage = $request->input('itemsPerPage', 10);
         $searchQuery = $request->input('searchQuery', '');
-    
-        $expenses = Expense::query();
-    
+
+        $expenses = Expense::query()->with('expenseCategory:id,name');
+
         if ($searchQuery) {
             $expenses->where('name', 'like', '%' . $searchQuery . '%');
         }
-    
+
         return response()->json($expenses->paginate($perPage));
     }
-    
+
     public function expenseInfo($id)
     {
         // Fetch the expense by its ID
