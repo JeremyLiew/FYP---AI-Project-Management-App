@@ -1,33 +1,37 @@
 import axios from 'axios';
 
-const prefix = "/project"
+const prefix = "/report"
 
-const ProjectClient = {
+const ReportClient = {
 
-	getProjectListings(payload) {
+	getProjectsAndTasks(payload) {
 		return axios.get( prefix + "/listings", { params: payload })
 	},
 
-	createProject(payload){
-		return axios.post( prefix + "/create" , payload)
+	getExpenseCategoryData(payload) {
+		return axios.get( prefix + "/expense", { params: payload })
 	},
 
-	fetchProject(id){
-		return axios.get( prefix + "/info/" + id )
+	getPerformanceData(payload) {
+		return axios.get( prefix + "/performance", { params: payload })
 	},
 
-	updateProject(payload){
-		return axios.post( prefix + "/update" , payload)
+	fetchAiFeedback(payload) {
+		return axios.get( prefix + "/feedback", { params: payload })
 	},
 
-	deleteProject(id) {
-		return axios.post( prefix + "/delete/" + id);
+	fetchProjectExpenses(id){
+		return axios.get( prefix + "/project-expense/" + id )
 	},
 
-	fetchUsersAndRoles(){
-		return axios.get( prefix + "/users-and-roles");
+	fetchProjectTasks(id){
+		return axios.get( prefix + "/project-task/" + id )
+	},
+
+	fetchPrasks(id){
+		return axios.get( prefix + "/project-task/" + id )
 	},
 
 }
 
-export default ProjectClient;
+export default ReportClient;

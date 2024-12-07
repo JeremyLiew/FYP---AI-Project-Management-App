@@ -7,6 +7,7 @@ import * as ExpenseModule from '../modules/expense/router'
 import * as CategoryModule from '../modules/category/router'
 import * as ActivityLogModule from '../modules/activity_log/router'
 import * as UserMaintenanceModule from '../modules/user_maintenance/router'
+import * as ReportModule from '../modules/report/router'
 
 import BaseLayout from '../layouts/BaseLayout.vue';
 
@@ -113,6 +114,18 @@ const routes = [
 				props: { isEdit: true },
 				meta: {
 					auth: true
+				}
+			},
+			{
+				path: '/report', name: 'report-page', component: ReportModule.ReportListingsPage, 
+				meta: {
+					auth: true 
+				}
+			},
+			{
+				path: '/team-report/:id', name: 'team-report-page', component: ReportModule.TeamReportsPage, 
+				meta: {
+					auth: true 
 				}
 			},		  
 			{

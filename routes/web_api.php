@@ -10,6 +10,8 @@ use App\Http\Controllers\Web\{
     BudgetController,
     ExpenseController,
     UserMaintenanceController,
+    ReportController,
+    HomeController,
 };
 use App\Http\Controllers\Auth\{
     AuthController,
@@ -115,6 +117,18 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::post('/update', [ExpenseController::class, 'updateExpenseCategory']);
         Route::post('/delete/{id}', [ExpenseController::class, 'deleteExpenseCategory']);
         Route::get('/info/{id}', [ExpenseController::class, 'categoryInfo']);
+    });
+});
+
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('report')->group(function () {
+        Route::get('/listings', [ReportController::class, 'getProjectsAndTasks']);
+        Route::get('/expense', [ReportController::class, 'getExpenseCategoryData']);
+        Route::get('/performance', [ReportController::class, 'getPerformanceData']);
+        Route::get('/feedback', [ReportController::class, 'fetchAiFeedback']);
+        Route::get('/project-expense/{id}', [ReportController::class, 'fetchExpensesByProjectId']);
+        Route::get('/project-task/{id}', [ReportController::class, 'fetchProjectTasks']);
+        Route::get('/project/{id}', [ReportController::class, 'getExpensesByProjectId']);
     });
 });
 

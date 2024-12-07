@@ -98,6 +98,7 @@
         deleteDialog: false,
         selectedExpenseId: null,
         isLoading: false,
+        user: {},
       };
     },
     methods: {
@@ -169,6 +170,7 @@
     },
     mounted() {
       this.fetchExpenses();
+      this.user = this.$auth.user().user;
     },
   };
   </script>

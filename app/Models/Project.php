@@ -31,4 +31,10 @@ class Project extends Model
         return $this->belongsToMany(User::class, 'user_project_mappings')
         ->withPivot('project_role_id');
     }
+
+    public function userProjectMappings()
+    {
+        return $this->hasMany(UserProjectMapping::class);
+    }    
+
 }

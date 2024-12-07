@@ -25,4 +25,10 @@ class Task extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    public function userTaskMappings()
+    {
+        return $this->hasMany(UserTaskMapping::class);
+    }
+
 }
