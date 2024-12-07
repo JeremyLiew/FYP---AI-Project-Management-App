@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Web;
 
+use Carbon\Carbon;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\IOFactory;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Project;
@@ -77,7 +80,7 @@ class ReportController extends Controller
         // Fetch all tasks associated with the user through UserTaskMapping
         $tasks = Task::whereHas('userTaskMappings', function ($query) use ($userId) {
             $query->where('user_id', $userId);
-        })->get();
+        })->with('project')->get();
     
         // Calculate project stats
         $projectStats = $projects->map(function ($project) {
@@ -113,11 +116,33 @@ class ReportController extends Controller
     
         // Calculate task stats
         $taskStats = $tasks->map(function ($task) {
-            $isCompletedOnTime = $task->due_date && $task->due_date <= now()->subDays(3);
+            $rating = '';
+    
+            if ($task->project->status == 'Completed') {
+                // Check the difference between due_date and updated_at
+                $dueDate = \Carbon\Carbon::parse($task->due_date);
+                $updatedAt = \Carbon\Carbon::parse($task->updated_at);
+                $diffInDays = $dueDate->diffInDays($updatedAt);
+    
+                if ($diffInDays <= 3) {
+                    $rating = 'Very Good';
+                } elseif ($diffInDays <= 6) {
+                    $rating = 'Good';
+                } elseif ($diffInDays == 0) {
+                    $rating = 'Well';
+                } elseif ($diffInDays > 3) {
+                    $rating = 'Bad';
+                } elseif ($diffInDays > 6) {
+                    $rating = 'Poor';
+                }
+            } elseif ($task->project->status == 'Ongoing' || $task->project->status == 'Pending') {
+                $rating = 'In Progress';
+            }
+    
             return [
                 'name' => $task->name,
                 'status' => $task->status,
-                'completionRate' => $isCompletedOnTime ? 'Good' : 'Poor',
+                'completionRate' => $rating,
             ];
         });
     
@@ -150,8 +175,87 @@ class ReportController extends Controller
     {
         // Retrieve all tasks for the given project ID
         $tasks = Task::where('project_id', $projectId)
-                     ->get();
+                     ->get()
+                     ->map(function ($task) {
+                         $completionTime = null;
+    
+                         // Calculate completion time only if updated_at is available
+                         if ($task->updated_at && $task->created_at) {
+                             $createdAt = Carbon::parse($task->created_at);
+                             $updatedAt = Carbon::parse($task->updated_at);
+                             
+                             // Calculate completion time in hours 
+                             $completionTime = $createdAt->diffInHours($updatedAt, false);
+                         }
+    
+                         // Add the calculated completion time to the task
+                         $task->completion_time = $completionTime;
+    
+                         return $task;
+                     });
+    
+        return response()->json($tasks);
+    }    
 
+    public function fetchTaskStatus($projectId)
+    {
+        // Retrieve all tasks for the given project ID and return only the status
+        $tasks = Task::where('project_id', $projectId)
+                     ->get(['id', 'status']); // You can choose which fields to return
+    
         return response()->json($tasks);
     }
+    
+    public function downloadProjectDetails(Request $request)
+    {
+        $id = $request->input('projectId');
+        $format = $request->input('format');
+    
+        // Validate the format
+        if (!in_array($format, ['txt', 'pdf', 'docx'])) {
+            return response()->json(['error' => 'Unsupported format'], 400);
+        }
+    
+        $project = Project::findOrFail($id);
+    
+        // Prepare the content to be downloaded
+        $content = $this->generateHumanReadableContent($project);
+    
+        if ($format === 'txt') {
+            return response($content)
+                ->header('Content-Type', 'text/plain')
+                ->header('Content-Disposition', 'attachment; filename="project_' . $id . '_details.txt"');
+        } elseif ($format === 'docx') {
+            // Create a new Word document using PHPWord
+            $phpWord = new PhpWord();
+            $section = $phpWord->addSection();
+    
+            // Add content to the Word document
+            $section->addText('Project Name: ' . $project->name);
+            $section->addText('Project Description: ' . $project->description);
+    
+    
+            // Save the document as DOCX
+            $fileName = 'project_' . $id . '_details.docx';
+            $filePath = storage_path('app/public/' . $fileName);
+            $phpWord->save($filePath);
+    
+            // Return the DOCX file as a download response
+            return response()->download($filePath, $fileName)->deleteFileAfterSend(true);
+        }
+    
+        return response()->json(['error' => 'Unsupported format'], 400);
+    }
+
+
+    // Helper function to generate human-readable content
+    private function generateHumanReadableContent($project)
+    {
+        // Format the content for TXT or HTML (for PDF)
+        $content = "Project Name: " . $project->name . "\n";
+        $content .= "Project Description: " . $project->description . "\n";
+        
+        return $content;
+    }
+
 }

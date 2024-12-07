@@ -129,7 +129,8 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/feedback', [ReportController::class, 'fetchAiFeedback']);
         Route::get('/project-expense/{id}', [ReportController::class, 'fetchExpensesByProjectId']);
         Route::get('/project-task/{id}', [ReportController::class, 'fetchProjectTasks']);
-        Route::get('/project/{id}', [ReportController::class, 'getExpensesByProjectId']);
+        Route::get('/task/{id}', [ReportController::class, 'fetchTaskStatus']);
+        Route::get('/download', [ReportController::class, 'downloadProjectDetails']);
     });
 });
 

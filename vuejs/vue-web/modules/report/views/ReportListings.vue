@@ -292,7 +292,7 @@ export default {
 						const task = taskData[index];
 
 						// Custom tooltip content
-						return `${task.name} - Status: ${task.status} - Time Spent: ${task.completionRate} hours`;
+						return `${task.name} - Status: ${task.status} - Rating: ${task.completionRate} `;
 						}
 					}
 					}

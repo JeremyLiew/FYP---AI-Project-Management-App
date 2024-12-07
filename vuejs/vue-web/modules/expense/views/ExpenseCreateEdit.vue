@@ -255,6 +255,9 @@ export default {
 					console.error("Error fetching budgets:", error);
 				});
 		},
+		filterTasksByProject() {
+			this.tasks = this.allTasks.filter(task => task.project_id === this.expense.project_id);
+		},
 	},
 };
 </script>

@@ -28,8 +28,12 @@ const ReportClient = {
 		return axios.get( prefix + "/project-task/" + id )
 	},
 
-	fetchPrasks(id){
-		return axios.get( prefix + "/project-task/" + id )
+	fetchTaskStatus(id){
+		return axios.get( prefix + "/task/" + id )
+	},
+
+	downloadProjectDetails(payload){
+		return axios.get( prefix + "/download", { params: payload })
 	},
 
 }

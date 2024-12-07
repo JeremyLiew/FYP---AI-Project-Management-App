@@ -1,14 +1,24 @@
 <template>
-  <div>
-    <h3>Expenses for Project {{ projectId }}</h3>
-    <canvas id="expenseChart"></canvas>
+		<div class="charts-container">
+			<div class="chart-item">
+      <h3>Expenses for Project {{ projectId }}</h3>
+      <canvas id="expenseChart"></canvas>
+    </div>
+    <div class="chart-item">
+      <h3>Task Completion Time for Project {{ projectId }}</h3>
+      <canvas id="taskCompletionChart"></canvas>
+    </div>
+    <div class="chart-item">
+      <h3>Task Status Over Time for Project {{ projectId }}</h3>
+      <canvas id="taskStatusChart"></canvas>
+    </div>  
 
-    <h3>Task Completion Time for Project {{ projectId }}</h3>
-    <canvas id="taskCompletionChart"></canvas>
-
-    <h3>Task Status for Project {{ projectId }}</h3>
-    <canvas id="taskStatusChart"></canvas>
-  </div>
+    <!-- New buttons for download -->
+    <div class="download-buttons">
+      <button @click="downloadProjectDetails('txt')" class="btn-primary">Download as TXT</button>
+      <button @click="downloadProjectDetails('docx')" class="btn-primary">Download as DOCX</button>
+    </div>
+</div>
 </template>
 
 <script>
@@ -28,6 +38,7 @@
         this.projectId = this.$route.params.id;
         this.fetchProjectExpenses();
         this.fetchProjectTasks();
+        this.fetchTaskStatus();
       },
       methods: {
         fetchProjectExpenses() {
@@ -122,7 +133,7 @@
               labels: labels,
               datasets: [
                 {
-                  label: "Task Completion Time (hours)",
+                  label: "Task Time (hours)",
                   data: data,
                   backgroundColor: "#ff6384", // Custom color
                   borderColor: "#ff6384", // Border color (optional)
@@ -137,7 +148,7 @@
                 x: {
                   title: {
                     display: true,
-                    text: "Completion Time (hours)",
+                    text: "Task Time (hours)",
                     color: "white",
                   },
                   grid: {
@@ -170,28 +181,38 @@
             },
           });
         },
-        renderTaskStatusChart() {
-          const statuses = this.tasks.map((task) => task.status);
+        fetchTaskStatus() {
+          ReportClient.fetchTaskStatus(this.projectId) // Adjusted to call the correct method for fetching task status
+            .then((response) => {
+              const tasks = response.data;
+              this.renderTaskStatusChart(tasks); // Pass tasks to the render method
+            })
+            .catch((error) => {
+              console.error("Error fetching tasks:", error);
+            });
+        },
+        renderTaskStatusChart(tasks) {
           const statusCounts = {
             Pending: 0,
-            InProgress: 0,
+            Ongoing: 0,
             Completed: 0,
           };
 
-          statuses.forEach((status) => {
-            if (statusCounts[status] !== undefined) {
-              statusCounts[status]++;
+          // Count the occurrences of each status
+          tasks.forEach((task) => {
+            if (statusCounts[task.status] !== undefined) {
+              statusCounts[task.status]++;
             }
           });
 
           const data = {
-            labels: ["Pending", "InProgress", "Completed"],
+            labels: ["Pending", "Ongoing", "Completed"],
             datasets: [
               {
                 label: "Task Status",
                 data: [
                   statusCounts.Pending,
-                  statusCounts.InProgress,
+                  statusCounts.Ongoing,
                   statusCounts.Completed,
                 ],
                 backgroundColor: ["#ff6384", "#36a2eb", "#4caf50"], // Colors for the statuses
@@ -202,7 +223,7 @@
           const ctx = document.getElementById("taskStatusChart").getContext("2d");
 
           new Chart(ctx, {
-            type: "doughnut", // Change to 'doughnut' for circular chart
+            type: "doughnut", // Doughnut chart type
             data: data,
             options: {
               responsive: true,
@@ -228,18 +249,64 @@
             },
           });
         },
+        downloadProjectDetails(format) {
+          // Call backend to generate the requested file
+          const payload = {
+            format: format,
+            projectId: this.projectId,
+          };
+          ReportClient.downloadProjectDetails(payload)
+            .then((response) => {
+              const blob = new Blob([response.data], { type: response.headers['content-type'] });
+              const link = document.createElement('a');
+              link.href = URL.createObjectURL(blob);
+              link.download = `project_${this.projectId}_details.${format}`;
+              link.click();
+            })
+            .catch((error) => {
+              console.error("Error downloading project details:", error);
+            });
+        },
       },
     };
 </script>
 
 <style scoped>
+.charts-container {
+	display: flex;
+	justify-content: space-between;
+	gap: 20px;
+	flex-wrap: wrap;
+}
+
+.chart-item {
+	flex: 1 1 30%;
+	min-width: 300px;
+	box-sizing: border-box;
+	padding: 10px;
+	border: 1px solid #444;
+	border-radius: 8px;
+	background-color: #2e2e2e; /* Dark background for charts */
+}
+
 canvas {
-  width: 100%;
-  height: 400px;
-  background-color: #333; /* Dark background for the chart */
-  border-radius: 8px; /* Optional: Adds rounded corners */
+	width: 100%;
+	height: 300px;
+	background-color: #1e1e1e; /* Dark background for the chart */
+	border-radius: 8px;
 }
-h3 {
-  color: white; /* Set heading text color to white */
+
+.btn-primary {
+	background-color: #007bff; /* Light blue button */
 }
+
+.btn-primary:hover {
+	background-color: #0056b3;
+}
+
+.download-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
 </style>
