@@ -12,6 +12,7 @@ use App\Http\Controllers\Web\{
     UserMaintenanceController,
     ReportController,
     HomeController,
+    OpenAIController,
 };
 use App\Http\Controllers\Auth\{
     AuthController,

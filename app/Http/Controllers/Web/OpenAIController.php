@@ -1,20 +1,20 @@
 <?php
 
 
-namespace App\Http\Web\Controllers;
+namespace App\Http\Controllers\Web;
 
-use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class OpenAIController extends Controller
 {
     public function sendMessage(Request $request)
     {
         $client = new Client();
-        dd($request->message);
 
         // OpenAI API key and endpoint
-        $openai_api_key = env('OPENAI_API_KEY'); 
+        $openai_api_key = env('OPENAI_API_KEY');
         $api_url = 'https://api.openai.com/v1/chat/completions';
 
         try {
