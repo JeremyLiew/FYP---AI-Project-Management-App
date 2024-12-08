@@ -134,6 +134,13 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     });
 });
 
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('base')->group(function () {
+        Route::get('/message', [OpenAIController::class, 'sendMessage']);
+    });
+});
+
+
 // sanctum route
 Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('auth')->group(function () {

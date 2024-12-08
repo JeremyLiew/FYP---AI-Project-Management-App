@@ -10,7 +10,11 @@ const BaseClient = {
 
 	submitContactUs(payload){
 		return axios.post( prefix + "/contact-us", payload)
-	}
+	},
+
+	getGptMessage(payload) {
+		return axios.get( prefix + "/message", { params: payload} )
+	},
 
 }
 
