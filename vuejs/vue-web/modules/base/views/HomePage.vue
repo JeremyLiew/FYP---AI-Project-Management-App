@@ -48,24 +48,38 @@
 				<v-card outlined>
 					<v-card-title class="text-h6">Previous Feedback</v-card-title>
 					<v-divider></v-divider>
-					<v-card-text>
-						<v-list dense>
-							<v-list-item
-								v-for="feedback in feedbacks"
-								:key="feedback.id"
-								class="feedback-item"
-							>
-								<v-list-item-content>
-									<v-list-item-title class="feedback-title">
-										{{ feedback.feedback }}
-									</v-list-item-title>
-									<v-list-item-subtitle class="feedback-meta">
-										Model: {{ feedback.ai_model }}, Rating: {{ feedback.rating }}
-									</v-list-item-subtitle>
-								</v-list-item-content>
-							</v-list-item>
-						</v-list>
-					</v-card-text>
+					<template v-if="modelLoading">
+						<v-skeleton-loader type="article"></v-skeleton-loader>
+					</template>
+					<template v-else>
+						<template v-if="hasData">
+							<v-card-text>
+								<v-list dense>
+									<v-list-item
+										v-for="feedback in feedbacks"
+										:key="feedback.id"
+										class="feedback-item"
+									>
+										<v-list-item-content>
+											<v-list-item-title class="feedback-title">
+												{{ feedback.feedback }}
+											</v-list-item-title>
+											<v-list-item-subtitle class="feedback-meta">
+												Model: {{ feedback.ai_model }}, Rating: {{ feedback.rating }}
+											</v-list-item-subtitle>
+										</v-list-item-content>
+									</v-list-item>
+								</v-list>
+							</v-card-text>
+						</template>
+						<template v-else>
+							<v-row class="justify-center">
+								<v-col cols="12" class="text-center">
+									<p>No feedbacks available.</p>
+								</v-col>
+							</v-row>
+						</template>
+					</template>
 				</v-card>
 			</v-col>
 		</v-row>
@@ -82,6 +96,8 @@ export default {
 			response: "",
 			feedbacks: [],
 			isLoading: false,
+			hasData: true,
+			modelLoading: true,
 		};
 	},
 	mounted() {
@@ -100,6 +116,7 @@ export default {
 		},
 		generateSummaryFeedback() {
 			this.isLoading = true;
+			this.modelLoading = true;
 			BaseClient.generateSummaryFeedback()
 				.then(() => {
 					this.isLoading = false
@@ -112,12 +129,18 @@ export default {
 				})
 		},
 		fetchFeedbacks() {
+			this.hasData = true;
+			this.modelLoading = true;
 			BaseClient.getFeedbacks()
 				.then((res) => {
 					this.feedbacks = res.data.feedbacks;
+					this.hasData = this.feedbacks.length > 0;
 				})
 				.catch((error) => {
 					console.error("Error fetching feedbacks:", error);
+					this.hasData = false;
+				}).finally(()=>{
+					this.modelLoading = false
 				});
 		},
 	},
