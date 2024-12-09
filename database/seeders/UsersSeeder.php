@@ -17,6 +17,7 @@ class UsersSeeder extends Seeder
         $normalUserId = DB::table('users')->insertGetId([
             'name' => 'Jliew',
             'email' => 'jliew1114@gmail.com',
+            'description' => 'smart',
             'password' => Hash::make('123123'),
             'application_role_id' => 3,
             'created_at' => now(),
@@ -26,6 +27,7 @@ class UsersSeeder extends Seeder
         $adminUserId = DB::table('users')->insertGetId([
             'name' => 'Admin',
             'email' => 'admin@gmail.com',
+            'description' => 'funny',
             'password' => Hash::make('123123'),
             'application_role_id' => 1,
             'created_at' => now(),

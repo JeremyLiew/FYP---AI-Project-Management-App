@@ -149,6 +149,16 @@
 						dense
 						disabled
 					/>
+					<v-textarea
+						v-model="currentUser.description"
+						label="Description"
+						outlined
+						dense
+						:error-messages="errors.description"
+						:readonly="!isEditing"
+						placeholder="Provide details about the user, such as strengths, personality, and role suitability."
+						help-text="This field helps describe the user's qualities for evaluation."
+					/>
 					<v-select
 						v-model="currentUser.application_role_id"
 						:items="roles"
