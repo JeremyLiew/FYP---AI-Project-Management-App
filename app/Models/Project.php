@@ -35,6 +35,5 @@ class Project extends Model
     public function userProjectMappings()
     {
         return $this->hasMany(UserProjectMapping::class);
-    }    
-
+    }
 }

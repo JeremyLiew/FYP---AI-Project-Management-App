@@ -24,7 +24,7 @@
 		<v-row v-if="aiFeedback">
 			<v-col cols="12">
 				<h3>AI Feedback</h3>
-				<p>{{ aiFeedback.gpt_reply }}</p>
+				<p v-html="renderMarkdown(aiFeedback.gpt_reply)"></p>
 			</v-col>
 		</v-row>
 
@@ -64,8 +64,8 @@
 							</p>
 						</v-col>
 						<v-col cols="12" sm="6">
-							<p><strong>Start Date:</strong> {{ formatDate(project.start_date) }}</p>
-							<p><strong>End Date:</strong> {{ formatDate(project.end_date) }}</p>
+							<p><strong>Start Date:</strong> {{ project.start_date }}</p>
+							<p><strong>End Date:</strong> {{ project.end_date }}</p>
 						</v-col>
 					</v-row>
 					<v-divider class="my-4"></v-divider>
@@ -109,6 +109,7 @@
 import TaskListings from "../../task/views/TaskListings.vue";
 import ProjectClient from "../client";
 import AIClient from "../../base/client";
+import { marked } from "marked";
 
 export default {
 	components: {
@@ -177,9 +178,6 @@ export default {
 			const role = this.roles.find((role) => role.id === roleId);
 			return role ? role.name : "Unknown Role";
 		},
-		formatDate(date) {
-			return date ? new Date(date).toLocaleDateString() : "N/A";
-		},
 		getStatusColor(status) {
 			const colors = {
 				Pending: "red",
@@ -196,6 +194,9 @@ export default {
 			};
 			return colors[priority];
 		},
+		renderMarkdown(text){
+			return marked(text);
+		}
 	},
 };
 </script>

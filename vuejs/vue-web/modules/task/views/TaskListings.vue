@@ -90,7 +90,7 @@
 						<!-- Due Dates -->
 						<v-col cols="12" sm="3" class="text-end">
 							<p class="text-caption mb-1">
-								<strong>Due Date:</strong> {{ formatDate(task.due_date) }}
+								<strong>Due Date:</strong> {{ task.due_date }}
 							</p>
 						</v-col>
 						<!-- Actions -->
@@ -522,9 +522,6 @@ export default {
 				Low: "green",
 			};
 			return colors[priority];
-		},
-		formatDate(date) {
-			return new Date(date).toLocaleDateString();
 		},
 		fetchComments(taskId) {
 			TaskClient.fetchComments(taskId)

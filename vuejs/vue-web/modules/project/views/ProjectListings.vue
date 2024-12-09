@@ -89,10 +89,10 @@
 							<!-- Dates -->
 							<v-col cols="12" sm="3" class="text-end">
 								<p class="text-caption mb-1">
-									<strong>Start:</strong> {{ formatDate(project.start_date) }}
+									<strong>Start:</strong> {{ project.start_date }}
 								</p>
 								<p class="text-caption">
-									<strong>End:</strong> {{ formatDate(project.end_date) }}
+									<strong>End:</strong> {{ project.end_date }}
 								</p>
 							</v-col>
 							<!-- Actions -->
@@ -277,9 +277,6 @@ export default {
 				Low: "green",
 			};
 			return colors[priority];
-		},
-		formatDate(date) {
-			return new Date(date).toLocaleDateString();
 		},
 	},
 };

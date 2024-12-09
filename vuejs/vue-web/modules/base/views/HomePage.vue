@@ -60,14 +60,15 @@
 										:key="feedback.id"
 										class="feedback-item"
 									>
-										<v-list-item-content>
-											<v-list-item-title class="feedback-title">
-												{{ feedback.feedback }}
-											</v-list-item-title>
+										<div>
+											<div
+												class="feedback-title"
+												v-html="renderMarkdown(feedback.feedback)"
+											></div>
 											<v-list-item-subtitle class="feedback-meta">
-												Model: {{ feedback.ai_model }}, Rating: {{ feedback.rating }}
+												Model: {{ feedback.ai_model }}, Created At: {{ formatDate(feedback.created_at) }}
 											</v-list-item-subtitle>
-										</v-list-item-content>
+										</div>
 									</v-list-item>
 								</v-list>
 							</v-card-text>
@@ -88,6 +89,7 @@
 
 <script>
 import BaseClient from "../client";
+import { marked } from "marked";
 
 export default {
 	data() {
@@ -143,6 +145,16 @@ export default {
 					this.modelLoading = false
 				});
 		},
+		formatDate(dateString) {
+			const date = new Date(dateString);
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+			const year = String(date.getFullYear()).slice(-2);
+			return `${day}/${month}/${year}`;
+		},
+		renderMarkdown(text){
+			return marked(text);
+		}
 	},
 };
 </script>
