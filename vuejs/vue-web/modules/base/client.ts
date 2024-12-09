@@ -24,6 +24,10 @@ const BaseClient = {
 		return axios.post( prefix + "/generateSummaryFeedback");
 	},
 
+	getProjectInsight(id){
+		return axios.get( prefix + "/generateProjectInsight/" + id)
+	}
+
 }
 
 export default BaseClient;

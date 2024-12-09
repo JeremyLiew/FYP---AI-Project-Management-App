@@ -8,6 +8,26 @@
 			</v-col>
 		</v-row>
 
+		<!-- Generate AI Feedback Button -->
+		<v-row>
+			<v-col cols="12">
+				<v-btn
+					:loading="isLoading" color="white" depressed
+					@click="generateAIInsights"
+				>
+					Generate AI Feedback
+				</v-btn>
+			</v-col>
+		</v-row>
+
+		<!-- AI Feedback Section -->
+		<v-row v-if="aiFeedback">
+			<v-col cols="12">
+				<h3>AI Feedback</h3>
+				<p>{{ aiFeedback.gpt_reply }}</p>
+			</v-col>
+		</v-row>
+
 		<!-- Tabs for Navigation -->
 		<v-tabs v-model="activeTab" grow>
 			<v-tab>Overview</v-tab>
@@ -60,10 +80,10 @@
 					<v-divider class="my-4"></v-divider>
 
 					<h3>Attachment</h3>
-						<p v-if="attachment">
-							<strong>Attachment Type:</strong> {{ attachment.file_type }} <br />
-							<a :href="downloadUrl" :download="attachment.file_name" target="_blank">Download</a>
-						</p>
+					<p v-if="attachment">
+						<strong>Attachment Type:</strong> {{ attachment.file_type }} <br />
+						<a :href="downloadUrl" :download="attachment.file_name" target="_blank">Download</a>
+					</p>
 					<p v-else>No attachment found</p>
 
 					<v-divider class="my-4"></v-divider>
@@ -88,20 +108,12 @@
 <script>
 import TaskListings from "../../task/views/TaskListings.vue";
 import ProjectClient from "../client";
+import AIClient from "../../base/client";
 
 export default {
 	components: {
 		TaskListings,
 	},
-	// filters: {
-	// 	currency(value) {
-	// 		if (!value) return "N/A";
-	// 		return new Intl.NumberFormat("en-US", {
-	// 			style: "currency",
-	// 			currency: "USD",
-	// 		}).format(value);
-	// 	},
-	// },
 	data() {
 		return {
 			project: {},
@@ -109,19 +121,34 @@ export default {
 			attachment: null,  // Store the attachment data
 			activeTab: 0,
 			roles: [],
+			aiFeedback: null,
+			isLoading: false,
 		};
+	},
+	computed: {
+		downloadUrl() {
+			return `/api/project/download/${this.project.id}`;
+		}
 	},
 	mounted() {
 		const projectId = this.$route.params.id;
 		this.fetchProjectDetails(projectId);
-		this.fetchAttachment(projectId); 
+		this.fetchAttachment(projectId);
 	},
-	computed: {
-		downloadUrl() {
-		return `/api/project/download/${this.project.id}`;
-		}
-  	},
 	methods: {
+		generateAIInsights() {
+			this.isLoading = true;
+			AIClient.getProjectInsight(this.project.id)
+				.then((response) => {
+					this.aiFeedback = response.data;
+					this.isLoading = false
+				})
+				.catch((error) => {
+					console.error("Error generating AI insights:", error);
+				}).finally(() => {
+					this.isLoading = false
+				});
+		},
 		fetchProjectDetails(id) {
 			ProjectClient.fetchProject(id)
 				.then((response) => {
@@ -144,7 +171,7 @@ export default {
 		},
 		getFileName(filePath) {
 		// Extract the file name from the file path
-		return filePath.split('/').pop();
+			return filePath.split('/').pop();
 		},
 		getRoleName(roleId) {
 			const role = this.roles.find((role) => role.id === roleId);

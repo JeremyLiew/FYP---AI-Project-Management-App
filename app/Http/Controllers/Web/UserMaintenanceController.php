@@ -35,6 +35,7 @@ class UserMaintenanceController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'description' => $user->description,
                 'application_role_id' => $user->applicationRole->id ?? 'N/A',
                 'profile_picture' => $user->profile_picture,
             ];

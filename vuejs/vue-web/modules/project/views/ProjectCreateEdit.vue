@@ -25,6 +25,8 @@
 						v-model="project.description"
 						label="Project Description"
 						outlined
+						placeholder="Provide details about the project in details."
+						hint="This field helps describe the project's details for AI evaluation."
 						:error-messages="errors.description"
 					></v-textarea>
 				</v-col>

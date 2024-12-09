@@ -162,4 +162,84 @@ class OpenAIController extends Controller
         }
     }
 
+    public function generateProjectInsight($projectId)
+    {
+        $client = new Client();
+        $openai_api_key = env('OPENAI_API_KEY');
+        $api_url = 'https://api.openai.com/v1/chat/completions';
+
+        // Fetch authenticated user
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
+
+        // Fetch project and its users with roles
+        $project = Project::with(['userProjectMappings.user', 'userProjectMappings.projectRole'])->find($projectId);
+
+        if (!$project) {
+            return response()->json(['error' => 'Project not found'], 404);
+        }
+
+        // Extract project description
+        $projectDescription = $project->description;
+
+        // Extract members with their roles
+        $members = $project->userProjectMappings->map(function ($mapping) {
+            return [
+                'name' => $mapping->user->name,
+                'description' => $mapping->user->description ?? 'No description provided',
+                'role_name' => $mapping->projectRole->name ?? 'No role assigned',
+                'role_description' => $mapping->projectRole->description ?? 'No description provided',
+            ];
+        });
+
+        // Prepare AI prompt
+        $prompt = "
+        Analyze the following project and its members:
+
+        Project:
+        - Name: {$project->name}
+        - Description: {$projectDescription}
+
+        Members:
+        " . $members->map(function ($member) {
+            return "- {$member['name']} ({$member['role_name']}): {$member['description']}. Role Details: {$member['role_description']}";
+        })->join("\n") . "
+
+        Provide actionable insights for:
+        1. How to approach this project based on its description.
+        2. Roles or tasks suitable for each member based on their descriptions and assigned roles.
+        3. Any potential challenges or opportunities for the team.";
+
+        try {
+            // Call OpenAI API
+            $response = $client->post($api_url, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $openai_api_key,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'model' => 'gpt-3.5-turbo',
+                    'messages' => [
+                        ['role' => 'system', 'content' => 'You are an expert project management assistant AI.'],
+                        ['role' => 'user', 'content' => $prompt],
+                    ],
+                ],
+            ]);
+
+            $data = json_decode($response->getBody(), true);
+            $gpt_reply = $data['choices'][0]['message']['content'];
+
+            // Return the feedback message for display on UI
+            return response()->json([
+                'message' => 'Project insights generated successfully!',
+                'gpt_reply' => $gpt_reply,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Something went wrong!', 'details' => $e->getMessage()], 500);
+        }
+    }
 }

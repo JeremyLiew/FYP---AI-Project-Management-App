@@ -23,7 +23,7 @@
 		<v-row v-if="response" class="mb-4">
 			<v-col cols="12">
 				<v-card outlined>
-					<v-card-title class="text-h6">GPT Response</v-card-title>
+					<v-card-title class="text-h6">AI Response</v-card-title>
 					<v-card-text class="text-body-2">{{ response }}</v-card-text>
 				</v-card>
 			</v-col>

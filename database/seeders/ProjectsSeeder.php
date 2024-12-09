@@ -18,7 +18,7 @@ class ProjectsSeeder extends Seeder
         DB::table('projects')->insert([
             [
                 'name' => 'Project Alpha',
-                'description' => 'This is a description of Project Alpha.',
+                'description' => 'This is a project management tool web application.',
                 'start_date' => '2024-01-01',
                 'end_date' => '2024-12-31',
                 'status' => 'Pending',
@@ -29,7 +29,7 @@ class ProjectsSeeder extends Seeder
             ],
             [
                 'name' => 'Project Beta',
-                'description' => 'This is a description of Project Beta.',
+                'description' => 'This is a music composition project for pop music.',
                 'start_date' => '2024-02-01',
                 'end_date' => '2024-11-30',
                 'status' => 'Ongoing',
