@@ -10,7 +10,7 @@
 
 		<!-- Generate AI Feedback Button -->
 		<v-row>
-			<v-col cols="12">
+			<v-col cols="12" class="text-end mb-4">
 				<v-btn
 					:loading="isLoading" color="white" depressed
 					@click="generateAIInsights"
