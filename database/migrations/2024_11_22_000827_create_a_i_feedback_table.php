@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ai_feedbacks', function (Blueprint $table) {
+        Schema::create('a_i_feedback', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('ai_model');
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ai_feedbacks');
+        Schema::dropIfExists('ai_feedback');
     }
 };

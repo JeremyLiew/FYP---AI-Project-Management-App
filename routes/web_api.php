@@ -138,6 +138,8 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
 Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     Route::prefix('base')->group(function () {
         Route::get('/message', [OpenAIController::class, 'sendMessage']);
+        Route::get('/feedbacks', [OpenAIController::class, 'getFeedbacks']);
+        Route::post('/generateSummaryFeedback', [OpenAIController::class, 'generateSummaryFeedback']);
     });
 });
 

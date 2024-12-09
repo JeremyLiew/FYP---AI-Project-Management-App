@@ -16,6 +16,14 @@ const BaseClient = {
 		return axios.get( prefix + "/message", { params: payload} )
 	},
 
+	getFeedbacks(){
+		return axios.get ( prefix + "/feedbacks" )
+	},
+
+	generateSummaryFeedback() {
+		return axios.post( prefix + "/generateSummaryFeedback");
+	},
+
 }
 
 export default BaseClient;
