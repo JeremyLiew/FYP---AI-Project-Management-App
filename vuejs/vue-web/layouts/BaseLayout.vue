@@ -2,7 +2,7 @@
 	<div class="d-flex flex-column fill-height">
 		<Topbar></Topbar>
 		<v-main>
-			<div class="pa-2">
+			<div class="pa-5">
 				<router-view v-slot="{ Component }">
 					<transition name="slide-fade">
 						<component :is="Component" />

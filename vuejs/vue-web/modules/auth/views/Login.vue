@@ -95,6 +95,7 @@
 
 <script>
 import GeneralClient from '../../_general/client';
+import SettingClient from "../../_general/client"
 
 export default {
 	data() {
@@ -117,6 +118,7 @@ export default {
 	created() {
 		// Extract success and error messages from query parameters
 		localStorage.setItem('userRole', null);
+		localStorage.setItem('timezone', null);
 		const query = this.$route.query;
 		if (query.success) {
 			this.successMessage = query.success;
@@ -127,6 +129,8 @@ export default {
 	},
 	methods: {
 		async login() {
+			localStorage.setItem('userRole', null);
+			localStorage.setItem('timezone', null);
 			this.errors = {};
 			this.error_else = null;
 			this.is_loading = true;
@@ -149,6 +153,8 @@ export default {
 							this.user = response.data.user;
 							const userRole = this.user.role
 							localStorage.setItem('userRole', userRole);
+
+							this.fetchAndApplyUserSettings();
 
 							this.$toast.success("Logged in successfully");
 
@@ -189,6 +195,22 @@ export default {
 					this.$toast.success("You can now attempt to login.");
 				}
 			}, 1000);
+		},
+		fetchAndApplyUserSettings() {
+			SettingClient.fetchUserSettings().then((res) => {
+				const settings = res.data;
+				if (settings.theme) {
+					this.$vuetify.theme.global.name = settings.theme === 'dark' ? 'dark' : 'light';
+				}
+
+				if (settings.timezone) {
+					localStorage.setItem('timezone', settings.timezone);
+				} else {
+					localStorage.setItem('timezone', 'UTC');
+				}
+			}).catch((error) => {
+				console.error("Error fetching user settings:", error);
+			})
 		},
 	},
 };

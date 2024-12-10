@@ -90,6 +90,12 @@
 			</div>
 		</v-list>
 	</v-navigation-drawer>
+	<v-app-bar app dense>
+		<v-toolbar-title>Project AI</v-toolbar-title>
+		<v-spacer></v-spacer>
+		<!-- Add date and time here -->
+		<v-chip class="mr-4" outlined>{{ formattedDateTime }}</v-chip>
+	</v-app-bar>
 </template>
 
 <script>
@@ -108,12 +114,37 @@ export default {
 			tasks: [],
 			profile_picture: null,
 			defaultAvatar: '/images/avatar.jpg',
+			currentDate: new Date(),
 		};
 	},
 	computed: {
 		authPage() {
 			return this.auth ? { name: 'profile-page' } : { name: 'login-page' };
 		},
+		formattedDateTime() {
+
+			const userTimezone = localStorage.getItem('timezone') || 'UTC';
+
+			const options = {
+				day: '2-digit',
+				month: '2-digit',
+				year: 'numeric',
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit',
+				hour12: false,
+			};
+
+			const localTime = this.currentDate.toLocaleString('en-GB', options);
+
+			return `${localTime} (${userTimezone})`;
+		},
+	},
+	beforeUnmount() {
+		clearInterval(this.clockInterval);
+	},
+	mounted() {
+		this.startClock();
 	},
 	created() {
 		this.nav_links = [
@@ -133,6 +164,11 @@ export default {
 		}
 	},
 	methods: {
+		startClock() {
+			this.clockInterval = setInterval(() => {
+				this.currentDate = new Date();
+			}, 1000);
+		},
 		isAuthorized() {
 			const userRole = localStorage.getItem('userRole');
 			return userRole === 'Admin';
@@ -167,16 +203,16 @@ export default {
 			this.$router.push({ name: 'settings-page' });
 		},
 		goToBudgets() {
-    		this.$router.push({ name: 'budget-listings-page' });
+			this.$router.push({ name: 'budget-listings-page' });
 		},
 		goToExpenses() {
-    		this.$router.push({ name: 'expense-listings-page' });
+			this.$router.push({ name: 'expense-listings-page' });
 		},
 		goToCategories() {
-    		this.$router.push({ name: 'expense-category-listings-page' });
+			this.$router.push({ name: 'expense-category-listings-page' });
 		},
 		goToReports() {
-    		this.$router.push({ name: 'report-page' });
+			this.$router.push({ name: 'report-page' });
 		},
 		goToNotifications() {
 			this.$router.push({ name: 'notifications-page' });
