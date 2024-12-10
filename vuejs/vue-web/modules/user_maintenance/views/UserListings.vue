@@ -1,197 +1,195 @@
 <template>
 	<v-container>
-		<!-- Page Title -->
-		<h2>User Management</h2>
-		<v-divider></v-divider>
-
-		<!-- Header with Search and Filters -->
-		<v-row class="d-flex align-center mb-4">
-			<v-col cols="12" md="6">
-				<v-text-field
-					v-model="searchQuery"
-					label="Search Users"
-					placeholder="Type to search..."
-					clearable
-					outlined
-					dense
-				></v-text-field>
-			</v-col>
-
-			<v-col cols="12" md="6" class="d-flex justify-end">
-				<v-btn depressed @click="fetchUsers">Refresh List</v-btn>
-			</v-col>
-		</v-row>
-
-		<section v-if="hasData" style="height:100%;">
-			<template v-if="modelLoading">
-				<v-skeleton-loader type="table"></v-skeleton-loader>
-			</template>
-			<template v-else>
-				<!-- Display Users -->
-				<v-list two-line class="px-6 transparent-list">
-					<v-divider></v-divider>
-					<v-list-item
-						v-for="(user) in users"
-						:key="user.id"
-						class="px-0 hover-elevate"
-						@click="viewUserDetails(user)"
-					>
-						<v-row class="pa-2 align-center">
-							<!-- User Details -->
-							<v-col cols="12" sm="4">
-								<v-list-item-title class="font-weight-bold text-wrap">
-									{{ user.name }}
-								</v-list-item-title>
-								<v-list-item-subtitle style="line-height: unset !important;">
-									Email: {{ user.email }}
-								</v-list-item-subtitle>
-							</v-col>
-							<v-col cols="12" sm="2">
-								<v-chip
-									class="mb-1"
-									outlined
-									small
-								>
-									<template v-if="user.email_verified_at">
-										Verified
-										<v-icon style="margin-top:1px;" class="pl-2" color="green">mdi-shield-check</v-icon>
-									</template>
-									<template v-else>
-										Not Verified
-										<v-icon style="margin-top:1px;" class="pl-2" color="red">mdi-minus-circle</v-icon>
-									</template>
-								</v-chip>
-							</v-col>
-							<!-- Role -->
-							<v-col cols="12" :sm="$auth.user().user.name == user.name?'4':'4'" class="d-flex align-center justify-content-center">
-								<v-chip
-									class="mb-1"
-									outlined
-									small
-								>
-									Role: {{ getRoleName(user.application_role_id) || "N/A" }}
-								</v-chip>
-							</v-col>
-							<!-- Actions -->
-							<v-col
-								v-if="$auth.user().user.name !== user.name" cols="12" sm="2"
-								class="text-end"
-							>
-								<v-list-item-action class="justify-content-md-end">
-									<v-menu>
-										<template #activator="{ props }">
-											<v-btn icon v-bind="props">
-												<v-icon>mdi-dots-vertical</v-icon>
-											</v-btn>
-										</template>
-										<v-list>
-											<v-list-item @click="editUser(user)">
-												<v-list-item-title>Edit</v-list-item-title>
-											</v-list-item>
-											<v-list-item @click="confirmDelete(user.id)">
-												<v-list-item-title>Delete</v-list-item-title>
-											</v-list-item>
-										</v-list>
-									</v-menu>
-								</v-list-item-action>
-							</v-col>
-						</v-row>
-					</v-list-item>
-					<v-divider></v-divider>
-				</v-list>
-
-				<!-- Pagination -->
-				<v-pagination
-					v-model="currentPage"
-					:length="paginationLength"
-					class="mt-4 pl-0"
-				></v-pagination>
-				<!-- User Count -->
-				<div class="text-end mt-2">Total Users: {{ users.length }}</div>
-			</template>
-		</section>
-
-		<section v-else>
-			<!-- Show No Users Image -->
-			<v-row class="justify-center">
-				<v-col cols="12" class="text-center">
-					<img src="/images/no-product-available.png" alt="No users available" class="my-4" />
-					<p>No users available.</p>
+		<template v-if="isAuthorized">
+			<!-- Page Title -->
+			<h2>User Management</h2>
+			<v-divider></v-divider>
+			<!-- Header with Search and Filters -->
+			<v-row class="d-flex align-center mb-4">
+				<v-col cols="12" md="6">
+					<v-text-field
+						v-model="searchQuery"
+						label="Search Users"
+						placeholder="Type to search..."
+						clearable
+						outlined
+						dense
+					></v-text-field>
+				</v-col>
+				<v-col cols="12" md="6" class="d-flex justify-end">
+					<v-btn depressed @click="fetchUsers">Refresh List</v-btn>
 				</v-col>
 			</v-row>
-		</section>
-
-		<!-- Delete Confirmation Dialog -->
-		<v-dialog v-model="deleteDialog" max-width="500px">
-			<v-card>
-				<v-card-title class="text-h6">Confirm Delete</v-card-title>
-				<v-card-text>
-					Are you sure you want to delete this user? This action cannot be undone.
-				</v-card-text>
-				<v-card-actions>
-					<v-spacer></v-spacer>
-					<v-btn text @click="deleteDialog = false">Cancel</v-btn>
-					<v-btn
-						:loading="isLoading"
-						color="red"
-						text
-						@click="deleteUser"
-					>
-						Delete
-					</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
-
-		<!-- Dialog for Viewing/Editing User -->
-		<v-dialog v-model="showUserDialog" max-width="600px">
-			<v-card>
-				<v-card-title class="text-h6">
-					{{ isEditing ? "Edit User" : "View User" }}
-				</v-card-title>
-				<v-card-text>
-					<v-text-field
-						v-model="currentUser.name"
-						label="Name"
-						outlined
-						dense
-						:readonly="!isEditing"
-						:error-messages="errors.name"
-					/>
-					<v-text-field
-						v-model="currentUser.email"
-						label="Email"
-						outlined
-						dense
-						disabled
-					/>
-					<v-textarea
-						v-model="currentUser.description"
-						label="Description"
-						outlined
-						dense
-						:error-messages="errors.description"
-						:readonly="!isEditing"
-						placeholder="Provide details about the user, such as strengths, personality, and role suitability."
-						hint="This field helps describe the user's qualities for AI evaluation."
-					/>
-					<v-select
-						v-model="currentUser.application_role_id"
-						:items="roles"
-						item-value="id"
-						item-title="name"
-						label="Role"
-						outlined
-						required
-						:readonly="!isEditing"
-					></v-select>
-				</v-card-text>
-				<v-card-actions>
-					<v-btn text @click="showUserDialog = false">Close</v-btn>
-					<v-btn v-if="isEditing" color="primary" @click="saveUser">Save</v-btn>
-				</v-card-actions>
-			</v-card>
-		</v-dialog>
+			<section v-if="hasData" style="height:100%;">
+				<template v-if="modelLoading">
+					<v-skeleton-loader type="table"></v-skeleton-loader>
+				</template>
+				<template v-else>
+					<!-- Display Users -->
+					<v-list two-line class="px-6 transparent-list">
+						<v-divider></v-divider>
+						<v-list-item
+							v-for="(user) in users"
+							:key="user.id"
+							class="px-0 hover-elevate"
+							@click="viewUserDetails(user)"
+						>
+							<v-row class="pa-2 align-center">
+								<!-- User Details -->
+								<v-col cols="12" sm="4">
+									<v-list-item-title class="font-weight-bold text-wrap">
+										{{ user.name }}
+									</v-list-item-title>
+									<v-list-item-subtitle style="line-height: unset !important;">
+										Email: {{ user.email }}
+									</v-list-item-subtitle>
+								</v-col>
+								<v-col cols="12" sm="2">
+									<v-chip
+										class="mb-1"
+										outlined
+										small
+									>
+										<template v-if="user.email_verified_at">
+											Verified
+											<v-icon style="margin-top:1px;" class="pl-2" color="green">mdi-shield-check</v-icon>
+										</template>
+										<template v-else>
+											Not Verified
+											<v-icon style="margin-top:1px;" class="pl-2" color="red">mdi-minus-circle</v-icon>
+										</template>
+									</v-chip>
+								</v-col>
+								<!-- Role -->
+								<v-col cols="12" :sm="$auth.user().user.name == user.name?'4':'4'" class="d-flex align-center justify-content-center">
+									<v-chip
+										class="mb-1"
+										outlined
+										small
+									>
+										Role: {{ getRoleName(user.application_role_id) || "N/A" }}
+									</v-chip>
+								</v-col>
+								<!-- Actions -->
+								<v-col
+									v-if="$auth.user().user.name !== user.name" cols="12" sm="2"
+									class="text-end"
+								>
+									<v-list-item-action class="justify-content-md-end">
+										<v-menu>
+											<template #activator="{ props }">
+												<v-btn icon v-bind="props">
+													<v-icon>mdi-dots-vertical</v-icon>
+												</v-btn>
+											</template>
+											<v-list>
+												<v-list-item @click="editUser(user)">
+													<v-list-item-title>Edit</v-list-item-title>
+												</v-list-item>
+												<v-list-item @click="confirmDelete(user.id)">
+													<v-list-item-title>Delete</v-list-item-title>
+												</v-list-item>
+											</v-list>
+										</v-menu>
+									</v-list-item-action>
+								</v-col>
+							</v-row>
+						</v-list-item>
+						<v-divider></v-divider>
+					</v-list>
+					<!-- Pagination -->
+					<v-pagination
+						v-model="currentPage"
+						:length="paginationLength"
+						class="mt-4 pl-0"
+					></v-pagination>
+					<!-- User Count -->
+					<div class="text-end mt-2">Total Users: {{ users.length }}</div>
+				</template>
+			</section>
+			<section v-else>
+				<!-- Show No Users Image -->
+				<v-row class="justify-center">
+					<v-col cols="12" class="text-center">
+						<img src="/images/no-product-available.png" alt="No users available" class="my-4" />
+						<p>No users available.</p>
+					</v-col>
+				</v-row>
+			</section>
+			<!-- Delete Confirmation Dialog -->
+			<v-dialog v-model="deleteDialog" max-width="500px">
+				<v-card>
+					<v-card-title class="text-h6">Confirm Delete</v-card-title>
+					<v-card-text>
+						Are you sure you want to delete this user? This action cannot be undone.
+					</v-card-text>
+					<v-card-actions>
+						<v-spacer></v-spacer>
+						<v-btn text @click="deleteDialog = false">Cancel</v-btn>
+						<v-btn
+							:loading="isLoading"
+							color="red"
+							text
+							@click="deleteUser"
+						>
+							Delete
+						</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
+			<!-- Dialog for Viewing/Editing User -->
+			<v-dialog v-model="showUserDialog" max-width="600px">
+				<v-card>
+					<v-card-title class="text-h6">
+						{{ isEditing ? "Edit User" : "View User" }}
+					</v-card-title>
+					<v-card-text>
+						<v-text-field
+							v-model="currentUser.name"
+							label="Name"
+							outlined
+							dense
+							:readonly="!isEditing"
+							:error-messages="errors.name"
+						/>
+						<v-text-field
+							v-model="currentUser.email"
+							label="Email"
+							outlined
+							dense
+							disabled
+						/>
+						<v-textarea
+							v-model="currentUser.description"
+							label="Description"
+							outlined
+							dense
+							:error-messages="errors.description"
+							:readonly="!isEditing"
+							placeholder="Provide details about the user, such as strengths, personality, and role suitability."
+							hint="This field helps describe the user's qualities for AI evaluation."
+						/>
+						<v-select
+							v-model="currentUser.application_role_id"
+							:items="roles"
+							item-value="id"
+							item-title="name"
+							label="Role"
+							outlined
+							required
+							:readonly="!isEditing"
+						></v-select>
+					</v-card-text>
+					<v-card-actions>
+						<v-btn text @click="showUserDialog = false">Close</v-btn>
+						<v-btn v-if="isEditing" color="primary" @click="saveUser">Save</v-btn>
+					</v-card-actions>
+				</v-card>
+			</v-dialog>
+		</template>
+		<template v-else>
+			<p>You do not have permission to view this page.</p>
+		</template>
 	</v-container>
 </template>
 
@@ -217,6 +215,12 @@ export default {
 			roles: [],
 			errors: {},
 		};
+	},
+	computed: {
+		isAuthorized() {
+			const userRole = localStorage.getItem('userRole');
+			return userRole === 'Admin';
+		}
 	},
 	watch: {
 		currentPage: "fetchUsers",

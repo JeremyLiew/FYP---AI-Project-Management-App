@@ -13,6 +13,7 @@ use App\Http\Controllers\Web\{
     ReportController,
     HomeController,
     OpenAIController,
+    SettingsController,
 };
 use App\Http\Controllers\Auth\{
     AuthController,
@@ -162,6 +163,12 @@ Route::get('/email/verify', function () {
 })->name('verification.notice');
 
 Route::post('/email/resend', [CustomVerificationController::class, 'resend'])->name('resend.verification');
+
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::post('/settings/update', [SettingsController::class, 'updateSettings']);
+    Route::get('/settings', [SettingsController::class, 'getUserSettings']); // Fetch user settings
+});
+
 
 // apply this to protect route from not verified email access
 // Route::middleware(['auth', 'verified'])->group(function () {
