@@ -41,10 +41,10 @@
 										{{ user.name }}
 									</v-list-item-title>
 									<v-list-item-subtitle style="line-height: unset !important;">
-										Email: {{ user.email }}
+										<pre class="text-wrap">Email: {{ user.email }}</pre>
 									</v-list-item-subtitle>
 								</v-col>
-								<v-col cols="12" sm="2">
+								<v-col cols="12" sm="2" class="d-flex align-center justify-content-center">
 									<v-chip
 										class="mb-1"
 										outlined

@@ -64,8 +64,8 @@
 							</p>
 						</v-col>
 						<v-col cols="12" sm="6">
-							<p><strong>Start Date:</strong> {{ project.start_date }}</p>
-							<p><strong>End Date:</strong> {{ project.end_date }}</p>
+							<p><strong>Start Date:</strong> {{ formatDate(project.start_date, dateFormat) }}</p>
+							<p><strong>End Date:</strong> {{ formatDate(project.end_date, dateFormat) }}</p>
 						</v-col>
 					</v-row>
 					<v-divider class="my-4"></v-divider>
@@ -110,6 +110,8 @@ import TaskListings from "../../task/views/TaskListings.vue";
 import ProjectClient from "../client";
 import AIClient from "../../base/client";
 import { marked } from "marked";
+import { formatDate } from '@utils/dateUtils';
+import GeneralClient from '../../_general/client';
 
 export default {
 	components: {
@@ -119,11 +121,12 @@ export default {
 		return {
 			project: {},
 			projectMembers: [],
-			attachment: null,  // Store the attachment data
+			attachment: null,
 			activeTab: 0,
 			roles: [],
 			aiFeedback: null,
 			isLoading: false,
+			dateFormat: 'DD/MM/YYYY',
 		};
 	},
 	computed: {
@@ -132,11 +135,23 @@ export default {
 		}
 	},
 	mounted() {
+		this.fetchAndApplyUserSettings();
 		const projectId = this.$route.params.id;
 		this.fetchProjectDetails(projectId);
 		this.fetchAttachment(projectId);
 	},
 	methods: {
+		formatDate,
+		fetchAndApplyUserSettings() {
+			GeneralClient.fetchUserSettings().then((res) => {
+				const settings = res.data;
+				if (settings.date_format) {
+					this.dateFormat = settings.date_format;
+				}
+			}).catch((error) => {
+				console.error("Error fetching user settings:", error);
+			});
+		},
 		generateAIInsights() {
 			this.isLoading = true;
 			AIClient.getProjectInsight(this.project.id)

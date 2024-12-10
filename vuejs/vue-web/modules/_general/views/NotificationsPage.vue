@@ -49,7 +49,7 @@
 				<v-card-title class="text-h6">Notification Details</v-card-title>
 				<v-card-text>
 					<p>{{ selectedNotification.message }}</p>
-					<p><strong>Created At:</strong> {{ formatDate(selectedNotification.created_at) }}</p>
+					<p><strong>Created At:</strong> {{ formatDate(selectedNotification.created_at, dateFormat) }}</p>
 					<p><strong>Status:</strong> {{ selectedNotification.is_read ? 'Read' : 'Unread' }}</p>
 				</v-card-text>
 				<v-card-actions>
@@ -62,6 +62,7 @@
 
 <script>
 import GeneralClient from '../client';
+import { formatDate } from '@utils/dateUtils';
 
 export default {
 	data() {
@@ -71,12 +72,25 @@ export default {
 			selectedNotification: null,
 			hasData: true,
 			modelLoading: true,
+			dateFormat: 'DD/MM/YYYY',
 		};
 	},
 	created() {
+		this.fetchAndApplyUserSettings();
 		this.fetchNotifications();
 	},
 	methods: {
+		formatDate,
+		fetchAndApplyUserSettings() {
+			GeneralClient.fetchUserSettings().then((res) => {
+				const settings = res.data;
+				if (settings.date_format) {
+					this.dateFormat = settings.date_format;
+				}
+			}).catch((error) => {
+				console.error("Error fetching user settings:", error);
+			});
+		},
 		fetchNotifications() {
 			this.modelLoading = true;
 			this.hasData = true;
@@ -115,13 +129,6 @@ export default {
 				.catch(error => {
 					console.error("Error marking notification as read", error);
 				});
-		},
-		formatDate(dateString) {
-			const date = new Date(dateString);
-			const month = String(date.getMonth() + 1).padStart(2, '0');
-			const day = String(date.getDate()).padStart(2, '0');
-			const year = String(date.getFullYear()).slice(-2);
-			return `${day}/${month}/${year}`;
 		},
 	}
 }

@@ -90,7 +90,7 @@
 						<!-- Due Dates -->
 						<v-col cols="12" sm="3" class="text-end">
 							<p class="text-caption mb-1">
-								<strong>Due Date:</strong> {{ task.due_date }}
+								<strong>Due Date:</strong> {{ formatDate(task.due_date , dateFormat) }}
 							</p>
 						</v-col>
 						<!-- Actions -->
@@ -326,6 +326,8 @@
 
 <script>
 import TaskClient from '../client';
+import { formatDate } from '@utils/dateUtils';
+import GeneralClient from '../../_general/client';
 
 export default {
 	props: {
@@ -370,6 +372,7 @@ export default {
 			newComment: '',
 			comments: [],
 			showCommentInput: false,
+			dateFormat: 'DD/MM/YYYY',
 		};
 	},
 	watch: {
@@ -379,10 +382,22 @@ export default {
 	},
 	mounted() {
 		this.initializeDates();
+		this.fetchAndApplyUserSettings();
 		this.fetchTasks();
 		this.fetchMembers();
 	},
 	methods: {
+		formatDate,
+		fetchAndApplyUserSettings() {
+			GeneralClient.fetchUserSettings().then((res) => {
+				const settings = res.data;
+				if (settings.date_format) {
+					this.dateFormat = settings.date_format;
+				}
+			}).catch((error) => {
+				console.error("Error fetching user settings:", error);
+			});
+		},
 		initializeDates() {
 			this.tomorrow = new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split("T")[0];
 		},

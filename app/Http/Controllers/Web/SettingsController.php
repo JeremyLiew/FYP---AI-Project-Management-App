@@ -9,51 +9,68 @@ use App\Http\Controllers\Controller;
 class SettingsController extends Controller
 {
     public function updateSettings(Request $request)
-    {
-        $validatedData = $request->validate([
-            'timezone' => 'nullable|timezone',
-            'theme' => 'nullable|in:light,dark', // Ensure the theme is either 'light' or 'dark'
-        ]);
+{
+    $validatedData = $request->validate([
+        'timezone' => 'nullable|timezone',
+        'theme' => 'nullable|in:light,dark',
+        'time_format' => 'nullable|in:12h,24h', // Validate time format
+        'date_format' => 'nullable|in:MM/DD/YYYY,DD/MM/YYYY,YYYY/MM/DD', // Validate date format
+    ]);
 
-        $user = auth()->user();
+    $user = auth()->user();
 
-        if (!$user) {
-            return response()->json(['error' => 'User not authenticated'], 401);
-        }
-
-        // Update the timezone if provided
-        if (isset($validatedData['timezone'])) {
-            Setting::updateOrCreate(
-                ['user_id' => $user->id, 'key' => 'timezone'],
-                ['value' => $validatedData['timezone']]
-            );
-            config(['app.timezone' => $validatedData['timezone']]);
-        }
-
-
-        // Update the theme if provided
-        if (isset($validatedData['theme'])) {
-            Setting::updateOrCreate(
-                ['user_id' => $user->id, 'key' => 'theme'],
-                ['value' => $validatedData['theme']]
-            );
-        }
-
-        return response()->json(['message' => 'Settings updated successfully!']);
+    if (!$user) {
+        return response()->json(['error' => 'User not authenticated'], 401);
     }
 
-    public function getUserSettings()
-    {
-        $user = auth()->user();
-
-        if (!$user) {
-            return response()->json(['error' => 'User not authenticated'], 401);
-        }
-
-        $settings = Setting::where('user_id', $user->id)
-            ->pluck('value', 'key')
-            ->toArray();
-
-        return response()->json($settings);
+    // Update the timezone if provided
+    if (isset($validatedData['timezone'])) {
+        Setting::updateOrCreate(
+            ['user_id' => $user->id, 'key' => 'timezone'],
+            ['value' => $validatedData['timezone']]
+        );
+        config(['app.timezone' => $validatedData['timezone']]);
     }
+
+    // Update the theme if provided
+    if (isset($validatedData['theme'])) {
+        Setting::updateOrCreate(
+            ['user_id' => $user->id, 'key' => 'theme'],
+            ['value' => $validatedData['theme']]
+        );
+    }
+
+    // Update the time format if provided
+    if (isset($validatedData['time_format'])) {
+        Setting::updateOrCreate(
+            ['user_id' => $user->id, 'key' => 'time_format'],
+            ['value' => $validatedData['time_format']]
+        );
+    }
+
+    // Update the date format if provided
+    if (isset($validatedData['date_format'])) {
+        Setting::updateOrCreate(
+            ['user_id' => $user->id, 'key' => 'date_format'],
+            ['value' => $validatedData['date_format']]
+        );
+    }
+
+    return response()->json(['message' => 'Settings updated successfully!']);
+}
+
+public function getUserSettings()
+{
+    $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['error' => 'User not authenticated'], 401);
+    }
+
+    $settings = Setting::where('user_id', $user->id)
+        ->pluck('value', 'key')
+        ->toArray();
+
+    return response()->json($settings);
+}
 }

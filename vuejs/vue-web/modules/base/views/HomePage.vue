@@ -66,7 +66,7 @@
 												v-html="renderMarkdown(feedback.feedback)"
 											></div>
 											<v-list-item-subtitle class="feedback-meta">
-												Model: {{ feedback.ai_model }}, Created At: {{ formatDate(feedback.created_at) }}
+												Model: {{ feedback.ai_model }}, Created At: {{ formatDate(feedback.created_at, dateFormat) }}
 											</v-list-item-subtitle>
 										</div>
 									</v-list-item>
@@ -89,7 +89,9 @@
 
 <script>
 import BaseClient from "../client";
+import GeneralClient from "../../_general/client"
 import { marked } from "marked";
+import { formatDate } from '@utils/dateUtils';
 
 export default {
 	data() {
@@ -100,9 +102,11 @@ export default {
 			isLoading: false,
 			hasData: true,
 			modelLoading: true,
+			dateFormat: 'DD/MM/YYYY',
 		};
 	},
 	mounted() {
+		this.fetchAndApplyUserSettings();
 		this.fetchFeedbacks();
 	},
 	methods: {
@@ -145,16 +149,20 @@ export default {
 					this.modelLoading = false
 				});
 		},
-		formatDate(dateString) {
-			const date = new Date(dateString);
-			const month = String(date.getMonth() + 1).padStart(2, '0');
-			const day = String(date.getDate()).padStart(2, '0');
-			const year = String(date.getFullYear()).slice(-2);
-			return `${day}/${month}/${year}`;
+		formatDate,
+		fetchAndApplyUserSettings() {
+			GeneralClient.fetchUserSettings().then((res) => {
+				const settings = res.data;
+				if (settings.date_format) {
+					this.dateFormat = settings.date_format;
+				}
+			}).catch((error) => {
+				console.error("Error fetching user settings:", error);
+			});
 		},
 		renderMarkdown(text){
 			return marked(text);
-		}
+		},
 	},
 };
 </script>

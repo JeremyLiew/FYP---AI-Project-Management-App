@@ -116,6 +116,8 @@ export default {
 			defaultAvatar: '/images/avatar.jpg',
 			currentDate: new Date(),
 			timezone: 'UTC',
+			timeFormat: '24h',
+			dateFormat: 'DD/MM/YYYY',
 		};
 	},
 	computed: {
@@ -123,20 +125,31 @@ export default {
 			return this.auth ? { name: 'profile-page' } : { name: 'login-page' };
 		},
 		formattedDateTime() {
+			const formatDate = (date) => {
+				const day = date.getDate().toString().padStart(2, '0');
+				const month = (date.getMonth() + 1).toString().padStart(2, '0');
+				const year = date.getFullYear();
+
+				if (this.dateFormat === 'DD/MM/YYYY') {
+					return `${day}/${month}/${year}`;
+				} else if (this.dateFormat === 'MM/DD/YYYY') {
+					return `${month}/${day}/${year}`;
+				} else {
+					return `${year}-${month}-${day}`;
+				}
+			};
 
 			const options = {
-				day: '2-digit',
-				month: '2-digit',
-				year: 'numeric',
 				hour: '2-digit',
 				minute: '2-digit',
 				second: '2-digit',
-				hour12: false,
+				hour12: this.timeFormat === '12h',
 			};
 
-			const localTime = this.currentDate.toLocaleString('en-GB', options);
+			const localDate = formatDate(this.currentDate);
+			const localTime = this.currentDate.toLocaleTimeString('en-GB', options);
 
-			return `${localTime} (${this.timezone})`;
+			return `${localDate} ${localTime} (${this.timezone})`;
 		},
 	},
 	beforeUnmount() {
@@ -174,6 +187,14 @@ export default {
 
 				if (settings.timezone) {
 					this.timezone = settings.timezone
+				}
+
+				if (settings.time_format) {
+					this.timeFormat = settings.time_format;
+				}
+
+				if (settings.date_format) {
+					this.dateFormat = settings.date_format;
 				}
 			}).catch((error) => {
 				console.error("Error fetching user settings:", error);

@@ -89,10 +89,10 @@
 							<!-- Dates -->
 							<v-col cols="12" sm="3" class="text-end">
 								<p class="text-caption mb-1">
-									<strong>Start:</strong> {{ project.start_date }}
+									<strong>Start:</strong> {{ formatDate(project.start_date, dateFormat) }}
 								</p>
 								<p class="text-caption">
-									<strong>End:</strong> {{ project.end_date }}
+									<strong>End:</strong> {{ formatDate(project.end_date, dateFormat) }}
 								</p>
 							</v-col>
 							<!-- Actions -->
@@ -163,7 +163,10 @@
 </template>
 
 <script>
+import GeneralClient from '../../_general/client';
 import ProjectClient from "../client"
+import { formatDate } from '@utils/dateUtils';
+
 export default {
 	data() {
 		return {
@@ -184,6 +187,7 @@ export default {
 
 			deleteDialog: false,
 			selectedProjectId: null,
+			dateFormat: 'DD/MM/YYYY',
 		};
 	},
 	watch: {
@@ -193,9 +197,21 @@ export default {
 		selectedPriority: "fetchProjects",
 	},
 	mounted() {
+		this.fetchAndApplyUserSettings();
 		this.fetchProjects();
 	},
 	methods: {
+		formatDate,
+		fetchAndApplyUserSettings() {
+			GeneralClient.fetchUserSettings().then((res) => {
+				const settings = res.data;
+				if (settings.date_format) {
+					this.dateFormat = settings.date_format;
+				}
+			}).catch((error) => {
+				console.error("Error fetching user settings:", error);
+			});
+		},
 		createProject() {
 			this.$router.push({ name: "project-create-page" });
 		},
