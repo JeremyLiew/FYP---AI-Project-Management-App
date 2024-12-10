@@ -14,8 +14,11 @@
 					outlined
 					dense
 					append-inner-icon="mdi-send"
+					:disabled="isGuest"
 					@click:append-inner="sendMessage"
-				></v-textarea>
+				>
+					>
+				</v-textarea>
 			</v-col>
 		</v-row>
 
@@ -33,7 +36,10 @@
 		<v-row>
 			<v-col cols="12" class="text-end">
 				<v-btn
-					:loading="isLoading" color="white" depressed
+					:loading="isLoading"
+					color="white"
+					depressed
+					:disabled="isGuest"
 					@click="generateSummaryFeedback"
 				>
 					Generate AI Feedback
@@ -89,7 +95,7 @@
 
 <script>
 import BaseClient from "../client";
-import GeneralClient from "../../_general/client"
+import GeneralClient from "../../_general/client";
 import { marked } from "marked";
 import { formatDate } from '@utils/dateUtils';
 
@@ -103,14 +109,21 @@ export default {
 			hasData: true,
 			modelLoading: true,
 			dateFormat: 'DD/MM/YYYY',
+			isGuest: false,
 		};
 	},
 	mounted() {
+		this.checkUserRole();
 		this.fetchAndApplyUserSettings();
 		this.fetchFeedbacks();
 	},
 	methods: {
+		checkUserRole() {
+			const userRole = localStorage.getItem('userRole');
+			this.isGuest = userRole == 'null';
+		},
 		sendMessage() {
+			if (this.isGuest) return;
 			BaseClient.getGptMessage({ message: this.message })
 				.then((res) => {
 					this.response = res.data.message;
@@ -121,18 +134,19 @@ export default {
 				});
 		},
 		generateSummaryFeedback() {
+			if (this.isGuest) return;
 			this.isLoading = true;
 			this.modelLoading = true;
 			BaseClient.generateSummaryFeedback()
 				.then(() => {
-					this.isLoading = false
+					this.isLoading = false;
 					this.fetchFeedbacks();
 				})
 				.catch((error) => {
 					console.error("Error generating AI feedback:", error);
 				}).finally(() => {
-					this.isLoading = false
-				})
+					this.isLoading = false;
+				});
 		},
 		fetchFeedbacks() {
 			this.hasData = true;
@@ -145,8 +159,8 @@ export default {
 				.catch((error) => {
 					console.error("Error fetching feedbacks:", error);
 					this.hasData = false;
-				}).finally(()=>{
-					this.modelLoading = false
+				}).finally(() => {
+					this.modelLoading = false;
 				});
 		},
 		formatDate,
@@ -160,7 +174,7 @@ export default {
 				console.error("Error fetching user settings:", error);
 			});
 		},
-		renderMarkdown(text){
+		renderMarkdown(text) {
 			return marked(text);
 		},
 	},

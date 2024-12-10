@@ -107,7 +107,7 @@ const routes = [
 				path: '/expense-category-create', name: 'expense-category-create-page', component: CategoryModule.ExpenseCategoryCreateEditPage, 
 				props: { isEdit: false },
 				meta: {
-				  auth: true
+					auth: true
 				}
 			},
 			{
@@ -120,21 +120,21 @@ const routes = [
 			{
 				path: '/report', name: 'report-page', component: ReportModule.ReportListingsPage, 
 				meta: {
-					auth: true 
+					auth: true
 				}
 			},
 			{
 				path: '/team-report/:id', name: 'team-report-page', component: ReportModule.TeamReportsPage, 
 				meta: {
-					auth: true 
+					auth: true
 				}
 			},
 			{
 				path: '/weather', name: 'weather-page', component: WeatherModule.WeatherListingsPage, 
 				meta: {
-					auth: true 
+					auth: true
 				}
-			},		  
+			},
 			{
 				path: '/contact-us', name: 'contact-us-page', component: BaseModule.ContactUsPage,
 			},
@@ -164,6 +164,9 @@ const routes = [
 			},
 			{
 				path: '/settings', name: 'settings-page', component: GeneralModule.SettingsPage,
+				meta: {
+					auth: true
+				}
 			},
 		]
 	},
