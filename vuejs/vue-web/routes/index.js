@@ -8,6 +8,7 @@ import * as CategoryModule from '../modules/category/router'
 import * as ActivityLogModule from '../modules/activity_log/router'
 import * as UserMaintenanceModule from '../modules/user_maintenance/router'
 import * as ReportModule from '../modules/report/router'
+import * as WeatherModule from '../modules/weather/router'
 
 import BaseLayout from '../layouts/BaseLayout.vue';
 
@@ -124,6 +125,12 @@ const routes = [
 			},
 			{
 				path: '/team-report/:id', name: 'team-report-page', component: ReportModule.TeamReportsPage, 
+				meta: {
+					auth: true 
+				}
+			},
+			{
+				path: '/weather', name: 'weather-page', component: WeatherModule.WeatherListingsPage, 
 				meta: {
 					auth: true 
 				}

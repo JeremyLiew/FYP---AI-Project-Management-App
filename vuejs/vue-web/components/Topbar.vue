@@ -154,6 +154,7 @@ export default {
 			{ title: 'Expenses', icon: 'mdi-file-multiple', to: { name: 'expense-listings-page' } },
 			{ title: 'Expense Categories', icon: 'mdi-tag-multiple', to: { name: 'expense-category-listings-page' } },
 			{ title: 'Reports', icon: 'mdi-chart-box-outline', to: { name: 'report-page' }  },
+			{ title: 'Weather', icon: 'mdi-weather-cloudy', to: { name: 'weather-page' } },
 			{ title: "Contact Us",icon: 'mdi-card-account-mail-outline', to : { name: "contact-us-page" } },
 		];
 		this.auth = false;
@@ -213,6 +214,9 @@ export default {
 		},
 		goToReports() {
 			this.$router.push({ name: 'report-page' });
+		},
+		goToWeather() {
+    		this.$router.push({ name: 'weather-page' });
 		},
 		goToNotifications() {
 			this.$router.push({ name: 'notifications-page' });
