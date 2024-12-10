@@ -38,7 +38,7 @@
 					>
 						<v-row class="pa-2 align-center">
 							<!-- User Details -->
-							<v-col cols="12" sm="6">
+							<v-col cols="12" sm="4">
 								<v-list-item-title class="font-weight-bold text-wrap">
 									{{ user.name }}
 								</v-list-item-title>
@@ -46,8 +46,24 @@
 									Email: {{ user.email }}
 								</v-list-item-subtitle>
 							</v-col>
+							<v-col cols="12" sm="2">
+								<v-chip
+									class="mb-1"
+									outlined
+									small
+								>
+									<template v-if="user.email_verified_at">
+										Verified
+										<v-icon style="margin-top:1px;" class="pl-2" color="green">mdi-shield-check</v-icon>
+									</template>
+									<template v-else>
+										Not Verified
+										<v-icon style="margin-top:1px;" class="pl-2" color="red">mdi-minus-circle</v-icon>
+									</template>
+								</v-chip>
+							</v-col>
 							<!-- Role -->
-							<v-col cols="12" :sm="$auth.user().user.name == user.name?'6':'4'" class="d-flex align-center">
+							<v-col cols="12" :sm="$auth.user().user.name == user.name?'4':'4'" class="d-flex align-center justify-content-center">
 								<v-chip
 									class="mb-1"
 									outlined

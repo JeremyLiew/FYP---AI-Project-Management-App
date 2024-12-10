@@ -38,6 +38,7 @@ class UserMaintenanceController extends Controller
                 'description' => $user->description,
                 'application_role_id' => $user->applicationRole->id ?? 'N/A',
                 'profile_picture' => $user->profile_picture,
+                'email_verified_at' => $user->email_verified_at
             ];
         });
 
