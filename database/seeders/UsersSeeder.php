@@ -14,12 +14,12 @@ class UsersSeeder extends Seeder
      */
     public function run(): void
     {
-        $normalUserId = DB::table('users')->insertGetId([
+        $projectManagerUserId = DB::table('users')->insertGetId([
             'name' => 'Jliew',
             'email' => 'jliew1114@gmail.com',
             'description' => 'smart',
             'password' => Hash::make('123123'),
-            'application_role_id' => 3,
+            'application_role_id' => 2,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

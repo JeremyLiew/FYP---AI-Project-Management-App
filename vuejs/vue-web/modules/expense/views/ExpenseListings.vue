@@ -16,7 +16,7 @@
 					@input="fetchExpenses"
 				></v-text-field>
 			</v-col>
-			<v-col cols="12" class="d-flex justify-end">
+			<v-col v-if="isAuthorized" cols="12" class="d-flex justify-end">
 				<v-btn depressed @click="createExpense">Create Expense</v-btn>
 			</v-col>
 		</v-row>
@@ -52,7 +52,10 @@
 								</v-col>
 
 								<!-- Actions -->
-								<v-col cols="12" sm="2" class="text-end">
+								<v-col
+									v-if="isAuthorized" cols="12" sm="2"
+									class="text-end"
+								>
 									<v-list-item-action class="justify-content-md-end">
 										<v-menu>
 											<template #activator="{ props }">
@@ -133,6 +136,12 @@ export default {
 			selectedExpenseId: null,
 			isLoading: false,
 		};
+	},
+	computed: {
+		isAuthorized() {
+			const userRole = localStorage.getItem('userRole');
+			return userRole === 'Admin';
+		}
 	},
 	mounted() {
 		this.fetchExpenses();

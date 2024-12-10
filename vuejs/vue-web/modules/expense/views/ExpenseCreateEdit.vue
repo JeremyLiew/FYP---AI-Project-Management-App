@@ -1,120 +1,122 @@
 <template>
 	<v-container>
-		<v-row>
-			<v-col cols="12">
-				<h1 class="text-subtitle-1">{{ isEdit ? "Edit Expense" : "Create New Expense" }}</h1>
-			</v-col>
-		</v-row>
-
-		<v-skeleton-loader v-if="modelLoading" type="article"></v-skeleton-loader>
-
-		<v-form v-else ref="expenseForm">
-			<!-- Expense Name -->
+		<template v-if="isAuthorized">
 			<v-row>
 				<v-col cols="12">
-					<v-text-field
-						v-model="expense.name"
-						label="Expense Name *"
-						required
-						:error-messages="errors.name"
-					></v-text-field>
-				</v-col>
-				<!-- Amount -->
-				<v-col cols="12" md="6">
-					<v-text-field
-						v-model="expense.amount"
-						label="Amount *"
-						type="number"
-						required
-						outlined
-						:error-messages="errors.amount"
-					></v-text-field>
-				</v-col>
-				<!-- Description -->
-				<v-col cols="12" md="6">
-					<v-text-field
-						v-model="expense.description"
-						label="Description"
-						multiline
-						outlined
-						:error-messages="errors.description"
-					></v-text-field>
-				</v-col>
-				<!-- Expense Date -->
-				<v-col cols="12" md="6">
-					<v-text-field
-						v-model="expense.date_incurred"
-						label="Date"
-						type="date"
-						outlined
-						:error-messages="errors.date_incurred"
-					></v-text-field>
-				</v-col>
-				<!-- Project Selection -->
-				<v-col cols="12" md="6">
-					<v-select
-						v-model="expense.project_id"
-						:items="projects"
-						item-title="name"
-						item-value="id"
-						label="Select Project *"
-						required
-						outlined
-						:error-messages="errors.project_id"
-					></v-select>
-				</v-col>
-				<!-- Expense Category Selection -->
-				<v-col cols="12" md="6">
-					<v-select
-						v-model="expense.expense_category_id"
-						:items="expenseCategories"
-						item-title="name"
-						item-value="id"
-						label="Select Expense Category *"
-						required
-						outlined
-						:error-messages="errors.expense_category_id"
-					></v-select>
-				</v-col>
-				<!-- Task ID Selection -->
-				<v-col cols="12" md="6">
-					<v-select
-						v-model="expense.task_id"
-						:items="tasks"
-						item-title="name"
-						item-value="id"
-						label="Select Task"
-						outlined
-						:error-messages="errors.task_id"
-					></v-select>
-				</v-col>
-				<!-- Budget ID Selection -->
-				<v-col cols="12" md="6">
-					<v-select
-						v-model="expense.budget_id"
-						:items="budgets" 
-						item-title="name"  
-						item-value="id"  
-						label="Select Budget"
-						outlined
-						:error-messages="errors.budget_id" 
-					></v-select>
+					<h1 class="text-subtitle-1">{{ isEdit ? "Edit Expense" : "Create New Expense" }}</h1>
 				</v-col>
 			</v-row>
-
-			<!-- Submit Button -->
-			<v-row>
-				<v-col cols="12" style="text-align: end;">
-					<v-btn
-						depressed
-						:loading="isLoading"
-						@click="isEdit ? updateExpense() : submitExpense()"
-					>
-						{{ isEdit ? "Update Expense" : "Create Expense" }}
-					</v-btn>
-				</v-col>
-			</v-row>
-		</v-form>
+			<v-skeleton-loader v-if="modelLoading" type="article"></v-skeleton-loader>
+			<v-form v-else ref="expenseForm">
+				<!-- Expense Name -->
+				<v-row>
+					<v-col cols="12">
+						<v-text-field
+							v-model="expense.name"
+							label="Expense Name *"
+							required
+							:error-messages="errors.name"
+						></v-text-field>
+					</v-col>
+					<!-- Amount -->
+					<v-col cols="12" md="6">
+						<v-text-field
+							v-model="expense.amount"
+							label="Amount *"
+							type="number"
+							required
+							outlined
+							:error-messages="errors.amount"
+						></v-text-field>
+					</v-col>
+					<!-- Description -->
+					<v-col cols="12" md="6">
+						<v-text-field
+							v-model="expense.description"
+							label="Description"
+							multiline
+							outlined
+							:error-messages="errors.description"
+						></v-text-field>
+					</v-col>
+					<!-- Expense Date -->
+					<v-col cols="12" md="6">
+						<v-text-field
+							v-model="expense.date_incurred"
+							label="Date"
+							type="date"
+							outlined
+							:error-messages="errors.date_incurred"
+						></v-text-field>
+					</v-col>
+					<!-- Project Selection -->
+					<v-col cols="12" md="6">
+						<v-select
+							v-model="expense.project_id"
+							:items="projects"
+							item-title="name"
+							item-value="id"
+							label="Select Project *"
+							required
+							outlined
+							:error-messages="errors.project_id"
+						></v-select>
+					</v-col>
+					<!-- Expense Category Selection -->
+					<v-col cols="12" md="6">
+						<v-select
+							v-model="expense.expense_category_id"
+							:items="expenseCategories"
+							item-title="name"
+							item-value="id"
+							label="Select Expense Category *"
+							required
+							outlined
+							:error-messages="errors.expense_category_id"
+						></v-select>
+					</v-col>
+					<!-- Task ID Selection -->
+					<v-col cols="12" md="6">
+						<v-select
+							v-model="expense.task_id"
+							:items="tasks"
+							item-title="name"
+							item-value="id"
+							label="Select Task"
+							outlined
+							:error-messages="errors.task_id"
+						></v-select>
+					</v-col>
+					<!-- Budget ID Selection -->
+					<v-col cols="12" md="6">
+						<v-select
+							v-model="expense.budget_id"
+							:items="budgets"
+							item-title="name"
+							item-value="id"
+							label="Select Budget"
+							outlined
+							:error-messages="errors.budget_id"
+						></v-select>
+					</v-col>
+				</v-row>
+				<!-- Submit Button -->
+				<v-row>
+					<v-col cols="12" style="text-align: end;">
+						<v-btn
+							depressed
+							:loading="isLoading"
+							@click="isEdit ? updateExpense() : submitExpense()"
+						>
+							{{ isEdit ? "Update Expense" : "Create Expense" }}
+						</v-btn>
+					</v-col>
+				</v-row>
+			</v-form>
+		</template>
+		<template v-else>
+			<p>You do not have permission to view this page.</p>
+		</template>
 	</v-container>
 </template>
 
@@ -149,6 +151,12 @@ export default {
 			tasks: [], // List of tasks
 			budgets: [],
 		};
+	},
+	computed: {
+		isAuthorized() {
+			const userRole = localStorage.getItem('userRole');
+			return userRole === 'Admin';
+		}
 	},
 	mounted() {
 		this.fetchProjects();

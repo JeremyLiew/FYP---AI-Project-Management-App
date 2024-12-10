@@ -1,155 +1,153 @@
 <template>
 	<v-container>
-		<v-row>
-			<v-col cols="12">
-				<h1 class="text-subtitle-1">{{ isEdit ? "Edit Project" : "Create New Project" }}</h1>
-			</v-col>
-		</v-row>
-
-		<v-skeleton-loader v-if="modelLoading" type="article"></v-skeleton-loader>
-
-		<v-form v-else ref="projectForm">
-			<!-- Project Name -->
+		<template v-if="isAuthorized">
 			<v-row>
 				<v-col cols="12">
-					<v-text-field
-						v-model="project.name"
-						label="Project Name *"
-						required
-						:error-messages="errors.name"
-					></v-text-field>
-				</v-col>
-				<!-- Project Description -->
-				<v-col cols="12">
-					<v-textarea
-						v-model="project.description"
-						label="Project Description"
-						outlined
-						placeholder="Provide details about the project in details."
-						hint="This field helps describe the project's details for AI evaluation."
-						:error-messages="errors.description"
-					></v-textarea>
-				</v-col>
-				<!-- Project Start Date -->
-				<v-col cols="12" md="6">
-					<v-text-field
-						v-model="project.start_date"
-						label="Start Date *"
-						type="date"
-						required
-						outlined
-						disabled
-						:min="today"
-					></v-text-field>
-				</v-col>
-				<!-- Project End Date -->
-				<v-col cols="12" md="6">
-					<v-text-field
-						v-model="project.end_date"
-						label="End Date *"
-						type="date"
-						required
-						outlined
-						:min="tomorrow"
-						:error-messages="errors.end_date"
-					></v-text-field>
-				</v-col>
-				<!-- Project Status -->
-				<v-col cols="12" md="4">
-					<v-select
-						v-model="project.status"
-						:items="statusOptions"
-						label="Status *"
-						required
-						outlined
-						:disabled="isEdit?false:true"
-					></v-select>
-				</v-col>
-				<!-- Project Priority -->
-				<v-col cols="12" md="4">
-					<v-select
-						v-model="project.priority"
-						:items="priorityOptions"
-						label="Priority"
-						required
-						outlined
-						:error-messages="errors.priority"
-					></v-select>
-				</v-col>
-				<!-- Project Budget -->
-				<v-col cols="12" md="4">
-					<v-select
-						v-model="project.budget_id"
-						:items="formattedBudgets"
-						item-title="formattedName"
-						item-value="id"
-						label="Budget *"
-						required
-						outlined
-						:error-messages="errors.budget_id"
-					></v-select>
+					<h1 class="text-subtitle-1">{{ isEdit ? "Edit Project" : "Create New Project" }}</h1>
 				</v-col>
 			</v-row>
-
-			<!-- Select Users and Roles -->
-			<v-row>
-				<v-col cols="12" md="6">
-					<v-select
-						v-model="project.members"
-						:items="users"
-						item-value="id"
-						item-title="name"
-						label="Select Members"
-						multiple
-						outlined
-						required
-						:error-messages="errors.members"
-					></v-select>
-				</v-col>
-
-
-				<v-col cols="12" md="6">
-					<v-select
-						v-model="project.roles"
-						:items="roles"
-						item-value="id"
-						item-title="name"
-						label="Select Roles"
-						multiple
-						outlined
-						required
-						:error-messages="errors.roles"
-					></v-select>
-				</v-col>
-			</v-row>
-
-			<!-- File Input for Project -->
-			<v-row>
-				<v-col cols="12" md="6">
-					<v-file-input
-						v-model="project.attachment"
-						label="Project Attachment"
-						accept="image/*, .pdf, .docx, .xlsx"
-						outlined
-						:error-messages="errors.file"
-						required
-					></v-file-input>
-				</v-col>
-			</v-row>
-
-			<!-- Submit Button -->
-			<v-row>
-				<v-col cols="12" style="text-align: end;">
-					<v-btn
-						depressed
-						:loading="isLoading"
-						@click="isEdit ? updateProject() : submitProject()"
-					>
-						{{ isEdit ? "Update Project" : "Create Project" }}
-					</v-btn>
-				</v-col>
-			</v-row>
-		</v-form>
+			<v-skeleton-loader v-if="modelLoading" type="article"></v-skeleton-loader>
+			<v-form v-else ref="projectForm">
+				<!-- Project Name -->
+				<v-row>
+					<v-col cols="12">
+						<v-text-field
+							v-model="project.name"
+							label="Project Name *"
+							required
+							:error-messages="errors.name"
+						></v-text-field>
+					</v-col>
+					<!-- Project Description -->
+					<v-col cols="12">
+						<v-textarea
+							v-model="project.description"
+							label="Project Description"
+							outlined
+							placeholder="Provide details about the project in details."
+							hint="This field helps describe the project's details for AI evaluation."
+							:error-messages="errors.description"
+						></v-textarea>
+					</v-col>
+					<!-- Project Start Date -->
+					<v-col cols="12" md="6">
+						<v-text-field
+							v-model="project.start_date"
+							label="Start Date *"
+							type="date"
+							required
+							outlined
+							disabled
+							:min="today"
+						></v-text-field>
+					</v-col>
+					<!-- Project End Date -->
+					<v-col cols="12" md="6">
+						<v-text-field
+							v-model="project.end_date"
+							label="End Date *"
+							type="date"
+							required
+							outlined
+							:min="tomorrow"
+							:error-messages="errors.end_date"
+						></v-text-field>
+					</v-col>
+					<!-- Project Status -->
+					<v-col cols="12" md="4">
+						<v-select
+							v-model="project.status"
+							:items="statusOptions"
+							label="Status *"
+							required
+							outlined
+							:disabled="isEdit?false:true"
+						></v-select>
+					</v-col>
+					<!-- Project Priority -->
+					<v-col cols="12" md="4">
+						<v-select
+							v-model="project.priority"
+							:items="priorityOptions"
+							label="Priority"
+							required
+							outlined
+							:error-messages="errors.priority"
+						></v-select>
+					</v-col>
+					<!-- Project Budget -->
+					<v-col cols="12" md="4">
+						<v-select
+							v-model="project.budget_id"
+							:items="formattedBudgets"
+							item-title="formattedName"
+							item-value="id"
+							label="Budget *"
+							required
+							outlined
+							:error-messages="errors.budget_id"
+						></v-select>
+					</v-col>
+				</v-row>
+				<!-- Select Users and Roles -->
+				<v-row>
+					<v-col cols="12" md="6">
+						<v-select
+							v-model="project.members"
+							:items="users"
+							item-value="id"
+							item-title="name"
+							label="Select Members"
+							multiple
+							outlined
+							required
+							:error-messages="errors.members"
+						></v-select>
+					</v-col>
+					<v-col cols="12" md="6">
+						<v-select
+							v-model="project.roles"
+							:items="roles"
+							item-value="id"
+							item-title="name"
+							label="Select Roles"
+							multiple
+							outlined
+							required
+							:error-messages="errors.roles"
+						></v-select>
+					</v-col>
+				</v-row>
+				<!-- File Input for Project -->
+				<v-row>
+					<v-col cols="12" md="6">
+						<v-file-input
+							v-model="project.attachment"
+							label="Project Attachment"
+							accept="image/*, .pdf, .docx, .xlsx"
+							outlined
+							:error-messages="errors.file"
+							required
+						></v-file-input>
+					</v-col>
+				</v-row>
+				<!-- Submit Button -->
+				<v-row>
+					<v-col cols="12" style="text-align: end;">
+						<v-btn
+							depressed
+							:loading="isLoading"
+							@click="isEdit ? updateProject() : submitProject()"
+						>
+							{{ isEdit ? "Update Project" : "Create Project" }}
+						</v-btn>
+					</v-col>
+				</v-row>
+			</v-form>
+		</template>
+		<template v-else>
+			<p>You do not have permission to view this page.</p>
+		</template>
 	</v-container>
 </template>
 
@@ -198,6 +196,10 @@ export default {
 				formattedName: `${budget.name} - RM${budget.total_budget.toLocaleString()}`,
 			}));
 		},
+		isAuthorized() {
+			const userRole = localStorage.getItem('userRole');
+			return userRole === 'Admin' || userRole === 'Project Manager';
+		}
 	},
 	mounted() {
 		this.initializeDates();
