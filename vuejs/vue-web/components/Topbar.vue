@@ -115,6 +115,7 @@ export default {
 			profile_picture: null,
 			defaultAvatar: '/images/avatar.jpg',
 			currentDate: new Date(),
+			timezone: 'UTC',
 		};
 	},
 	computed: {
@@ -122,8 +123,6 @@ export default {
 			return this.auth ? { name: 'profile-page' } : { name: 'login-page' };
 		},
 		formattedDateTime() {
-
-			const userTimezone = localStorage.getItem('timezone') || 'UTC';
 
 			const options = {
 				day: '2-digit',
@@ -137,7 +136,7 @@ export default {
 
 			const localTime = this.currentDate.toLocaleString('en-GB', options);
 
-			return `${localTime} (${userTimezone})`;
+			return `${localTime} (${this.timezone})`;
 		},
 	},
 	beforeUnmount() {
@@ -162,9 +161,24 @@ export default {
 			this.auth = true;
 			this.fetchNotificationCount();
 			this.fetchProfile();
+			this.fetchAndApplyUserSettings();
 		}
 	},
 	methods: {
+		fetchAndApplyUserSettings() {
+			GeneralClient.fetchUserSettings().then((res) => {
+				const settings = res.data;
+				if (settings.theme) {
+					this.$vuetify.theme.global.name = settings.theme === 'dark' ? 'dark' : 'light';
+				}
+
+				if (settings.timezone) {
+					this.timezone = settings.timezone
+				}
+			}).catch((error) => {
+				console.error("Error fetching user settings:", error);
+			})
+		},
 		startClock() {
 			this.clockInterval = setInterval(() => {
 				this.currentDate = new Date();
@@ -216,7 +230,7 @@ export default {
 			this.$router.push({ name: 'report-page' });
 		},
 		goToWeather() {
-    		this.$router.push({ name: 'weather-page' });
+			this.$router.push({ name: 'weather-page' });
 		},
 		goToNotifications() {
 			this.$router.push({ name: 'notifications-page' });

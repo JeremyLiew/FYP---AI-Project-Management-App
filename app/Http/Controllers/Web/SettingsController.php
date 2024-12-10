@@ -9,36 +9,38 @@ use App\Http\Controllers\Controller;
 class SettingsController extends Controller
 {
     public function updateSettings(Request $request)
-{
-    $validatedData = $request->validate([
-        'timezone' => 'nullable|timezone',
-        'theme' => 'nullable|in:light,dark', // Ensure the theme is either 'light' or 'dark'
-    ]);
+    {
+        $validatedData = $request->validate([
+            'timezone' => 'nullable|timezone',
+            'theme' => 'nullable|in:light,dark', // Ensure the theme is either 'light' or 'dark'
+        ]);
 
-    $user = auth()->user();
+        $user = auth()->user();
 
-    if (!$user) {
-        return response()->json(['error' => 'User not authenticated'], 401);
+        if (!$user) {
+            return response()->json(['error' => 'User not authenticated'], 401);
+        }
+
+        // Update the timezone if provided
+        if (isset($validatedData['timezone'])) {
+            Setting::updateOrCreate(
+                ['user_id' => $user->id, 'key' => 'timezone'],
+                ['value' => $validatedData['timezone']]
+            );
+            config(['app.timezone' => $validatedData['timezone']]);
+        }
+
+
+        // Update the theme if provided
+        if (isset($validatedData['theme'])) {
+            Setting::updateOrCreate(
+                ['user_id' => $user->id, 'key' => 'theme'],
+                ['value' => $validatedData['theme']]
+            );
+        }
+
+        return response()->json(['message' => 'Settings updated successfully!']);
     }
-
-    // Update the timezone if provided
-    if (isset($validatedData['timezone'])) {
-        Setting::updateOrCreate(
-            ['user_id' => $user->id, 'key' => 'timezone'],
-            ['value' => $validatedData['timezone']]
-        );
-    }
-
-    // Update the theme if provided
-    if (isset($validatedData['theme'])) {
-        Setting::updateOrCreate(
-            ['user_id' => $user->id, 'key' => 'theme'],
-            ['value' => $validatedData['theme']]
-        );
-    }
-
-    return response()->json(['message' => 'Settings updated successfully!']);
-}
 
     public function getUserSettings()
     {

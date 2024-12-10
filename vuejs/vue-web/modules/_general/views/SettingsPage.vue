@@ -47,21 +47,12 @@
 									hide-details
 								></v-select>
 							</v-row>
-						</v-col>
-					</v-row>
-					<v-divider></v-divider>
-					<!-- Placeholder for Future Settings -->
-					<v-row align="center" class="mt-4">
-						<v-col cols="auto">
-							<v-icon color="primary">mdi-cog-outline</v-icon>
-						</v-col>
-						<v-col>
 							<v-row>
-								<v-col cols="auto" class="text-body-1">Other Settings</v-col>
-								<v-spacer></v-spacer>
-								<v-btn icon>
-									<v-icon>mdi-chevron-right</v-icon>
-								</v-btn>
+								<div class="text-center">
+									<small style="color: #666; font-style: italic;">
+										<strong>Important:</strong> After changing your timezone, please <strong>refresh the page</strong> for the changes to take effect across the application.
+									</small>
+								</div>
 							</v-row>
 						</v-col>
 					</v-row>
