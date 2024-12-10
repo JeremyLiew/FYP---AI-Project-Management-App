@@ -13,7 +13,7 @@ use App\Http\Controllers\Web\{
     ReportController,
     HomeController,
     OpenAIController,
-    WeatherController,
+    SettingsController,
 };
 use App\Http\Controllers\Auth\{
     AuthController,
@@ -145,11 +145,6 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     });
 });
 
-Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
-    Route::prefix('weather')->group(function () {
-        Route::get('/listings', [ReportController::class, 'getProjectsAndTasks']);
-    });
-});
 
 // sanctum route
 Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
@@ -168,6 +163,12 @@ Route::get('/email/verify', function () {
 })->name('verification.notice');
 
 Route::post('/email/resend', [CustomVerificationController::class, 'resend'])->name('resend.verification');
+
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::post('/settings/update', [SettingsController::class, 'updateSettings']);
+    Route::get('/settings', [SettingsController::class, 'getUserSettings']); // Fetch user settings
+});
+
 
 // apply this to protect route from not verified email access
 // Route::middleware(['auth', 'verified'])->group(function () {

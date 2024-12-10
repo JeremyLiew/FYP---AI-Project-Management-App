@@ -38,6 +38,14 @@ const GeneralClient = {
 
 	updateUserName(newName) {
 		return axios.post( prefix + '/user/update-user-name', { name: newName });
+	},
+
+	fetchUserSettings(){
+		return axios.get( '/settings' )
+	},
+
+	updateSetting(payload){
+		return axios.post( '/settings/update' , payload)
 	}
 
 }
