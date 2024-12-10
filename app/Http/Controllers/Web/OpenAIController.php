@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use App\Models\Project;
 use App\Models\AIFeedback;
 use Illuminate\Http\Request;
+use App\Models\UserTaskMapping;
 use App\Http\Controllers\Controller;
 
 class OpenAIController extends Controller
@@ -198,12 +199,23 @@ class OpenAIController extends Controller
 
         $projectDescription = $project->description;
 
+         // Fetch all project users and their tasks
         $members = $project->userProjectMappings->map(function ($mapping) {
+            $userTasks = UserTaskMapping::where('user_id', $mapping->user->id)
+                ->with('task')
+                ->get()
+                ->pluck('task')
+                ->map(function ($task) {
+                    return "{$task->name} (Status: {$task->status})";
+                })
+                ->toArray();
+
             return [
                 'name' => $mapping->user->name,
                 'description' => $mapping->user->description ?? 'No description provided',
                 'role_name' => $mapping->projectRole->name ?? 'No role assigned',
                 'role_description' => $mapping->projectRole->description ?? 'No description provided',
+                'tasks' => !empty($userTasks) ? implode(', ', $userTasks) : 'No tasks assigned',
             ];
         });
 
@@ -212,24 +224,27 @@ class OpenAIController extends Controller
         })->join("\n");
 
         $prompt = "
-        Analyze the following project and its members:
+        Analyze the following project, its members, and their workloads:
 
         Project:
         - Name: {$project->name}
         - Description: {$projectDescription}
 
-        Members:
+        Members and Their Tasks:
         " . $members->map(function ($member) {
-            return "- {$member['name']} ({$member['role_name']}): {$member['description']}. Role Details: {$member['role_description']}";
+            return "- {$member['name']} ({$member['role_name']}): {$member['description']}. 
+            Role Details: {$member['role_description']}. 
+            Tasks: {$member['tasks']}";
         })->join("\n") . "
 
-        Tasks:
+        Project Tasks:
         {$tasks}
 
         Provide actionable insights for:
         1. How to approach this project based on its description.
-        2. Roles or tasks suitable for each member based on their descriptions and assigned roles.
-        3. Any potential challenges or opportunities for the team.";
+        2. Roles or tasks suitable for each member based on their descriptions, assigned roles, and current workloads, list all the current tasks and the suggested tasks to be created for each members in point form.
+        3. Suggestions for task distribution and list out which member is current available and which is not and why based on members current workload to optimize team performance.
+        4. Any potential challenges or opportunities for the team.";
 
         try {
             $response = $client->post($api_url, [
