@@ -9,7 +9,7 @@
 		@mouseleave="onHover(false)"
 	>
 		<!-- Sidebar Content -->
-		<v-list dense style="display: flex; flex-direction: column; height: 100%;">
+		<v-list dense style="display: flex; flex-direction: column;" class="drawer-list">
 			<!-- User Profile Section in Sidebar -->
 			<v-list-item class="pa-0" @click="goToProfile">
 				<v-row v-if="drawerHovered" no-gutters class="d-flex flex-column align-center">
@@ -266,4 +266,13 @@ export default {
   .flex-column {
 	flex-direction: column;
   }
+
+.drawer-list {
+  overflow-y: hidden;
+  height: 100%;
+}
+
+.drawer-list:hover {
+  overflow-y: auto;
+}
   </style>
