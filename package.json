@@ -22,6 +22,7 @@
         "@websanova/vue-auth": "^4.2.1",
         "aos": "^3.0.0-beta.6",
         "chart.js": "^4.4.7",
+        "firebase": "^11.0.2",
         "jspdf": "^2.5.2",
         "marked": "^15.0.3",
         "pinia": "^2.1.7",

@@ -13,6 +13,7 @@ use App\Http\Controllers\Web\{
     ReportController,
     HomeController,
     OpenAIController,
+    WeatherController,
 };
 use App\Http\Controllers\Auth\{
     AuthController,
@@ -144,6 +145,11 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
     });
 });
 
+Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('weather')->group(function () {
+        Route::get('/listings', [ReportController::class, 'getProjectsAndTasks']);
+    });
+});
 
 // sanctum route
 Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
