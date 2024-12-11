@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Services\ActivityLogger;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -66,7 +67,12 @@ class ProfileController extends Controller
     public function updateUserName(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('users', 'name')->ignore(Auth::id()) // Exclude the current user's name from uniqueness check
+            ],
         ]);
 
         $user = Auth::user();

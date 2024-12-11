@@ -43,7 +43,7 @@
 						</div>
 						<v-list-item-action>
 							<v-btn
-								color="primary"
+								color="white"
 								small
 								depressed
 								class="mt-4"

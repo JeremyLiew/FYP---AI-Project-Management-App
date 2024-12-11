@@ -45,14 +45,16 @@
 								outlined
 								dense
 								:loading="is_loading"
-								@blur="updateName"
 							/>
 						</v-col>
 						<v-col cols="12" md="4">
 							<p><strong>Email:</strong> {{ user.email }}</p>
 						</v-col>
-						<v-col cols="12" md="4">
+						<v-col cols="12" md="6">
 							<p><strong>Role:</strong> {{ user.role }}</p>
+						</v-col>
+						<v-col cols="12" md="6" class="text-md-end">
+							<v-btn color="white" depressed @click="updateName">Update Name</v-btn>
 						</v-col>
 					</v-row>
 				</v-card-text>
@@ -201,7 +203,7 @@ export default {
 				})
 				.catch((error) => {
 					console.error('Error updating name:', error);
-					this.$toast.error('Failed to update name.');
+					this.$toast.error(error.response.data.message);
 				})
 				.finally(() => {
 					this.is_loading = false;
