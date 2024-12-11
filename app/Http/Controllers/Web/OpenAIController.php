@@ -11,6 +11,7 @@ use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\UserTaskMapping;
 use App\Http\Controllers\Controller;
+use App\Models\UserNotificationMapping;
 use Illuminate\Support\Facades\Auth;
 
 class OpenAIController extends Controller
@@ -293,26 +294,23 @@ class OpenAIController extends Controller
 
     private function extractTaskSuggestions($gptReply)
     {
-        // Initialize an array to hold extracted suggested tasks.
         $suggestedTasks = [];
-        // Extract only the "Suggested Tasks" section for processing.
+
         $suggestedTasksPattern = '/\*\*Suggested Tasks\*\*:\s*(.*?)\n\n/s';
         preg_match_all($suggestedTasksPattern, $gptReply, $suggestedSections);
 
-        // Check if there are matches for "Suggested Tasks".
         if (!empty($suggestedSections[1])) {
-            // Process the first match for the "Suggested Tasks" section.
+
             foreach ($suggestedSections[1] as $suggestedSection) {
-                // Match individual tasks within the "Suggested Tasks" section.
+
                 $taskPattern = '/- Task:\s*(.+?)\s*\(Status:\s*(.+?)\)\s*(?:Assigned to:\s*(.+))?/';
                 preg_match_all($taskPattern, $suggestedSection, $matches, PREG_SET_ORDER);
 
                 foreach ($matches as $match) {
-                    $taskName = $match[1]; // Extract task name.
-                    $taskStatus = $match[2]; // Extract task status.
-                    $assignee = isset($match[3]) ? $match[3] : null; // Extract assignee if available.
+                    $taskName = $match[1];
+                    $taskStatus = $match[2];
+                    $assignee = isset($match[3]) ? $match[3] : null;
 
-                    // Add the task details to the suggested tasks array.
                     $suggestedTasks[] = [
                         'name' => $taskName,
                         'status' => $taskStatus,
@@ -344,10 +342,13 @@ class OpenAIController extends Controller
             $assigneeId => ['assigned_by' => $assignedById]
         ]);
 
-        // Optionally notify the assignee
-        Notification::create([
-            'user_id' => $taskData['assignee_id'],
-            'message' => "You have been assigned a new task: {$taskData['name']}",
+        $notification = Notification::create([
+            'message' => "Task {$taskData['name']} was assigned to you by " . auth()->user()->name,
+        ]);
+
+        UserNotificationMapping::create([
+            'user_id' => $assigneeId,
+            'notification_id' => $notification->id,
         ]);
 
         return response()->json(['message' => 'Task approved and created successfully!', 'task' => $task]);
