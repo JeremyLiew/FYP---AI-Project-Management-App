@@ -9,7 +9,7 @@
 		</v-row>
 
 		<!-- Generate AI Feedback Button -->
-		<v-row>
+		<v-row v-if="isAuthorized">
 			<v-col cols="12" class="text-end mb-4">
 				<v-btn
 					:loading="isLoading" color="white" depressed
@@ -25,6 +25,44 @@
 			<v-col cols="12">
 				<h3>AI Feedback</h3>
 				<p v-html="renderMarkdown(aiFeedback.gpt_reply)"></p>
+			</v-col>
+		</v-row>
+
+		<!-- Suggested Tasks Section -->
+		<v-row v-if="suggestedTasks.length">
+			<v-col cols="12">
+				<h3 class="pb-2">Suggested Tasks</h3>
+				<v-list two-line class="px-6 rounded-4">
+					<v-divider></v-divider>
+					<v-list-item v-for="(task, index) in suggestedTasks" :key="index">
+						<div>
+							<v-list-item-title>{{ task.name }}</v-list-item-title>
+							<v-list-item-subtitle>
+								<strong>Suggested Assignee:</strong> {{ task.assignee }}
+							</v-list-item-subtitle>
+						</div>
+						<v-list-item-action>
+							<v-btn
+								color="primary"
+								small
+								depressed
+								class="mt-4"
+								@click="approveTask(task)"
+							>
+								Approve
+							</v-btn>
+						</v-list-item-action>
+					</v-list-item>
+					<v-divider></v-divider>
+					<div class="text-center">
+						<v-alert
+							type="info"
+							class="px-6 py-3"
+						>
+							<span class="font-weight-bold">Reminder:</span> Please make sure to <strong>review</strong> and add a detailed description to the newly created tasks for better clarity. This will help the assignee and the entire team understand the task goals clearly.
+						</v-alert>
+					</div>
+				</v-list>
 			</v-col>
 		</v-row>
 
@@ -125,6 +163,7 @@ export default {
 			activeTab: 0,
 			roles: [],
 			aiFeedback: null,
+			suggestedTasks: [],
 			isLoading: false,
 			dateFormat: 'DD/MM/YYYY',
 		};
@@ -141,6 +180,10 @@ export default {
 		this.fetchAttachment(projectId);
 	},
 	methods: {
+		isAuthorized() {
+			const userRole = localStorage.getItem('userRole');
+			return userRole === 'Admin' || userRole === 'Project Manager';
+		},
 		formatDate,
 		fetchAndApplyUserSettings() {
 			GeneralClient.fetchUserSettings().then((res) => {
@@ -157,12 +200,44 @@ export default {
 			AIClient.getProjectInsight(this.project.id)
 				.then((response) => {
 					this.aiFeedback = response.data;
-					this.isLoading = false
+					console.log(response)
+					this.suggestedTasks = response.data.suggested_tasks || [];
 				})
 				.catch((error) => {
 					console.error("Error generating AI insights:", error);
 				}).finally(() => {
 					this.isLoading = false
+				});
+		},
+		approveTask(task) {
+			const assignee = this.projectMembers.find(member => member.name === task.assignee);
+			if (!assignee) {
+				this.$toast.error(`Assignee ${task.assignee} not found.`);
+				return;
+			}
+
+			// Prepare task data to send to the backend
+			const taskData = {
+				name: task.name,
+				description: task.description || "",
+				due_date: task.due_date || null,
+				assignee_id: assignee.id,
+				project_id: this.project.id,
+			};
+
+			// Call the API to approve the task
+			this.isLoading = true;
+			AIClient.approveTask(taskData)
+				.then(() => {
+					this.$toast.success(`Task "${task.name}" has been approved and created.`);
+					this.suggestedTasks = this.suggestedTasks.filter(t => t !== task);
+				})
+				.catch((error) => {
+					console.error("Error approving task:", error);
+					this.$toast.error(`Failed to approve task "${task.name}".`);
+				})
+				.finally(() => {
+					this.isLoading = false;
 				});
 		},
 		fetchProjectDetails(id) {

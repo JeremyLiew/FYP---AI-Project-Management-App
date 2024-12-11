@@ -40,6 +40,10 @@ class TaskController extends Controller
 
         $tasks = $query->get();
 
+        $tasks->each(function ($task) {
+            $task->assigned_to = $task->users->first()->id;
+        });
+
         return response()->json([
             'tasks' => $tasks
             ]
