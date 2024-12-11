@@ -2,22 +2,30 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Models\Expense;
-use App\Models\ExpenseCategory;
-use App\Models\Project;
 use App\Models\Task;
 use App\Models\Budget;
+use App\Models\Expense;
+use App\Models\Project;
 use Illuminate\Http\Request;
+use App\Models\ExpenseCategory;
+use App\Services\ActivityLogger;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Web\GetExpenseListingsRequest;
 use App\Http\Requests\Web\CreateExpenseRequest;
-use App\Http\Requests\Web\CreateExpenseCategoryRequest;
 use App\Http\Requests\Web\UpdateExpenseRequest;
+use App\Http\Requests\Web\GetExpenseListingsRequest;
+use App\Http\Requests\Web\CreateExpenseCategoryRequest;
 use App\Http\Requests\Web\UpdateExpenseCategoryRequest;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ExpenseController extends Controller
 {
+    protected $activityLogger;
+
+    public function __construct(ActivityLogger $activityLogger)
+    {
+        $this->activityLogger = $activityLogger;
+    }
+
     public function getExpenseListings(GetExpenseListingsRequest $request)
     {
         $perPage = $request->input('itemsPerPage', 10);
@@ -29,19 +37,21 @@ class ExpenseController extends Controller
             $expenses->where('name', 'like', '%' . $searchQuery . '%');
         }
 
+        $this->activityLogger->logActivity('Viewed expense listings', Expense::class, 0);
+
         return response()->json($expenses->paginate($perPage));
     }
 
     public function expenseInfo($id)
     {
-        // Fetch the expense by its ID
         $expense = Expense::find($id);
 
         if (!$expense) {
             return response()->json(['message' => 'Expense not found'], 404);
         }
 
-        // Return the expense details
+        $this->activityLogger->logActivity('Viewed expense details', Expense::class, $id);
+
         return response()->json([
             'expense' => [
                 'id' => $expense->id,
@@ -57,10 +67,8 @@ class ExpenseController extends Controller
         ]);
     }
 
-
     public function createExpense(CreateExpenseRequest $request)
     {
-        // Create the expense using request inputs
         $expense = Expense::create([
             'name' => $request->input('name'),
             'expense_category_id' => $request->input('expense_category_id'),
@@ -68,28 +76,29 @@ class ExpenseController extends Controller
             'task_id' => $request->input('task_id'),
             'amount' => $request->input('amount'),
             'description' => $request->input('description'),
-            'date_incurred' => $request->input('date_incurred'), // Ensure date_incurred is correctly passed
+            'date_incurred' => $request->input('date_incurred'),
             'budget_id' => $request->input('budget_id'),
         ]);
-    
-        // Return response
+
+        $this->activityLogger->logActivity('Created a new expense', Expense::class, $expense->id);
+
         return response()->json([
             'message' => 'Expense created successfully.',
             'expense' => $expense
         ]);
     }
-    
+
 
     public function updateExpense(UpdateExpenseRequest $request)
     {
-        // Find the expense by its ID
         $expense = Expense::find($request->input('id'));
-    
+
         if (!$expense) {
             return response()->json(['message' => 'Expense not found'], 404);
         }
-    
-        // Update the expense's details
+
+        $previousData = $expense->getOriginal();
+
         $expense->update([
             'name' => $request->input('name'),
             'amount' => $request->input('amount'),
@@ -99,19 +108,24 @@ class ExpenseController extends Controller
             'project_id' => $request->input('project_id'),
             'task_id' => $request->input('task_id'),
         ]);
-    
-        // Return a success response
+
+        $this->activityLogger->logActivity('Updated expense details', Expense::class, $expense->id, [
+            'previous' => $previousData,
+            'updated' => $expense->getAttributes()
+        ]);
+
         return response()->json([
             'message' => 'Expense updated successfully.',
             'expense' => $expense
         ]);
     }
-    
 
     public function deleteExpense($id)
     {
         try {
             $expense = Expense::findOrFail($id);
+
+            $this->activityLogger->logActivity('Deleted an expense', Expense::class, $id, null, 'warning');
 
             $expense->delete();
 
@@ -123,46 +137,43 @@ class ExpenseController extends Controller
         }
     }
 
-    // Expense Category Methods
     public function getExpenseCategories(Request $request)
     {
         $perPage = $request->input('itemsPerPage', 10);
         $searchQuery = $request->input('searchQuery', '');
-    
+
         $categories = ExpenseCategory::query();
-    
+
         if ($searchQuery) {
             $categories->where('name', 'like', '%' . $searchQuery . '%');
         }
-    
+
         return response()->json($categories->paginate($perPage));
     }
 
     public function categoryInfo($id)
     {
-        // Fetch the expense category by its ID
         $category = ExpenseCategory::find($id);
 
         if (!$category) {
             return response()->json(['message' => 'Expense Category not found'], 404);
         }
 
-        // Return the expense category details
         return response()->json([
             'expenseCategory' => [
                 'id' => $category->id,
                 'name' => $category->name,
-                'description' => $category->description, // assuming the category has a description
-                // Add any other relevant fields you need from the ExpenseCategory model
+                'description' => $category->description,
             ]
         ]);
     }
 
-
     public function createExpenseCategory(CreateExpenseCategoryRequest $request)
     {
         $category = ExpenseCategory::create($request->validated());
-    
+
+        $this->activityLogger->logActivity('Created a new expense category', ExpenseCategory::class, $category->id);
+
         return response()->json([
             'message' => 'Expense category created successfully.',
             'expenseCategory' => $category
@@ -173,17 +184,22 @@ class ExpenseController extends Controller
     {
         $category = ExpenseCategory::find($request->input('id'));
 
-            // Check if the category exists
         if (!$category) {
             return response()->json(['message' => 'Expense category not found'], 404);
         }
 
-        // Update the expense category details
+        $previousData = $category->getOriginal();
+
         $category->update([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
         ]);
-    
+
+        $this->activityLogger->logActivity('Updated expense category details', ExpenseCategory::class, $category->id, [
+            'previous' => $previousData,
+            'updated' => $category->getAttributes()
+        ]);
+
         return response()->json([
             'message' => 'Expense category updated successfully.',
             'expenseCategory' => $category
@@ -196,6 +212,8 @@ class ExpenseController extends Controller
             $category = ExpenseCategory::findOrFail($id);
             $category->delete();
 
+            $this->activityLogger->logActivity('Deleted an expense category', ExpenseCategory::class, $id, null, 'warning');
+
             return response()->json(['message' => 'Expense category deleted successfully.'], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Expense category not found.'], 404);
@@ -204,40 +222,36 @@ class ExpenseController extends Controller
         }
     }
 
-    // Fetch the list of projects
     public function fetchProjects()
     {
-        $projects = Project::all(); // Fetch all projects (you can modify the query as needed)
+        $projects = Project::all();
 
         return response()->json([
             'projects' => $projects,
         ]);
     }
 
-    // Fetch the list of expense categories
     public function fetchExpenseCategories()
     {
-        $expenseCategories = ExpenseCategory::all(); // Fetch all expense categories
+        $expenseCategories = ExpenseCategory::all();
 
         return response()->json([
             'expenseCategories' => $expenseCategories,
         ]);
     }
 
-    // Fetch the list of tasks
     public function fetchTasks()
     {
-        $tasks = Task::all(); // Fetch all tasks (you can modify the query as needed)
+        $tasks = Task::all();
 
         return response()->json([
             'tasks' => $tasks,
         ]);
     }
 
-    // Fetch the list of budgets
     public function fetchBudgets()
     {
-        $budgets = Budget::all(); // Fetch all budgets (you can modify the query as needed)
+        $budgets = Budget::all();
 
         return response()->json([
             'budgets' => $budgets,

@@ -7,6 +7,7 @@ use App\Models\Comment;
 use App\Models\Project;
 use App\Models\Notification;
 use Illuminate\Http\Request;
+use App\Services\ActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\UserNotificationMapping;
 use App\Http\Requests\Web\CreateTaskRequest;
@@ -18,6 +19,13 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TaskController extends Controller
 {
+    protected $activityLogger;
+
+    public function __construct(ActivityLogger $activityLogger)
+    {
+        $this->activityLogger = $activityLogger;
+    }
+
     public function getTasksByProject(GetTaskListingsRequest $request)
     {
         $searchQuery = $request->input('searchQuery', '');
@@ -44,6 +52,8 @@ class TaskController extends Controller
             $task->assigned_to = $task->users->first()->id;
         });
 
+        $this->activityLogger->logActivity('Fetched tasks by project', Task::class, $request->input('id'));
+
         return response()->json([
             'tasks' => $tasks
             ]
@@ -54,6 +64,8 @@ class TaskController extends Controller
         try {
             $task = Task::findOrFail($id);
             $task->delete();
+
+            $this->activityLogger->logActivity('Deleted task', Task::class, $id, null, 'warning');
 
             return response()->json(['message' => 'Task deleted successfully.'], 200);
         } catch (ModelNotFoundException $e) {
@@ -94,6 +106,8 @@ class TaskController extends Controller
             }
         }
 
+        $this->activityLogger->logActivity('Created task', Task::class, $task->id);
+
         return response()->json([
             'message' => 'Project created successfully.',
             'task' => $task
@@ -107,6 +121,8 @@ class TaskController extends Controller
         if (!$task) {
             return response()->json(['message' => 'Task not found'], 404);
         }
+
+        $previousData = $task->getOriginal();
 
         $task->update([
             'name' => $request->input('name'),
@@ -149,6 +165,11 @@ class TaskController extends Controller
             }
         }
 
+        $this->activityLogger->logActivity('Updated task details', Task::class, $task->id, [
+            'previous' => $previousData,
+            'updated' => $task->getAttributes(),
+        ]);
+
         return response()->json([
             'message' => 'Project created successfully.',
             'task' => $task
@@ -161,6 +182,8 @@ class TaskController extends Controller
             $project = Project::findOrFail($projectId);
 
             $members = $project->users()->get();
+
+            $this->activityLogger->logActivity('Fetched project members', Project::class, $projectId);
 
             return response()->json([
                 'success' => true,
@@ -190,6 +213,8 @@ class TaskController extends Controller
                 ];
             });
 
+            $this->activityLogger->logActivity('Fetched task comments', Task::class, $id);
+
             return response()->json([
                 'success' => true,
                 'comments' => $comments,
@@ -210,6 +235,8 @@ class TaskController extends Controller
                 'user_id' => $request->input('creator'),
             ]);
 
+            $this->activityLogger->logActivity('Created task comment', Comment::class, $comment->id);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Comment created successfully.',
@@ -225,7 +252,15 @@ class TaskController extends Controller
 
         try {
             $comment = Comment::findOrFail($request->input('comment_id'));
+
+            $previousData = $comment->getOriginal();
+
             $comment->update(['comment' => $request->input('comment')]);
+
+            $this->activityLogger->logActivity('Updated task comment', Comment::class, $comment->id, [
+                'previous' => $previousData,
+                'updated' => $comment->getAttributes(),
+            ]);
 
             return response()->json([
                 'success' => true,

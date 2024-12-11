@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\ApplicationRole;
+use App\Services\ActivityLogger;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\UserDeletedNotification;
@@ -14,12 +15,18 @@ use App\Http\Requests\Web\UpdateUserRequest;
 
 class UserMaintenanceController extends Controller
 {
+    protected $activityLogger;
+
+    public function __construct(ActivityLogger $activityLogger)
+    {
+        $this->activityLogger = $activityLogger;
+    }
+
     public function fetchUsers(Request $request)
     {
         $perPage = $request->input('itemsPerPage', 10);
         $searchQuery = $request->input('searchQuery', '');
 
-        // Query users with their application roles
         $usersQuery = User::with('applicationRole');
 
         if (!empty($searchQuery)) {
@@ -29,7 +36,8 @@ class UserMaintenanceController extends Controller
 
         $users = $usersQuery->paginate($perPage);
 
-        // Format the user data with application role
+        $this->activityLogger->logActivity('Viewed user listings', User::class, 0);
+
         $data = $users->map(function ($user) {
             return [
                 'id' => $user->id,
@@ -52,29 +60,31 @@ class UserMaintenanceController extends Controller
     public function updateUser(UpdateUserRequest $request)
     {
         $user = User::findOrFail($request->input('id'));
-        $oldRoleId = $user->application_role_id; // Capture the old role ID
+        $previousData = $user->getOriginal();
+
+        $oldRoleId = $user->application_role_id;
         $newRoleId = $request->input('application_role_id');
 
-        // Only proceed with notifications if the role has changed
         if ($oldRoleId != $newRoleId) {
-            // Get the old and new role names
             $oldRole = ApplicationRole::find($oldRoleId)?->name ?? 'No Role';
             $newRole = ApplicationRole::findOrFail($newRoleId)->name;
 
-            // Create a notification
             $notification = Notification::create([
                 'message' => "Your role has been changed from '{$oldRole}' to '{$newRole}' by " . auth()->user()->name,
             ]);
 
-            // Map the notification to the user
             UserNotificationMapping::create([
                 'user_id' => $user->id,
                 'notification_id' => $notification->id,
             ]);
         }
 
-        // Update the user with validated data
         $user->update($request->validated());
+
+        $this->activityLogger->logActivity('Updated user details', User::class, $user->id, [
+            'previous' => $previousData,
+            'updated' => $user->getAttributes(),
+        ]);
 
         return response()->json(['message' => 'User updated successfully']);
     }
@@ -84,11 +94,11 @@ class UserMaintenanceController extends Controller
         $user = User::findOrFail($id);
         $adminName = auth()->user()->name;
 
-        // Delete the user
         $user->delete();
 
-        // Send the email notification
         Mail::to($user->email)->send(new UserDeletedNotification($user, $adminName));
+
+        $this->activityLogger->logActivity('Deleted user', User::class, $user->id, null, 'warning');
         return response()->json(['message' => 'User deleted successfully']);
     }
 
@@ -99,6 +109,8 @@ class UserMaintenanceController extends Controller
                 'name' => $role->name,
             ];
         });
+
+        $this->activityLogger->logActivity('Fetched application roles', ApplicationRole::class, 0);
 
         return response()->json($roles);
     }
