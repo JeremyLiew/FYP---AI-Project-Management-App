@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\{
     HomeController,
     OpenAIController,
     SettingsController,
+    WeatherController,
 };
 use App\Http\Controllers\Auth\{
     AuthController,
