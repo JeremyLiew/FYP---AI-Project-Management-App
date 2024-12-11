@@ -26,6 +26,10 @@ const BaseClient = {
 
 	getProjectInsight(id){
 		return axios.get( prefix + "/generateProjectInsight/" + id)
+	},
+
+	approveTask(payload){
+		return axios.post( prefix + "/approved-task" , payload)
 	}
 
 }

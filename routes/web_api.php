@@ -143,6 +143,7 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/feedbacks', [OpenAIController::class, 'getFeedbacks']);
         Route::post('/generateSummaryFeedback', [OpenAIController::class, 'generateSummaryFeedback']);
         Route::get('/generateProjectInsight/{id}', [OpenAIController::class, 'generateProjectInsight']);
+        Route::post('/approved-task', [OpenAIController::class, 'approveTask']);
     });
 });
 
