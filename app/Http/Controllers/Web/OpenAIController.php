@@ -306,8 +306,10 @@ class OpenAIController extends Controller
     {
         $suggestedTasks = [];
 
-        $suggestedTasksPattern = '/Suggested Tasks\s*:\s*(.*?)\n\n/s';
+        $suggestedTasksPattern = '/Suggested Tasks\s*[:\s]*\n*(.*?)(?=\n{2,}|$)/s';
         preg_match_all($suggestedTasksPattern, $gptReply, $suggestedSections);
+
+        // dd($suggestedSections);
 
         if (!empty($suggestedSections[1])) {
 
