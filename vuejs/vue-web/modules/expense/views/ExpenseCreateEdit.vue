@@ -59,7 +59,7 @@
 						label="Select Project *"
 						required
 						outlined
-						@change="filterTasksByProject" 
+						@change="filterTasksByProject(expense.project_id)" 
 						:error-messages="errors.project_id"
 						></v-select>
 					</v-col>
@@ -163,10 +163,7 @@ export default {
 	mounted() {
 		this.fetchProjects();
 		this.fetchExpenseCategories();
-		this.fetchTasks();
 		this.fetchBudgets();
-		console.log('Selected Project ID:', this.expense.project_id);  // Check if project ID is selected
-		console.log('All Tasks:', this.budgets); // Check all tasks available
 
 		if (this.isEdit) {
 			const expenseId = this.$route.params.id;
@@ -175,6 +172,12 @@ export default {
 			}
 		} else {
 			this.modelLoading = false;
+		}
+	},
+	watch: {
+		'expense.project_id': function (newProjectId) {
+			console.log('New project selected:', newProjectId);
+			this.filterTasksByProject(newProjectId);
 		}
 	},
 	methods: {
@@ -248,14 +251,17 @@ export default {
 					console.error("Error fetching expense categories:", error);
 				});
 		},
-		fetchTasks() {
-			ExpenseClient.fetchTasks()
+		fetchTasks(projectId) {
+        this.isLoading = true; // Optional: Show loading state
+			ExpenseClient.fetchTasks(projectId)
 				.then((response) => {
-					this.tasks = response.data.tasks;
-					this.taskByProject = response.data.tasks; 
+					this.tasks = response.data.tasks; // Update tasks based on selected project
 				})
 				.catch((error) => {
 					console.error("Error fetching tasks:", error);
+				})
+				.finally(() => {
+					this.isLoading = false; // End loading state
 				});
 		},
 		fetchBudgets() {
@@ -267,12 +273,9 @@ export default {
 					console.error("Error fetching budgets:", error);
 				});
 		},
-		filterTasksByProject() {
-		console.log('Selected Project ID:', this.expense.project_id);  // Check if project ID is selected
-		console.log('All Tasks:', this.allTasks); // Check all tasks available
-		
-		this.tasks = this.allTasks.filter(task => task.project_id === this.expense.project_id);
-		console.log('Filtered Tasks:', this.tasks);  // Check filtered tasks
+		filterTasksByProject(projectId) {
+			console.log('Selected project_id:', projectId); // Log the selected project_id
+			this.fetchTasks(projectId); // Fetch tasks for the selected project
 		},
 	},
 };

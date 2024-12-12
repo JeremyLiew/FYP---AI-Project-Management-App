@@ -232,9 +232,10 @@ class ReportController extends Controller
     
         // Prepare the content to be downloaded
         $content = $this->generateHumanReadableContent($id);
+        
     
         if ($format === 'txt') {
-            return response()->download($content, 'project_' . $project->name . '_details.txt')->deleteFileAfterSend(true);
+            return response()->download($content, 'project_' . $project->description . '_details.txt')->deleteFileAfterSend(true);
         } elseif ($format === 'csv') {
 
             $project = Project::with(['budget'])->findOrFail($id);

@@ -105,7 +105,7 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::post('/update', [ExpenseController::class, 'updateExpense']);
         Route::post('/delete/{id}', [ExpenseController::class, 'deleteExpense']);
         Route::get('/projects', [ExpenseController::class, 'fetchProjects']);
-        Route::get('/tasks', [ExpenseController::class, 'fetchTasks']);
+        Route::get('/tasks/{id}', [ExpenseController::class, 'fetchTasks']);
         Route::get('/expense-categories', [ExpenseController::class, 'fetchExpenseCategories']);
         Route::get('/budgets', [ExpenseController::class, 'fetchBudgets']);
 

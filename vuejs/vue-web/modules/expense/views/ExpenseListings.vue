@@ -5,7 +5,7 @@
 
 		<!-- Search Expenses and Create Button -->
 		<v-row class="d-flex align-center mb-4">
-			<v-col cols="12" md="6">
+			<v-col cols="12" md="12">
 				<v-text-field
 					v-model="searchQuery"
 					label="Search Expenses"
@@ -111,7 +111,7 @@
 			<!-- Show No Users Image -->
 			<v-row class="justify-center">
 				<v-col cols="12" class="text-center">
-					<img src="/images/no-product-available.png" alt="No expenses available" class="my-4" />
+					<img src="/images/budget.png" alt="No budgets available" class="my-4" />
 					<p>No expenses available.</p>
 				</v-col>
 			</v-row>

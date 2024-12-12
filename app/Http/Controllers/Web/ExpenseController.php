@@ -240,10 +240,12 @@ class ExpenseController extends Controller
         ]);
     }
 
-    public function fetchTasks()
+    public function fetchTasks($projectId)
     {
-        $tasks = Task::all();
-
+        // Fetch tasks associated with the given project ID
+        $tasks = Task::where('project_id', $projectId)->get();
+    
+        // Return the tasks as a JSON response
         return response()->json([
             'tasks' => $tasks,
         ]);

@@ -97,17 +97,6 @@ export default {
   data() {
     return {
       weatherData: null,
-      lightIntensityBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExODVpazEzcjk0eHM4NTd3OXU1YXIxNGNzcTBvMjg1MGM0bHMxcmZqMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/49VB0PHxR5Vsc/giphy.gif",
-      soundIntensityBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNG9iM3FvN25wa3R6MDF2NjJrbTJxb3FnbGxkcjFrNXFvdzlhdWVhbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/QFuBzoQdijNFztFEp6/giphy.gif",
-      ambientTemperatureBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW5kdzg4c3Yxb21zemg5eTR5ZmFkdWl0MHVjd2ZlOWp2Y3I1ZmhwZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/17bvpzBFFQ5Xi/giphy.gif",
-      soilMoistureBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExenc1cm1lanFiZG03aWU3bWluNWlzdjgwZnQxcWF1M3JpOG9tY2g1OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/fYYpNdX624AAU/giphy.gif",
-      touchDetectionBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDcxdmtiejd6Y2hlcmxyNG1nazdycXY3dTB1bHVxMnFqemZkejNsayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/9DgxhWOxHDHtF8bvwl/giphy-downsized-large.gif",
-      waterLevelBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXRrd205Yjl2bTR4YXp6aWFvY3lvZXB2cTYyaXhzNTF0NXBieHYwOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/lNQ2RRsEfJqbjg1i0I/giphy.gif",
-      distanceMeasurementBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjY3czl1MXg1cW5nc3B4N21nb3E3bmFzNmRwc3R5NmhoaWR0cWdheSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/T75GIRuXazJ4oHmE4Y/giphy.gif",
-      airQualityBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTc4dGc4dDE5NGlrc3l3a3Q3bjNlMWVwYTRlZms5YXBzeDdqOXlmOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KpAPQVW9lWnWU/giphy.gif",
-      rfidBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWg3dno0bTlndTVrOXhheDRmNXhidWEwcWtldXI5NzRqejBrOWJsMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o85xvAaEm8nPHWMco/giphy.gif",
-      motionDetectionBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTh2Y2Z6cW5neHJidTA2cmEwcGYzemtqZjRoeWk5YXUxdG1wd2lmciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0EwYRXhyq1rpn4Gc/giphy.gif",
-      humidityBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2h1YTl2czkwZWJlbWZuNGc4ZXlydnJ1MWpjbmw1NGh4M3VqamtldiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RK8K5c6tuPUsjEAL80/giphy.gif",
     };
   },
   mounted() {
@@ -149,7 +138,7 @@ export default {
 	},
 	waterLevelBg() {
 		const waterStatus = this.weatherData.WaterLevel?.Status;
-		return waterStatus === 'damage'
+		return waterStatus === 'danger'
 		? 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXRrd205Yjl2bTR4YXp6aWFvY3lvZXB2cTYyaXhzNTF0NXBieHYwOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/lNQ2RRsEfJqbjg1i0I/giphy.gif)'
 		: 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2xmdjVnbmphM3J5dGxlZXVtYTR1M3d0azBjYm5reWltMHA2YTc1ayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/h7uFKaf3xMFAsCJ6Ib/giphy.gif)';
 	},

@@ -34,8 +34,8 @@ const ExpenseClient = {
   },
 
   // Fetch list of tasks
-  fetchTasks() {
-    return axios.get(prefix + "/tasks"); 
+  fetchTasks(id) {
+    return axios.get(`${prefix}/tasks/${id}`); 
   },
 
   // Fetch list of expense categories

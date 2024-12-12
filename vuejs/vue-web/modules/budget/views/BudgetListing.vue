@@ -5,7 +5,7 @@
 
 		<!-- Search Budget and Create Button -->
 		<v-row class="d-flex align-center mb-4">
-			<v-col cols="12" md="6">
+			<v-col cols="12" md="12">
 				<v-text-field
 					v-model="searchQuery"
 					label="Search Budgets"
@@ -15,17 +15,6 @@
 					dense
 					@input="fetchBudgets"
 				></v-text-field>
-			</v-col>
-			<v-col cols="12" md="6">
-					<v-select
-						v-model="selectedFilter"
-						:items="filters"
-						label="Filter by Status"
-						placeholder="Select a filter"
-						clearable
-						outlined
-						dense
-					></v-select>
 			</v-col>
 			<v-col v-if="isAuthorized" cols="12" class="d-flex justify-end">
 				<v-btn depressed @click="createBudget">Create Budget</v-btn>

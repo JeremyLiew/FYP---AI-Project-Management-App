@@ -89,28 +89,6 @@
 					</v-row>
 					<v-divider></v-divider>
 
-					<!-- Time Picker Section for Report Scheduling -->
-					<v-row align="center" class="mb-4">
-						<v-col cols="6" sm="auto">
-							<v-icon color="primary">mdi-calendar-clock</v-icon>
-						</v-col>
-						<v-col cols="6" sm="4" class="text-body-1">
-							Select Report Time
-						</v-col>
-						<v-col cols="12" sm="4" class="text-end">
-							<v-row justify="end">
-								<v-select
-									v-model="selectedEmailTime"
-									:items="EmailTimeOptions"
-									label="Pick Time Line"
-									hide-details
-									dense
-								></v-select>
-							</v-row>
-						</v-col>
-					</v-row>
-					<v-divider></v-divider>
-
 					<div class="text-center">
 						<small style="color: #666; font-style: italic;">
 							<strong>Important:</strong> After changing your timezone, time format and date format, please <strong>refresh the page</strong> for the changes to take effect across the application.
@@ -154,9 +132,6 @@ export default {
 		selectedDateFormat(newValue) {
 			this.saveSettings()
 		},
-		selectedEmailTime(newValue) {
-			this.saveSettings()
-		}
 	},
 	mounted() {
 		this.fetchUserSettings()
@@ -180,9 +155,6 @@ export default {
 				if (response.date_format) {
 					this.selectedDateFormat = response.date_format
 				}
-				if (response.email_time) {
-					this.selectedEmailTime = response.email_time  
-				}
 			}).catch((error) => {
 				console.error('Error fetching user settings:', error)
 			}).finally(()=> {
@@ -203,7 +175,6 @@ export default {
 				timezone: this.selectedTimezone,
 				time_format: this.selectedTimeFormat,
 				date_format: this.selectedDateFormat,
-				email_time: this.selectedEmailTime,  
 			}).then(() => {
 
 			}).catch((error) => {
