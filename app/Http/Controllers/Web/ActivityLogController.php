@@ -37,6 +37,8 @@ class ActivityLogController extends Controller
             $activityLogsQuery->where('user_id', $userFilter);
         }
 
+        $activityLogsQuery->orderBy('created_at', 'desc');
+
         // Pagination and fetching the results
         $activityLogs = $activityLogsQuery->paginate($perPage);
 

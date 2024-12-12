@@ -128,7 +128,7 @@ import SettingClient from "../client"
 export default {
 	data() {
 		return {
-			isDarkTheme: false,
+			isDarkTheme: true,
 			selectedTimezone: 'UTC',
 			selectedTimeFormat: '24h',
 			selectedDateFormat: 'MM/DD/YYYY',

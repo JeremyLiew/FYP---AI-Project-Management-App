@@ -29,7 +29,6 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
         Route::get('/notifications', [NotificationController::class, 'getNotifications']);
         Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
-        Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
         Route::get('/profile', [ProfileController::class, 'getUserProfile']);
         Route::post('/user/profile-picture', [ProfileController::class, 'updateProfilePicture']);
         Route::post('/user/update-user-name', [ProfileController::class, 'updateUserName']);

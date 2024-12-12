@@ -98,8 +98,6 @@ class ProjectController extends Controller
 
     public function createProject(CreateProjectRequest $request)
     {
-        
-
         // Create the project
         $project = Project::create([
             'name' => $request->input('name'),
@@ -119,18 +117,16 @@ class ProjectController extends Controller
         // Handle the file upload if it exists
         if ($request->hasFile('attachment')) {
             $attachment = $request->file('attachment');
-            
+
             // Get file details
-            $fileName = $attachment->getClientOriginalName();  // Get original file name
-            $fileType = $attachment->getClientMimeType();     // Get file type (MIME type)
-            $filePath = $attachment->store('attachments');    // Store the file and get its path
-            
-            // Optional: You can also use storeAs() if you want to specify the filename
-            // $filePath = $attachment->storeAs('attachments', $fileName); // Store with the original file name
+            $fileName = $attachment->getClientOriginalName();
+            $fileType = $attachment->getClientMimeType();
+            $filePath = $attachment->store('attachments');
+
             $attachment = Attachment::create([
                 'file_type' => $fileType,
                 'file_path' => $filePath,
-                'project_id' => $project->id,  // Attach the file to the created project
+                'project_id' => $project->id,
             ]);
         }
 
@@ -140,27 +136,22 @@ class ProjectController extends Controller
             $roleId = $request->input('roles')[$index];
             $usersWithRoles[$userId] = ['project_role_id' => $roleId];
         }
-    
-        // Get the current users before syncing
+
         $existingUserIds = $project->users->pluck('id')->toArray();
-    
-        // Sync users with the project (update the pivot table)
+
         $project->users()->sync($usersWithRoles);
-    
-        // Get the new members after syncing
+
         $newUserIds = array_keys($usersWithRoles);
-    
-        // Determine the newly added users
+
         $addedUserIds = array_diff($newUserIds, $existingUserIds);
-    
-        // Send notifications to newly added users only
+
         foreach ($addedUserIds as $userId) {
             $user = User::find($userId);
             if ($user) {
                 $notification = Notification::create([
                     'message' => "You have been added to the project '{$project->name}' by " . auth()->user()->name,
                 ]);
-    
+
                 UserNotificationMapping::create([
                     'user_id' => $userId,
                     'notification_id' => $notification->id,
@@ -181,46 +172,43 @@ class ProjectController extends Controller
     {
         // Validate input
         $request->validate([
-            'file' => 'nullable|file|mimes:jpg,png,pdf,doc,docx|max:2048', // Validate file type and size
-            'project_id' => 'required|integer', // Assuming project_id is mandatory
+            'file' => 'nullable|file|mimes:jpg,png,pdf,doc,docx|max:2048',
+            'project_id' => 'required|integer',
         ]);
 
-        // Find the existing attachment by project_id
         $attachment = Attachment::where('project_id', $request->input('project_id'))->first();
 
         if (!$attachment) {
-            return response()->json(['error' => 'Attachment not found for the given project'], 404); // Return error if attachment doesn't exist
+            return response()->json(['error' => 'Attachment not found for the given project'], 404);
         }
 
         // Check if a new file is uploaded
         if ($request->hasFile('file')) {
             $file = $request->file('file');
 
-            // Get the original name
             $fileName = $file->getClientOriginalName();
 
-            // Get the file MIME type
             $fileType = $file->getMimeType();
 
-            // Store the file and get the path
             $filePath = $file->store('attachments', 'public');
 
-            // Update the attachment using update() method
             $attachment->update([
                 'file_path' => $filePath,
-                'attachmentable_type' => $fileType, // Update the file type (you can change this if needed)
-                'project_id' => $request->input('project_id'), // You can change project_id if necessary
+                'attachmentable_type' => $fileType,
+                'project_id' => $request->input('project_id'),
             ]);
         }
 
-        // Return response with the updated attachment details
+        $this->activityLogger->logActivity('Updated attachment for project', Attachment::class, $attachment->id, [
+            'previous' => $previousAttachment,
+            'updated' => $attachment->getAttributes()
+        ]);
+
         return response()->json([
             'message' => 'Attachment updated successfully',
             'attachment' => $attachment,
         ]);
     }
-
-
 
     public function updateProject(UpdateProjectRequest $request)
     {
@@ -308,7 +296,7 @@ class ProjectController extends Controller
         try {
             $project = Project::findOrFail($id);
 
-            $this->activityLogger->logActivity('Deleted a project', Project::class, $id);
+            $this->activityLogger->logActivity('Deleted a project', Project::class, $id, null, 'warning');
 
             $project->delete();
 
@@ -340,7 +328,7 @@ class ProjectController extends Controller
         }
 
         $filePath = storage_path('app/' . $attachment->file_path);
-        
+
         if (!file_exists($filePath)) {
             return response()->json(['error' => 'File not found'], 404);
         }
@@ -355,17 +343,17 @@ class ProjectController extends Controller
     public function downloadAttachment($projectId)
     {
         $attachment = Attachment::where('project_id', $projectId)->first();
-    
+
         if (!$attachment) {
             return response()->json(['error' => 'No attachment found for this project'], 404);
         }
-    
+
         $filePath = storage_path('app/' . $attachment->file_path);
-        
+
         if (!file_exists($filePath)) {
             return response()->json(['error' => 'File not found'], 404);
         }
-    
+
         return response()->download($filePath, basename($attachment->file_path), [
             'Content-Type' => $attachment->file_type,
         ]);
@@ -390,5 +378,4 @@ class ProjectController extends Controller
             ], 500);
         }
     }
-
 }

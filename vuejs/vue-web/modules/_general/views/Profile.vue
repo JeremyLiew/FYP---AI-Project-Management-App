@@ -45,16 +45,23 @@
 								outlined
 								dense
 								:loading="is_loading"
-								@blur="updateName"
 							/>
 						</v-col>
 						<v-col cols="12" md="4">
 							<p><strong>Email:</strong> {{ user.email }}</p>
 						</v-col>
-						<v-col cols="12" md="4">
+						<v-col cols="12" md="6">
 							<p><strong>Role:</strong> {{ user.role }}</p>
 						</v-col>
+						<v-col cols="12" md="6" class="text-md-end">
+							<v-btn color="white" depressed @click="updateName">Update Name</v-btn>
+						</v-col>
 					</v-row>
+					<div class="text-center mt-2">
+						<small style="color: #666; font-style: italic;">
+							<strong>Important:</strong> After changing your profile picture / username, please <strong>refresh the page</strong> for the changes to take effect across the application.
+						</small>
+					</div>
 				</v-card-text>
 			</v-card>
 			<!-- Projects Section -->
@@ -184,7 +191,6 @@ export default {
 					.then((response) => {
 						this.user.profilePicture = response.data.file_path;
 						this.$toast.success('Profile picture updated successfully.');
-						location.reload();
 					})
 					.catch((error) => {
 						console.error('Error uploading profile picture:', error);
@@ -197,11 +203,10 @@ export default {
 			GeneralClient.updateUserName(this.user.name)
 				.then((response) => {
 					this.$toast.success('Name updated successfully.');
-					location.reload();
 				})
 				.catch((error) => {
 					console.error('Error updating name:', error);
-					this.$toast.error('Failed to update name.');
+					this.$toast.error(error.response.data.message);
 				})
 				.finally(() => {
 					this.is_loading = false;

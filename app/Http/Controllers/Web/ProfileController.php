@@ -4,11 +4,20 @@ namespace App\Http\Controllers\Web;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use App\Services\ActivityLogger;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
+    protected $activityLogger;
+
+    public function __construct(ActivityLogger $activityLogger)
+    {
+        $this->activityLogger = $activityLogger;
+    }
+
     public function getUserProfile(Request $request)
     {
         $user = User::find(Auth::id());
@@ -20,6 +29,8 @@ class ProfileController extends Controller
                 $query->select('tasks.id', 'tasks.name', 'tasks.status', 'tasks.priority', 'tasks.due_date');
             },
         ]);
+
+        $this->activityLogger->logActivity('Fetched user profile', User::class, $user->id);
 
         return response()->json([
             'user' => [
@@ -45,6 +56,8 @@ class ProfileController extends Controller
             $user->profile_picture = $filePath;
             $user->save();
 
+            $this->activityLogger->logActivity('Updated profile picture', User::class, $user->id);
+
             return response()->json(['message' => 'Profile picture updated', 'file_path' => $filePath]);
         }
 
@@ -54,12 +67,23 @@ class ProfileController extends Controller
     public function updateUserName(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('users', 'name')->ignore(Auth::id()) // Exclude the current user's name from uniqueness check
+            ],
         ]);
 
         $user = Auth::user();
+        $previousData = $user->name;
         $user->name = $request->name;
         $user->save();
+
+        $this->activityLogger->logActivity('Updated user name', User::class, $user->id , [
+            'previous' => $previousData,
+            'updated' => $request->name
+        ]);
 
         return response()->json(['message' => 'Name updated successfully.']);
     }

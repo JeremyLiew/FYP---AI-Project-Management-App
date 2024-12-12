@@ -4,18 +4,27 @@
 namespace App\Http\Controllers\Web;
 
 use App\Models\Task;
+use App\Models\User;
 use GuzzleHttp\Client;
 use App\Models\Project;
 use App\Models\AIFeedback;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\UserTaskMapping;
+use App\Services\ActivityLogger;
 use App\Http\Controllers\Controller;
-use App\Models\UserNotificationMapping;
 use Illuminate\Support\Facades\Auth;
+use App\Models\UserNotificationMapping;
 
 class OpenAIController extends Controller
 {
+    protected $activityLogger;
+
+    public function __construct(ActivityLogger $activityLogger)
+    {
+        $this->activityLogger = $activityLogger;
+    }
+
     public function sendMessage(Request $request)
     {
         $client = new Client();
@@ -74,6 +83,8 @@ class OpenAIController extends Controller
             $data = json_decode($response->getBody(), true);
             $gpt_reply = $data['choices'][0]['message']['content'];
 
+            $this->activityLogger->logActivity('Sent a message to OpenAI', User::class, 0);
+
             return response()->json(['message' => $gpt_reply]);
 
         } catch (\Exception $e) {
@@ -81,7 +92,10 @@ class OpenAIController extends Controller
         }
     }
 
-    public function getFeedbacks(){
+    public function getFeedbacks()
+    {
+        $this->activityLogger->logActivity('Fetched feedbacks', AIFeedback::class, 0);
+
         return response()->json([
             'feedbacks' => AIFeedback::where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')
@@ -99,28 +113,23 @@ class OpenAIController extends Controller
 
         $client = new Client();
 
-        // OpenAI API key and endpoint
         $openai_api_key = env('OPENAI_API_KEY');
         $api_url = 'https://api.openai.com/v1/chat/completions';
 
-        // Fetch the user's role
         $role = $user->applicationRole->name;
 
-        // Fetch user's projects via UserProjectMapping
         $projects = Project::whereIn('id', function ($query) use ($user) {
             $query->select('project_id')
                 ->from('user_project_mappings')
                 ->where('user_id', $user->id);
         })->get(['id', 'name', 'description', 'start_date', 'end_date', 'status', 'priority'])->toArray();
 
-        // Fetch user's tasks via UserTaskMapping
         $tasks = Task::whereIn('id', function ($query) use ($user) {
             $query->select('task_id')
                 ->from('user_task_mappings')
                 ->where('user_id', $user->id);
         })->get(['id', 'name', 'description', 'due_date', 'status', 'priority', 'project_id'])->toArray();
 
-        // Prepare detailed data for GPT
         $projectDetails = collect($projects)->map(function ($project) {
             return "Project: {$project['name']}, "
                 . "Description: {$project['description']}, "
@@ -145,7 +154,6 @@ class OpenAIController extends Controller
             . "They are handling " . count($tasks) . " tasks: {$taskDetails}.";
 
         try {
-            // Call GPT API
             $response = $client->post($api_url, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $openai_api_key,
@@ -163,7 +171,6 @@ class OpenAIController extends Controller
             $data = json_decode($response->getBody(), true);
             $gpt_reply = $data['choices'][0]['message']['content'];
 
-            // Save feedback to ai_feedbacks table
             AIFeedback::create([
                 'user_id' => $user->id,
                 'ai_model' => 'gpt-3.5-turbo',
@@ -173,7 +180,8 @@ class OpenAIController extends Controller
                 'feedbackable_id' => $user->id,
             ]);
 
-            // Return success response
+            $this->activityLogger->logActivity('Generated summary feedback', AIFeedback::class, 0);
+
             return response()->json(['message' => 'Feedback generated successfully!', 'gpt_reply' => $gpt_reply]);
 
         } catch (\Exception $e) {
@@ -199,6 +207,8 @@ class OpenAIController extends Controller
         if (!$project) {
             return response()->json(['error' => 'Project not found'], 404);
         }
+
+        $this->activityLogger->logActivity('Generated project insight', Project::class, $projectId);
 
         $members = $project->userProjectMappings->map(function ($mapping) {
             $userTasks = UserTaskMapping::where('user_id', $mapping->user->id)
@@ -284,7 +294,7 @@ class OpenAIController extends Controller
             return response()->json([
                 'message' => 'Project insights generated successfully!',
                 'gpt_reply' => $gpt_reply,
-                'suggested_tasks' => $this->extractTaskSuggestions($gpt_reply), // Return the suggested tasks separately
+                'suggested_tasks' => $this->extractTaskSuggestions($gpt_reply),
             ]);
 
         } catch (\Exception $e) {
@@ -296,8 +306,10 @@ class OpenAIController extends Controller
     {
         $suggestedTasks = [];
 
-        $suggestedTasksPattern = '/\*\*Suggested Tasks\*\*:\s*(.*?)\n\n/s';
+        $suggestedTasksPattern = '/Suggested Tasks\s*[:\s]*\n*(.*?)(?=\n{2,}|$)/s';
         preg_match_all($suggestedTasksPattern, $gptReply, $suggestedSections);
+
+        // dd($suggestedSections);
 
         if (!empty($suggestedSections[1])) {
 
@@ -350,6 +362,8 @@ class OpenAIController extends Controller
             'user_id' => $assigneeId,
             'notification_id' => $notification->id,
         ]);
+
+        $this->activityLogger->logActivity('Task approved', Task::class, $task->id);
 
         return response()->json(['message' => 'Task approved and created successfully!', 'task' => $task]);
     }

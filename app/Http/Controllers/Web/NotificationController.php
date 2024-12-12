@@ -4,12 +4,20 @@ namespace App\Http\Controllers\Web;
 
 use App\Models\Notification;
 use Illuminate\Http\Request;
+use App\Services\ActivityLogger;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\UserNotificationMapping;
 
 class NotificationController extends Controller
 {
+    protected $activityLogger;
+
+    public function __construct(ActivityLogger $activityLogger)
+    {
+        $this->activityLogger = $activityLogger;
+    }
+
     public function unreadCount()
     {
         $userId = Auth::id();
@@ -35,6 +43,8 @@ class NotificationController extends Controller
             return $notification;
         });
 
+        $this->activityLogger->logActivity('Fetched notifications', Notification::class, 0);
+
         return response()->json($notifications);
     }
 
@@ -47,18 +57,9 @@ class NotificationController extends Controller
 
         if ($userNotification) {
             $userNotification->update(['read_status' => true]);
+            $this->activityLogger->logActivity('Marked a notification as read', UserNotificationMapping::class, $notificationId);
         }
 
         return response()->json(['message' => 'Notification marked as read']);
-    }
-
-    // Mark all notifications as read (optional)
-    public function markAllAsRead()
-    {
-        UserNotificationMapping::where('user_id', auth()->id())
-            ->where('read_status', false)
-            ->update(['read_status' => true]);
-
-        return response()->json(['message' => 'All notifications marked as read']);
     }
 }
