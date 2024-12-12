@@ -57,6 +57,11 @@
 							<v-btn color="white" depressed @click="updateName">Update Name</v-btn>
 						</v-col>
 					</v-row>
+					<div class="text-center mt-2">
+						<small style="color: #666; font-style: italic;">
+							<strong>Important:</strong> After changing your profile picture / username, please <strong>refresh the page</strong> for the changes to take effect across the application.
+						</small>
+					</div>
 				</v-card-text>
 			</v-card>
 			<!-- Projects Section -->
@@ -186,7 +191,6 @@ export default {
 					.then((response) => {
 						this.user.profilePicture = response.data.file_path;
 						this.$toast.success('Profile picture updated successfully.');
-						location.reload();
 					})
 					.catch((error) => {
 						console.error('Error uploading profile picture:', error);
@@ -199,7 +203,6 @@ export default {
 			GeneralClient.updateUserName(this.user.name)
 				.then((response) => {
 					this.$toast.success('Name updated successfully.');
-					location.reload();
 				})
 				.catch((error) => {
 					console.error('Error updating name:', error);
