@@ -51,6 +51,15 @@
 							>
 								Approve
 							</v-btn>
+							<v-btn
+								color="red"
+								small
+								depressed
+								class="mt-4"
+								@click="rejectTask(task)"
+							>
+								Reject
+							</v-btn>
 						</v-list-item-action>
 					</v-list-item>
 					<v-divider></v-divider>
@@ -209,6 +218,10 @@ export default {
 					this.isLoading = false
 				});
 		},
+		rejectTask(task) {
+			this.$toast.info(`Task "${task.name}" has been rejected.`);
+			this.suggestedTasks = this.suggestedTasks.filter(t => t !== task);
+		},
 		approveTask(task) {
 			const assignee = this.projectMembers.find(member => member.name === task.assignee);
 			if (!assignee) {
@@ -216,7 +229,6 @@ export default {
 				return;
 			}
 
-			// Prepare task data to send to the backend
 			const taskData = {
 				name: task.name,
 				description: task.description || "",
@@ -225,7 +237,6 @@ export default {
 				project_id: this.project.id,
 			};
 
-			// Call the API to approve the task
 			this.isLoading = true;
 			AIClient.approveTask(taskData)
 				.then(() => {
@@ -252,16 +263,15 @@ export default {
 				});
 		},
 		fetchAttachment(id) {
-			ProjectClient.fetchAttachment(id)  // Call the API to fetch attachment details
+			ProjectClient.fetchAttachment(id)
 				.then((response) => {
-					this.attachment = response.data;  // Store attachment details
+					this.attachment = response.data;
 				})
 				.catch((error) => {
 					console.error("Error fetching attachment:", error);
 				});
 		},
 		getFileName(filePath) {
-		// Extract the file name from the file path
 			return filePath.split('/').pop();
 		},
 		getRoleName(roleId) {
