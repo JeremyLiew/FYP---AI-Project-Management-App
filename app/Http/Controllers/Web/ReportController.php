@@ -15,6 +15,8 @@ use App\Models\UserTaskMapping;
 use App\Models\AIFeedback;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Mail\ProjectReportMail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ReportController extends Controller
@@ -42,31 +44,41 @@ class ReportController extends Controller
     
     public function getExpenseCategoryData(Request $request)
     {
-        // Fetch expense categories
-        $categories = ExpenseCategory::all();
-
-        // Prepare data for chart
+        $userId = $request->input('userId');
+        
+        // Fetch projects associated with the user through UserProjectMapping
+        $projects = Project::whereHas('userProjectMappings', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->with('tasks')->get();
+        
         $chartData = [];
-        foreach ($categories as $category) {
-            $expenses = Expense::where('expense_category_id', $category->id)
-                ->selectRaw('DATE(date_incurred) as date, SUM(amount) as total')
-                ->groupBy('date')
-                ->orderBy('date', 'asc')
-                ->get();
-
-            $chartData[] = [
-                'category' => $category->name,
-                'data' => $expenses->map(function ($expense) {
-                    return [
-                        'date' => $expense->date,
-                        'total' => $expense->total,
+        
+        // Loop through each project
+        foreach ($projects as $project) {
+            $projectId = $project->id;
+    
+            // Fetch all tasks related to the current project
+            $tasks = Task::where('project_id', $projectId)->get();
+    
+            // Loop through each task to get the related expenses
+            foreach ($tasks as $task) {
+                // Fetch expenses related to the current task
+                $expenses = Expense::where('task_id', $task->id)
+                    ->select('name as expense_name', 'amount as expense_value') // Fetch only expense name and amount
+                    ->get();
+    
+                // Add each expense related to the task to chart data
+                foreach ($expenses as $expense) {
+                    $chartData[] = [
+                        'expense_name' => $expense->expense_name, // Expense name
+                        'expense_value' => $expense->expense_value, // Expense value
                     ];
-                })->toArray(),
-            ];
+                }
+            }
         }
-
-        return response()->json($chartData);
-    }
+        
+        return response()->json($chartData); // Return the data in JSON format
+    }    
 
     public function getPerformanceData(Request $request)
     {
@@ -212,50 +224,195 @@ class ReportController extends Controller
         $format = $request->input('format');
     
         // Validate the format
-        if (!in_array($format, ['txt', 'pdf', 'docx'])) {
+        if (!in_array($format, ['txt', 'pdf', 'csv'])) {
             return response()->json(['error' => 'Unsupported format'], 400);
         }
     
         $project = Project::findOrFail($id);
     
         // Prepare the content to be downloaded
-        $content = $this->generateHumanReadableContent($project);
+        $content = $this->generateHumanReadableContent($id);
     
         if ($format === 'txt') {
-            return response($content)
-                ->header('Content-Type', 'text/plain')
-                ->header('Content-Disposition', 'attachment; filename="project_' . $id . '_details.txt"');
-        } elseif ($format === 'docx') {
-            // Create a new Word document using PHPWord
-            $phpWord = new PhpWord();
-            $section = $phpWord->addSection();
+            return response()->download($content, 'project_' . $project->name . '_details.txt')->deleteFileAfterSend(true);
+        } elseif ($format === 'csv') {
+
+            $project = Project::with(['budget'])->findOrFail($id);
+
+            // Fetch tasks by project ID
+            $tasks = Task::where('project_id', $id)->get();
+        
+            // Fetch expenses by project ID
+            $expenses = Expense::where('project_id', $id)->get();
+
+            // Fetch expense categories based on expense IDs
+            $expenseCategoryIds = $expenses->pluck('expense_category_id');
+            $expenseCategories = ExpenseCategory::whereIn('id', $expenseCategoryIds)->get();
+
+            // Generate CSV content
+            $csvFileName = 'project_' . $project->name . '_details.csv';
+            $filePath = storage_path('app/' . $csvFileName);
     
-            // Add content to the Word document
-            $section->addText('Project Name: ' . $project->name);
-            $section->addText('Project Description: ' . $project->description);
+            $file = fopen($filePath, 'w');
     
+            // Add headers to the CSV file
+            fputcsv($file, ['Field', 'Value']);
     
-            // Save the document as DOCX
-            $fileName = 'project_' . $id . '_details.docx';
-            $filePath = storage_path('app/public/' . $fileName);
-            $phpWord->save($filePath);
+            // Add Project Details
+            fputcsv($file, ['Project']);
+            fputcsv($file, ['Project Name', $project->name]);
+            fputcsv($file, ['Description', $project->description ?? 'N/A']);
+            fputcsv($file, ['Start Date', $project->start_date ?? 'N/A']);
+            fputcsv($file, ['End Date', $project->end_date ?? 'N/A']);
+            fputcsv($file, ['Status', $project->status]);
+            fputcsv($file, ['Priority', $project->priority ?? 'N/A']);
+            fputcsv($file, ['----------------']);
     
-            // Return the DOCX file as a download response
-            return response()->download($filePath, $fileName)->deleteFileAfterSend(true);
+            // Add Budget Details
+            fputcsv($file, ['Budget']);
+            fputcsv($file, ['Budget Name', $project->budget ? $project->budget->name : 'No budget assigned']);
+            fputcsv($file, ['Total Budget', $project->budget ? $project->budget->total_budget : 'N/A']);
+            fputcsv($file, ['Remaining Amount', $project->budget ? $project->budget->remaining_amount : 'N/A']);
+            fputcsv($file, ['----------------']);
+    
+            // Add Task Details
+            if ($tasks->isNotEmpty()) {
+                fputcsv($file, ['Tasks']);
+                foreach ($tasks as $task) {
+                    fputcsv($file, ['Task Name', $task->name]);
+                    fputcsv($file, ['Description', $task->description ?? 'N/A']);
+                    fputcsv($file, ['Due Date', $task->due_date ?? 'N/A']);
+                    fputcsv($file, ['Status', $task->status]);
+                    fputcsv($file, ['Priority', $task->priority]);
+                    fputcsv($file, ['----------------', '']);
+                }
+            } else {
+                fputcsv($file, ['Tasks', 'No tasks assigned to this project.']);
+            }
+    
+            // Add Expense Details
+            if ($expenses->isNotEmpty()) {
+                fputcsv($file, ['Expenses']);
+                foreach ($expenses as $expense) {
+                    fputcsv($file, ['Expense Name', $expense->name]);
+                    fputcsv($file, ['Amount', $expense->amount]);
+                    fputcsv($file, ['Date Incurred', $expense->date_incurred]);
+                    fputcsv($file, ['Description', $expense->description ?? 'N/A']);
+                    fputcsv($file, ['Category', $expense->expenseCategory->name ?? 'N/A']);
+                    fputcsv($file, ['----------------', '']);
+                }
+            } else {
+                fputcsv($file, ['Expenses', 'No expenses recorded for this project.']);
+            }
+    
+            fclose($file);
+    
+            // Return the CSV file as a download response
+            return response()->download($filePath, $csvFileName)->deleteFileAfterSend(true);
         }
     
         return response()->json(['error' => 'Unsupported format'], 400);
     }
 
-
     // Helper function to generate human-readable content
-    private function generateHumanReadableContent($project)
+    private function generateHumanReadableContent($id)
     {
-        // Format the content for TXT or HTML (for PDF)
-        $content = "Project Name: " . $project->name . "\n";
-        $content .= "Project Description: " . $project->description . "\n";
-        
-        return $content;
+        $project = Project::with([ 'budget'])
+            ->findOrFail($id);
+
+        // Fetch tasks by project ID
+        $tasks = Task::where('project_id', $id)->get();
+    
+        // Fetch expenses by project ID
+        $expenses = Expense::where('project_id', $id)->get();
+    
+        // Fetch expense categories based on expense IDs
+        $expenseCategoryIds = $expenses->pluck('expense_category_id');
+        $expenseCategories = ExpenseCategory::whereIn('id', $expenseCategoryIds)->get();
+    
+        // Start formatting the content for TXT
+        $content = "Project Details\n";
+        $content .= "================\n";
+        $content .= "Project Name: " . $project->name . "\n";
+        $content .= "Description: " . ($project->description ?? 'N/A') . "\n";
+        $content .= "Start Date: " . ($project->start_date ?? 'N/A') . "\n";
+        $content .= "End Date: " . ($project->end_date ?? 'N/A') . "\n";
+        $content .= "Status: " . $project->status . "\n";
+        $content .= "Priority: " . ($project->priority ?? 'N/A') . "\n\n";
+    
+        // Add Budget details
+        $content .= "\nBudget Details\n";
+        $content .= "================\n";
+        if ($project->budget) {
+            $content .= "Budget Name: " . $project->budget->name . "\n";
+            $content .= "Total Budget: " . $project->budget->total_budget . "\n";
+            $content .= "Remaining Amount: " . $project->budget->remaining_amount . "\n\n";
+        } else {
+            $content .= "No budget assigned to this project.\n";
+        }
+    
+        // Add Task details
+        $content .= "\nTask Details\n";
+        $content .= "================\n";
+        if ($tasks->isNotEmpty()) {
+            foreach ($tasks as $task) {
+                $content .= "Task Name: " . $task->name . "\n";
+                $content .= "Description: " . ($task->description ?? 'N/A') . "\n";
+                $content .= "Due Date: " . ($task->due_date ?? 'N/A') . "\n";
+                $content .= "Status: " . $task->status . "\n";
+                $content .= "Priority: " . $task->priority . "\n";
+                $content .= "----------------\n";
+            }
+        } else {
+            $content .= "No tasks assigned to this project.\n";
+        }
+    
+        // Add Expense details
+        $content .= "\nExpense Details\n";
+        $content .= "================\n";
+        if ($expenses->isNotEmpty()) {
+            foreach ($expenses as $expense) {
+                $content .= "Expense Name: " . $expense->name . "\n";
+                $content .= "Amount: " . $expense->amount . "\n";
+                $content .= "Date Incurred: " . $expense->date_incurred . "\n";
+                $content .= "Description: " . ($expense->description ?? 'N/A') . "\n";
+                $content .= "Category: " . ($expense->expenseCategory->name ?? 'N/A') . "\n";
+                $content .= "----------------\n";
+            }
+        } else {
+            $content .= "No expenses recorded for this project.\n\n";
+        }
+    
+        // Write content to a TXT file
+        $filePath = storage_path('app/public/project_' . $project->name . '_details.txt');
+        file_put_contents($filePath, $content);
+    
+        return $filePath;
     }
+    
+    public function sendProjectReportToUser(Request $request)
+    {
+        $id = $request->input('projectId');
+        
+        // Get the format, default to 'txt'
+        $format = $request->input('format', 'txt');
+        
+        $project = Project::findOrFail($id);
+        
+        // Generate the report
+        $filePath = $this->generateHumanReadableContent($id);
+    
+        // Get the user email, assuming you want to send it to the project's assigned user
+        $user = $project->user; // Assuming 'user' is the relation to the user that is assigned to the project
+        if (!$user) {
+            return response()->json(['error' => 'No user assigned to this project'], 400);
+        }
+    
+        // Send the email with the generated report attached
+        Mail::to($user->email)->send(new ProjectDetailsReport($project, $filePath));
+    
+        return response()->json(['success' => 'Report sent successfully to ' . $user->email]);
+    }
+
 
 }

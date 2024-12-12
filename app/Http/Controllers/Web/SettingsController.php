@@ -15,6 +15,7 @@ class SettingsController extends Controller
         'theme' => 'nullable|in:light,dark',
         'time_format' => 'nullable|in:12h,24h', // Validate time format
         'date_format' => 'nullable|in:MM/DD/YYYY,DD/MM/YYYY,YYYY/MM/DD', // Validate date format
+        'email_time' => 'nullable|in:Weekly,Monthly', // Validate report email time
     ]);
 
     $user = auth()->user();
@@ -53,6 +54,15 @@ class SettingsController extends Controller
         Setting::updateOrCreate(
             ['user_id' => $user->id, 'key' => 'date_format'],
             ['value' => $validatedData['date_format']]
+        );
+    }
+    $email = $request->input('email_time');
+
+    // Update the report email time if provided
+    if (isset($validatedData['email_time'])) {
+        Setting::updateOrCreate(
+            ['user_id' => $user->id, 'key' => 'email_time'],
+            ['value' => $validatedData['email_time']]
         );
     }
 

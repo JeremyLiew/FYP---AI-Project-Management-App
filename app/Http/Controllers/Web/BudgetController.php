@@ -25,6 +25,10 @@ class BudgetController extends Controller
             $budgetsQuery->where('name', 'like', '%' . $searchQuery . '%');
         }
 
+        if ($statusFilter !== 'All') {
+            $budgetsQuery->orderBy('amount', 'desc');
+        }
+
         // Paginate results
         $budgets = $budgetsQuery->paginate($perPage);
 

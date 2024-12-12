@@ -4,77 +4,72 @@
 	  <div v-if="weatherData" class="sensor-grid">
 		
 		<!-- Light Intensity Card -->
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + lightIntensityBg + ')' }">
-		  <h3>Light Intensity</h3>
-		  <p>Status: {{ weatherData.Light?.Status }}</p>
-		  <p>Photometer: {{ weatherData.Light?.photometer }}</p>
+		<div class="sensor-card" :style="{ backgroundImage: lightIntensityBg }">
+			<h3>Light Intensity</h3>
+			<p>Status: {{ weatherData.Light?.Status }}</p>
+			<p>Photometer: {{ weatherData.Light?.photometer }}</p>
 		</div>
 	
 		<!-- Sound Intensity Card -->
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + soundIntensityBg + ')' }">
-		  <h3>Sound Intensity</h3>
-		  <p>{{ weatherData.soundIntensity }}</p>
-		</div>
-	
-		<!-- Ambient Temperature Card -->
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + ambientTemperatureBg + ')' }">
-		  <h3>Ambient Temperature</h3>
-		  <p>{{ weatherData.DHT?.temperature }}°C</p>
-		</div>
-	
-		<!-- Soil Moisture Card -->
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + soilMoistureBg + ')' }">
-		  <h3>Soil Moisture Level</h3>
-		  <p>{{ weatherData.DHT?.moisture }}</p>
-		</div>
-	
-		<!-- Touch Detection Card -->
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + touchDetectionBg + ')' }">
-		  <h3>Touch Detection</h3>
-		  <p>{{ weatherData.touchDetection }}</p>
-		</div>
-	
-		<!-- Water Level Card -->
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + waterLevelBg + ')' }">
-		  <h3>Water Level</h3>
-		  <p>{{ weatherData.waterLevel }}</p>
-		</div>
-	
-		<!-- Distance Measurement Card -->
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + distanceMeasurementBg + ')' }">
-		  <h3>Distance Measurement</h3>
-		  <p>{{ weatherData.distanceMeasurement }}</p>
-		</div>
-	
-		<!-- Air Quality Index Card -->
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + airQualityBg + ')' }">
-		  <h3>Air Quality Index</h3>
-		  <p>Quality: {{ weatherData.AirQuality?.Quality }}</p>
-		  <p>Type: {{ weatherData.AirQuality?.Type }}</p>
-		</div>
-	
-		<!-- RFID Card -->
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + rfidBg + ')' }">
-		  <h3>RFID</h3>
-		  <p>{{ weatherData.rfid }}</p>
-		</div>
-	
-		<!-- Motion Detection Card -->
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + motionDetectionBg + ')' }">
-		  <h3>Motion Detection</h3>
-		  <p>Status: {{ weatherData.Infrared?.Status }}</p>
-		  <p>Movement: {{ weatherData.Infrared?.movement }}</p>
-		</div>
-	
-		<!-- Humidity Card -->
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + humidityBg + ')' }">
-		  <h3>Humidity</h3>
-		  <p>{{ weatherData.DHT?.humidity }}%</p>
+		<div class="sensor-card" :style="{ backgroundImage: soundIntensityBg }">
+		<h3>Sound Intensity</h3>
+		<p>Noise: {{ weatherData.Sound?.Noise }}</p>
+		<p>Decibel: {{ weatherData.Sound?.decibel }}</p>
 		</div>
 
-		<div class="sensor-card" :style="{ backgroundImage: 'url(' + TimeBg + ')' }">
-		  <h3>Time</h3>
-		  <p>{{ weatherData.humidity }}</p>
+		<!-- Ambient Temperature Card -->
+		<div class="sensor-card" :style="{ backgroundImage: ambientTemperatureBg }">
+		<h3>Ambient Temperature</h3>
+		<p>{{ weatherData.DHT?.temperature }}°C</p>
+		</div>
+
+		<!-- Soil Moisture Card -->
+		<div class="sensor-card" :style="{ backgroundImage: soilMoistureBg }">
+		<h3>Soil Moisture Level</h3>
+		<p>{{ weatherData.DHT?.moisture }}</p>
+		</div>
+
+		<!-- Water Level Card -->
+		<div class="sensor-card" :style="{ backgroundImage: waterLevelBg }">
+		<h3>Water Level</h3>
+		<p>Level: {{ weatherData.WaterLevel?.Level }}</p>
+		<p>Status: {{ weatherData.WaterLevel?.Status }}</p>
+		</div>
+
+		<!-- Distance Measurement Card -->
+		<div class="sensor-card" :style="{ backgroundImage: distanceMeasurementBg }">
+		<h3>Car Detection</h3>
+		<p>Distance: {{ weatherData.Ultrasonic?.Distance }}</p>
+		<p>Status: {{ weatherData.Ultrasonic?.Status }}</p>
+		</div>
+
+		<!-- RFID Card -->
+		<div class="sensor-card" :style="{ backgroundImage: rfidBg }">
+		<h3>RFID</h3>
+		<p>Card ID: {{ weatherData.RFID?.CardId }}</p>
+		<p>Member: {{ weatherData.RFID?.Member }}</p>
+		</div>
+
+		<!-- Motion Detection Card -->
+		<div class="sensor-card" :style="{ backgroundImage: motionDetectionBg }">
+		<h3>Motion Detection</h3>
+		<p>Status: {{ weatherData.Infrared?.Status }}</p>
+		</div>
+
+		<!-- Humidity Card -->
+		<div class="sensor-card" :style="{ backgroundImage: humidityBg }">
+		<h3>Humidity</h3>
+		<p>{{ weatherData.DHT?.humidity }}%</p>
+		</div>
+
+		<!-- Touch Detection Card -->
+		<div class="sensor-card" :style="{ backgroundImage: touchDetectionBg }">
+		<h3>Touch Detection</h3>
+		<p>
+			{{ weatherData.Touch?.Quantity === 1 ? 'Visitor' : weatherData.Touch?.Quantity === 3 ? 'Delivery' : 'Unknown' }}
+		</p>
+		<h3>Previous Order</h3>
+		<p>{{ weatherData.Touch?.status }}</p>
 		</div>
 
 	  </div>
@@ -111,9 +106,8 @@ export default {
       distanceMeasurementBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjY3czl1MXg1cW5nc3B4N21nb3E3bmFzNmRwc3R5NmhoaWR0cWdheSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/T75GIRuXazJ4oHmE4Y/giphy.gif",
       airQualityBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcTc4dGc4dDE5NGlrc3l3a3Q3bjNlMWVwYTRlZms5YXBzeDdqOXlmOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KpAPQVW9lWnWU/giphy.gif",
       rfidBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWg3dno0bTlndTVrOXhheDRmNXhidWEwcWtldXI5NzRqejBrOWJsMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o85xvAaEm8nPHWMco/giphy.gif",
-      motionDetectionBg: "https://path-to-your-motion-detection-gif.gif",
+      motionDetectionBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTh2Y2Z6cW5neHJidTA2cmEwcGYzemtqZjRoeWk5YXUxdG1wd2lmciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0EwYRXhyq1rpn4Gc/giphy.gif",
       humidityBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2h1YTl2czkwZWJlbWZuNGc4ZXlydnJ1MWpjbmw1NGh4M3VqamtldiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RK8K5c6tuPUsjEAL80/giphy.gif",
-	  TimeBg: "https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExb25mcmdoeDQzYmFkZXE2ejV1a2k1MDJwOXNxc2ZieXVjcnVwdnl1dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0NwSvw3kQWZuUW8E/giphy.gif",
     };
   },
   mounted() {
@@ -122,6 +116,75 @@ export default {
       console.log("Realtime Data:", data);
       this.weatherData = data;
     });
+  },
+  computed: {
+	lightIntensityBg() {
+		const status = this.weatherData.Light?.Status;
+		if (status === 'rain') {
+		return 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcXE2Y3UzZWNtenJ3NzM0anNhOGh5bjRpNWo3Z2hheDdmcnJxNTVqdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/9UhZtQ3hl2TEuCGeC1/giphy.gif)'; 
+		}
+		return 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExODVpazEzcjk0eHM4NTd3OXU1YXIxNGNzcTBvMjg1MGM0bHMxcmZqMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/49VB0PHxR5Vsc/giphy.gif)'; // Replace with the original image path
+	},
+	soundIntensityBg() {
+    const noiseLevel = this.weatherData.Sound?.Noise;
+    return noiseLevel === 'high'
+      ? 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNG9iM3FvN25wa3R6MDF2NjJrbTJxb3FnbGxkcjFrNXFvdzlhdWVhbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/QFuBzoQdijNFztFEp6/giphy.gif)'
+      : 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmJvcW52dXN1czh0ZTVobmNsdHZnc3FkZmU3MWJnMXQwd2Qyb3VhbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/A7XLVY8QoE3n8KzpjP/giphy.gif)';
+	},
+	ambientTemperatureBg() {
+		const temperature = this.weatherData.DHT?.temperature;
+		if(temperature > 40){
+			return 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW5kdzg4c3Yxb21zemg5eTR5ZmFkdWl0MHVjd2ZlOWp2Y3I1ZmhwZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/17bvpzBFFQ5Xi/giphy.gif)';
+		}else if(temperature > 25 && temperature < 40){
+			return 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHpmOWN3MzQ3YTIxcjZiNDNqeXRyMnRyanlvZ3p5aG83bm4xNzJuOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/UVBBpNIOsbfuu3Uufx/giphy.gif)';
+		}else if(temperature < 25) {
+			return 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbzRreXEzdXptczRpNDZpdnE0djZteGhpMXZtMnB4NnRxZnJkbzFjdCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/s4Bi420mMDRBK/giphy.gif)';
+		}
+	},
+	soilMoistureBg() {
+		const moisture = this.weatherData.DHT?.moisture;
+		return moisture < 20
+		? 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdjMwbTZyZHY2cG4xd25xOTM1Y3d0a25nMjFneXk2aTEyOHNmdnl3YyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/azdENk47bR7iGPTtXf/giphy.gif)'
+		: 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExenc1cm1lanFiZG03aWU3bWluNWlzdjgwZnQxcWF1M3JpOG9tY2g1OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/fYYpNdX624AAU/giphy.gif)';
+	},
+	waterLevelBg() {
+		const waterStatus = this.weatherData.WaterLevel?.Status;
+		return waterStatus === 'damage'
+		? 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdXRrd205Yjl2bTR4YXp6aWFvY3lvZXB2cTYyaXhzNTF0NXBieHYwOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/lNQ2RRsEfJqbjg1i0I/giphy.gif)'
+		: 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2xmdjVnbmphM3J5dGxlZXVtYTR1M3d0azBjYm5reWltMHA2YTc1ayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/h7uFKaf3xMFAsCJ6Ib/giphy.gif)';
+	},
+	distanceMeasurementBg() {
+		const distance = this.weatherData.Ultrasonic?.Distance;
+		return distance < 200
+		? 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjY3czl1MXg1cW5nc3B4N21nb3E3bmFzNmRwc3R5NmhoaWR0cWdheSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/T75GIRuXazJ4oHmE4Y/giphy.gif)'
+		: 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNmxpY2sxYzgyaTE5d2Z6N2tvdTFxbzR6OW80cHB5NXcxejduZjB0biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ulxHhvKW9X6459dtOn/giphy.gif)';
+	},
+	rfidBg() {
+		const member = this.weatherData.RFID?.Member;
+		return member === 'boss'
+		? 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWg3dno0bTlndTVrOXhheDRmNXhidWEwcWtldXI5NzRqejBrOWJsMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o85xvAaEm8nPHWMco/giphy.gif)'
+		: 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZmU5d242YzM2aW00ZGlpZnE2azhia24xemtjaGVhZzMyOG5lcWFrMiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKFTNdu9nHbBUju/giphy.gif)';
+	},
+	motionDetectionBg() {
+		const motionStatus = this.weatherData.Infrared?.Status;
+		return motionStatus === 'detected'
+		? 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZTh2Y2Z6cW5neHJidTA2cmEwcGYzemtqZjRoeWk5YXUxdG1wd2lmciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0EwYRXhyq1rpn4Gc/giphy.gif)'
+		: 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHFsdDFpczBiZ3d4YjZpeTZmczhjMm54YThibnlqejFranRja2hwaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/11ISwbgCxEzMyY/giphy.gif)';
+	},
+	humidityBg() {
+		const humidity = this.weatherData.DHT?.humidity;
+		return humidity > 50
+		? 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExY2h1YTl2czkwZWJlbWZuNGc4ZXlydnJ1MWpjbmw1NGh4M3VqamtldiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RK8K5c6tuPUsjEAL80/giphy.gif)'
+		: 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNWU0dmNrY3Mwb2R5ZHZibm9qd3ZvN3R5Z3liejN1Zmg5bDhoY20wOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/U3O6bnlgwdK5nj5Lrf/giphy.gif)';
+	},
+	touchDetectionBg() {
+		const quantity = this.weatherData.Touch?.Quantity;
+		if (quantity === 1) {
+		return 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnY3aHh6bG8yd2o4dzdyeGI2NWVoczdoOXd0Yms2aXNudHJ4MHZ1eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/DUmO07yBNdRCcLv0xM/giphy.gif)'
+		} else if (quantity === 3) {
+		return 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDcxdmtiejd6Y2hlcmxyNG1nazdycXY3dTB1bHVxMnFqemZkejNsayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/9DgxhWOxHDHtF8bvwl/giphy-downsized-large.gif)';
+		} 
+  	},
   },
   methods: {
     // Fetch data from Firebase (one-time fetch)

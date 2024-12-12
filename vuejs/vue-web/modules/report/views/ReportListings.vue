@@ -1,12 +1,5 @@
 <template>
 	<div>
-		<h3>AI Feedback</h3>
-		<div v-if="aiFeedback">
-			<p><strong>Rating:</strong> {{ aiFeedback.rating }} / 5</p>
-			<p><strong>Feedback:</strong> {{ aiFeedback.feedback }}</p>
-			<p><strong>AI Model:</strong> {{ aiFeedback.ai_model }}</p>
-		</div>
-		<p v-else>No AI feedback available</p>
 
 		<h3>Projects</h3>
 		<table v-if="projects.length > 0" class="table table-dark table-bordered">
@@ -67,8 +60,8 @@
 
 		<div class="charts-container">
 			<div class="chart-item">
-				<h3>Expenses by Category</h3>
-				<canvas id="expenseCategoryChart"></canvas>
+				<h3>Expenses by you</h3>
+				<canvas id="expenseChart"></canvas>
 			</div>
 			
 			<div class="chart-item">
@@ -105,7 +98,6 @@ export default {
 		this.fetchProjectsAndTasks();
 		this.fetchExpenseCategoryData();
 		this.fetchPerformanceData();
-		// this.fetchAiFeedback();
 	},
 	methods: {
 		fetchProjectsAndTasks() {
@@ -157,61 +149,84 @@ export default {
 			this.$router.push({ name: "team-report-page", params: { id: projectId } });
 		},
 		fetchExpenseCategoryData() {
-		ReportClient.getExpenseCategoryData()
-			.then((response) => {
-			const rawData = response.data;
-			const labels = rawData.map((categoryData) => categoryData.category);
-			const data = rawData.map((categoryData) =>
-				categoryData.data.reduce((sum, d) => sum + d.total, 0)
-			);
-			this.renderExpenseCategoryChart(labels, data);
-			})
-			.catch((error) => {
-			console.error("Error fetching expense category data:", error);
-			});
+			const payload = {
+				userId: this.userId,
+			};
+
+			ReportClient.getExpenseCategoryData(payload)  // Use the updated endpoint
+				.then((response) => {
+					const rawData = response.data;
+					console.log(rawData);
+
+					// Group expenses by expense_name
+					const groupedExpenses = rawData.reduce((acc, expense) => {
+						const expenseName = expense.expense_name;  // Group by expense_name
+						
+						if (!acc[expenseName]) {
+							acc[expenseName] = {
+								expenseName: expense.expense_name,  // Expense name
+								totalAmount: 0
+							};
+						}
+
+						// Add the expense amount to the total for this expense_name
+						acc[expenseName].totalAmount += parseFloat(expense.expense_value); // Using 'expense_value'
+
+						return acc;
+					}, {});
+
+					// Extract the labels (expense names) and the summed amounts
+					const expenseNames = Object.values(groupedExpenses).map((group) => group.expenseName);
+					const summedAmounts = Object.values(groupedExpenses).map((group) => group.totalAmount);
+
+					this.renderExpenseChart(expenseNames, summedAmounts);  // Render the chart with aggregated data
+				})
+				.catch((error) => {
+					console.error("Error fetching expenses:", error);
+				});
 		},
-		renderExpenseCategoryChart(labels, data) {
-		const ctx = document.getElementById("expenseCategoryChart").getContext("2d");
-		new Chart(ctx, {
-			type: "doughnut",  // Change to doughnut chart
-			data: {
-			labels,
-			datasets: [
-				{
-				data,
-				backgroundColor: labels.map(() => this.getRandomColor()),
-				},
-			],
-			},
-			options: {
-			responsive: true,
-			cutoutPercentage: 50,  // Adjust the size of the hole (50 is a typical value)
-			plugins: {
-				legend: {
-				position: "top",
-				},
-				tooltip: {
-				callbacks: {
-					label: function (tooltipItem) {
-						let value = tooltipItem.raw;
-              
-					// Ensure the value is a number before using toFixed
-					value = Number(value); // Convert to number if it's not already
 
-					if (isNaN(value)) {
-						return `${tooltipItem.label}: Invalid Value`; // In case the value isn't valid
-					}
+		renderExpenseChart(expenseNames, expenseValues) {
+			const ctx = document.getElementById("expenseChart").getContext("2d");
+			new Chart(ctx, {
+				type: "doughnut",  // Doughnut chart type
+				data: {
+					labels: expenseNames,  // Expense names as labels
+					datasets: [
+						{
+							data: expenseValues,  // Sum of expenses for each category
+							backgroundColor: expenseNames.map(() => this.getRandomColor()),  // Random color for each segment
+						},
+					],
+				},
+				options: {
+					responsive: true,
+					cutoutPercentage: 50,  // Adjust the size of the hole in the doughnut chart
+					plugins: {
+						legend: {
+							position: "top",  // Position of the legend
+						},
+						tooltip: {
+							callbacks: {
+								label: function (tooltipItem) {
+									let value = tooltipItem.raw;
+									value = Number(value);  // Ensure value is a number
 
-					// Format value as currency with RM and 2 decimal places
-					const formattedValue = `RM ${value >= 1000 ? value.toFixed(4) : value.toFixed(2)}`;
-					return `${tooltipItem.label}: ${formattedValue}`;
+									if (isNaN(value)) {
+										return `${tooltipItem.label}: Invalid Value`;
+									}
+
+									// Format value as currency (RM)
+									const formattedValue = `RM ${value >= 1000 ? value.toFixed(4) : value.toFixed(2)}`;
+									return `${tooltipItem.label}: ${formattedValue}`;
+								},
+							},
+						},
 					},
 				},
-				},
-			},
-			},
-		});
+			});
 		},
+
 		// Fetch performance data for Project and Task
 		fetchPerformanceData() {
 			const payload = {
@@ -307,20 +322,6 @@ export default {
 				color += letters[Math.floor(Math.random() * 16)];
 			}
 			return color;
-		},
-		fetchAiFeedback() {
-			const payload = {
-				userId: this.userId,
-			};
-		// Replace with your actual API call to fetch the AI feedback
-		ReportClient.fetchAiFeedback(payload)
-			.then((response) => {
-			// Assuming the response contains the AI feedback data
-			this.aiFeedback = response.data;  // Store the feedback
-			})
-			.catch((error) => {
-			console.error("Error fetching AI feedback:", error);
-			});
 		},
 	},
 };

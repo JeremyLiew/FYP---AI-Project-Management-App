@@ -16,7 +16,7 @@
     <!-- New buttons for download -->
     <div class="download-buttons">
       <button @click="downloadProjectDetails('txt')" class="btn-primary">Download as TXT</button>
-      <button @click="downloadProjectDetails('docx')" class="btn-primary">Download as DOCX</button>
+      <button @click="downloadProjectDetails('csv')" class="btn-primary">Download as CSV</button>
     </div>
 </div>
 </template>

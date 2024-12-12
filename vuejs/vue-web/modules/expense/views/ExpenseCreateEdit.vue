@@ -52,14 +52,15 @@
 					<!-- Project Selection -->
 					<v-col cols="12" md="6">
 						<v-select
-							v-model="expense.project_id"
-							:items="projects"
-							item-title="name"
-							item-value="id"
-							label="Select Project *"
-							required
-							outlined
-							:error-messages="errors.project_id"
+						v-model="expense.project_id"
+						:items="projects"
+						item-title="name"
+						item-value="id"
+						label="Select Project *"
+						required
+						outlined
+						@change="filterTasksByProject" 
+						:error-messages="errors.project_id"
 						></v-select>
 					</v-col>
 					<!-- Expense Category Selection -->
@@ -149,6 +150,7 @@ export default {
 			projects: [], // List of projects
 			expenseCategories: [], // List of expense categories
 			tasks: [], // List of tasks
+			taskByProject:[],
 			budgets: [],
 		};
 	},
@@ -163,7 +165,8 @@ export default {
 		this.fetchExpenseCategories();
 		this.fetchTasks();
 		this.fetchBudgets();
-
+		console.log('Selected Project ID:', this.expense.project_id);  // Check if project ID is selected
+		console.log('All Tasks:', this.budgets); // Check all tasks available
 
 		if (this.isEdit) {
 			const expenseId = this.$route.params.id;
@@ -249,6 +252,7 @@ export default {
 			ExpenseClient.fetchTasks()
 				.then((response) => {
 					this.tasks = response.data.tasks;
+					this.taskByProject = response.data.tasks; 
 				})
 				.catch((error) => {
 					console.error("Error fetching tasks:", error);
@@ -264,7 +268,11 @@ export default {
 				});
 		},
 		filterTasksByProject() {
-			this.tasks = this.allTasks.filter(task => task.project_id === this.expense.project_id);
+		console.log('Selected Project ID:', this.expense.project_id);  // Check if project ID is selected
+		console.log('All Tasks:', this.allTasks); // Check all tasks available
+		
+		this.tasks = this.allTasks.filter(task => task.project_id === this.expense.project_id);
+		console.log('Filtered Tasks:', this.tasks);  // Check filtered tasks
 		},
 	},
 };

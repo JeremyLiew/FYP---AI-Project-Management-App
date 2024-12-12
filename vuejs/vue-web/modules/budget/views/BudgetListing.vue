@@ -16,6 +16,17 @@
 					@input="fetchBudgets"
 				></v-text-field>
 			</v-col>
+			<v-col cols="12" md="6">
+					<v-select
+						v-model="selectedFilter"
+						:items="filters"
+						label="Filter by Status"
+						placeholder="Select a filter"
+						clearable
+						outlined
+						dense
+					></v-select>
+			</v-col>
 			<v-col v-if="isAuthorized" cols="12" class="d-flex justify-end">
 				<v-btn depressed @click="createBudget">Create Budget</v-btn>
 			</v-col>
@@ -108,7 +119,7 @@
 			<!-- Show No Users Image -->
 			<v-row class="justify-center">
 				<v-col cols="12" class="text-center">
-					<img src="/images/no-product-available.png" alt="No budgets available" class="my-4" />
+					<img src="/images/budget.png" alt="No budgets available" class="my-4" />
 					<p>No budgets available.</p>
 				</v-col>
 			</v-row>
