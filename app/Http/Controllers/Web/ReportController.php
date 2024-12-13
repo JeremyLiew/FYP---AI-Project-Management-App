@@ -400,4 +400,18 @@ class ReportController extends Controller
 
         return $filePath;
     }
+
+    public function fetchProject($id)
+    {
+        // Fetch the project
+        $project = Project::find($id);
+
+        // Check if the project exists
+        if (!$project) {
+            return response()->json(['error' => 'Project not found'], 404);
+        }
+
+        // Return the project as JSON
+        return response()->json($project);
+    }
 }
