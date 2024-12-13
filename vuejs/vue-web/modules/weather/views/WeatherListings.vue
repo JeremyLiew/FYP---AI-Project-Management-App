@@ -46,7 +46,7 @@
 		<div class="sensor-card" :style="{ backgroundImage: touchDetectionBg }">
 		<h3>Touch Detection</h3>
 		<p>
-			{{ weatherData.Touch?.Quantity === 1 ? 'Visitor' : weatherData.Touch?.Quantity === 3 ? 'Delivery' : 'Unknown' }}
+			{{ weatherData.Touch?.Quantity === 1 ? 'Visitor' : weatherData.Touch?.Quantity === 3 ? 'Free' : 'Unknown' }}
 		</p>
 		</div>
 
