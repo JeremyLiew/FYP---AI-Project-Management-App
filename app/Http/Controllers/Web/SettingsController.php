@@ -13,8 +13,8 @@ class SettingsController extends Controller
     $validatedData = $request->validate([
         'timezone' => 'nullable|timezone',
         'theme' => 'nullable|in:light,dark',
-        'time_format' => 'nullable|in:12h,24h', // Validate time format
-        'date_format' => 'nullable|in:MM/DD/YYYY,DD/MM/YYYY,YYYY/MM/DD', // Validate date format
+        'time_format' => 'nullable|in:12h,24h',
+        'date_format' => 'nullable|in:MM/DD/YYYY,DD/MM/YYYY,YYYY/MM/DD',
     ]);
 
     $user = auth()->user();
