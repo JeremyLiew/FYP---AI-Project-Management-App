@@ -18,7 +18,7 @@ class CreateExpenseRequest extends FormRequest
             'expense_category_id' => 'required|exists:expense_categories,id', // Must reference an existing expense category
             'project_id' => 'nullable|exists:projects,id', // Optional, but must reference an existing project
             'task_id' => 'nullable|exists:tasks,id', // Optional, but must reference an existing task
-            'amount' => 'required|numeric|min:0', // Amount is required and must be positive
+            'amount' => 'required|numeric|min:1', // Amount is required and must be positive
             'description' => 'nullable|string', // Optional description
             'date_incurred' => 'required|date',
 

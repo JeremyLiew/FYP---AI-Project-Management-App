@@ -390,30 +390,20 @@ class ReportController extends Controller
     
         return $filePath;
     }
-    
-    public function sendProjectReportToUser(Request $request)
+
+    public function fetchProject($projectId)
     {
-        $id = $request->input('projectId');
-        
-        // Get the format, default to 'txt'
-        $format = $request->input('format', 'txt');
-        
-        $project = Project::findOrFail($id);
-        
-        // Generate the report
-        $filePath = $this->generateHumanReadableContent($id);
+        // Fetch the project by its ID
+        $project = Project::find($projectId);
     
-        // Get the user email, assuming you want to send it to the project's assigned user
-        $user = $project->user; // Assuming 'user' is the relation to the user that is assigned to the project
-        if (!$user) {
-            return response()->json(['error' => 'No user assigned to this project'], 400);
+        // Check if the project exists
+        if (!$project) {
+            return response()->json(['error' => 'Project not found'], 404);
         }
     
-        // Send the email with the generated report attached
-        Mail::to($user->email)->send(new ProjectDetailsReport($project, $filePath));
-    
-        return response()->json(['success' => 'Report sent successfully to ' . $user->email]);
+        // Return the project as JSON
+        return response()->json($project);
     }
-
+    
 
 }

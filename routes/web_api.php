@@ -133,6 +133,7 @@ Route::prefix('api')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/project-task/{id}', [ReportController::class, 'fetchProjectTasks']);
         Route::get('/task/{id}', [ReportController::class, 'fetchTaskStatus']);
         Route::get('/download', [ReportController::class, 'downloadProjectDetails']);
+        Route::get('/project/{id}', [ReportController::class, 'fetchProject']);
     });
 });
 

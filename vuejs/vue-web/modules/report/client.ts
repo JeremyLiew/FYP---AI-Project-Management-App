@@ -36,6 +36,10 @@ const ReportClient = {
 		return axios.get( prefix + "/download", { params: payload })
 	},
 
+	fetchProject(id){
+		return axios.get( prefix + "/project/" + id )
+	},
+
 }
 
 export default ReportClient;

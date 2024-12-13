@@ -10,12 +10,6 @@
 			<p>Photometer: {{ weatherData.Light?.photometer }}</p>
 		</div>
 	
-		<!-- Sound Intensity Card -->
-		<div class="sensor-card" :style="{ backgroundImage: soundIntensityBg }">
-		<h3>Sound Intensity</h3>
-		<p>Noise: {{ weatherData.Sound?.Noise }}</p>
-		<p>Decibel: {{ weatherData.Sound?.decibel }}</p>
-		</div>
 
 		<!-- Ambient Temperature Card -->
 		<div class="sensor-card" :style="{ backgroundImage: ambientTemperatureBg }">
@@ -40,20 +34,6 @@
 		<div class="sensor-card" :style="{ backgroundImage: distanceMeasurementBg }">
 		<h3>Car Detection</h3>
 		<p>Distance: {{ weatherData.Ultrasonic?.Distance }}</p>
-		<p>Status: {{ weatherData.Ultrasonic?.Status }}</p>
-		</div>
-
-		<!-- RFID Card -->
-		<div class="sensor-card" :style="{ backgroundImage: rfidBg }">
-		<h3>RFID</h3>
-		<p>Card ID: {{ weatherData.RFID?.CardId }}</p>
-		<p>Member: {{ weatherData.RFID?.Member }}</p>
-		</div>
-
-		<!-- Motion Detection Card -->
-		<div class="sensor-card" :style="{ backgroundImage: motionDetectionBg }">
-		<h3>Motion Detection</h3>
-		<p>Status: {{ weatherData.Infrared?.Status }}</p>
 		</div>
 
 		<!-- Humidity Card -->
@@ -68,8 +48,6 @@
 		<p>
 			{{ weatherData.Touch?.Quantity === 1 ? 'Visitor' : weatherData.Touch?.Quantity === 3 ? 'Delivery' : 'Unknown' }}
 		</p>
-		<h3>Previous Order</h3>
-		<p>{{ weatherData.Touch?.status }}</p>
 		</div>
 
 	  </div>
@@ -144,7 +122,7 @@ export default {
 	},
 	distanceMeasurementBg() {
 		const distance = this.weatherData.Ultrasonic?.Distance;
-		return distance < 200
+		return distance < 30
 		? 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjY3czl1MXg1cW5nc3B4N21nb3E3bmFzNmRwc3R5NmhoaWR0cWdheSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/T75GIRuXazJ4oHmE4Y/giphy.gif)'
 		: 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExNmxpY2sxYzgyaTE5d2Z6N2tvdTFxbzR6OW80cHB5NXcxejduZjB0biZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ulxHhvKW9X6459dtOn/giphy.gif)';
 	},

@@ -32,6 +32,7 @@
           projectId: 1, 
           expenses: [],
           tasks: [],
+          project: null, // Store project details here
         };
       },
       mounted() {
@@ -39,6 +40,7 @@
         this.fetchProjectExpenses();
         this.fetchProjectTasks();
         this.fetchTaskStatus();
+        this.fetchProject();
       },
       methods: {
         fetchProjectExpenses() {
@@ -249,6 +251,15 @@
             },
           });
         },
+        fetchProject() {
+          ReportClient.fetchProject(this.projectId) // Adjust to call the correct API method for fetching project data
+            .then((response) => {
+              this.project = response.data; // Save the project data
+            })
+            .catch((error) => {
+              console.error("Error fetching project:", error);
+            });
+        },
         downloadProjectDetails(format) {
           // Call backend to generate the requested file
           const payload = {
@@ -260,7 +271,7 @@
               const blob = new Blob([response.data], { type: response.headers['content-type'] });
               const link = document.createElement('a');
               link.href = URL.createObjectURL(blob);
-              link.download = `project_${this.projectId}_details.${format}`;
+              link.download = `project_${this.project.name}_details.${format}`;
               link.click();
             })
             .catch((error) => {

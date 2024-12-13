@@ -15,7 +15,7 @@ class CreateBudgetRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255', // Budget name is required
-            'total_budget' => 'required|numeric|min:0', // Total budget must be a positive number
+            'total_budget' => 'required|numeric|min:1', // Total budget must be a positive number
             'remaining_amount' => 'nullable|numeric|min:0', // Remaining amount, optional but must be a positive number
         ];
     }
