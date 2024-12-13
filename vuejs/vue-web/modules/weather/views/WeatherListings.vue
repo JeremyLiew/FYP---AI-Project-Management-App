@@ -100,9 +100,9 @@ export default {
 	},
 	ambientTemperatureBg() {
 		const temperature = this.weatherData.DHT?.temperature;
-		if(temperature > 40){
+		if(temperature >= 40){
 			return 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZW5kdzg4c3Yxb21zemg5eTR5ZmFkdWl0MHVjd2ZlOWp2Y3I1ZmhwZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/17bvpzBFFQ5Xi/giphy.gif)';
-		}else if(temperature > 25 && temperature < 40){
+		}else if(temperature >= 25 && temperature < 40){
 			return 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHpmOWN3MzQ3YTIxcjZiNDNqeXRyMnRyanlvZ3p5aG83bm4xNzJuOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/UVBBpNIOsbfuu3Uufx/giphy.gif)';
 		}else if(temperature < 25) {
 			return 'url(https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExbzRreXEzdXptczRpNDZpdnE0djZteGhpMXZtMnB4NnRxZnJkbzFjdCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/s4Bi420mMDRBK/giphy.gif)';

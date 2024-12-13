@@ -272,7 +272,7 @@ export default {
 						const project = projectData[index];
 
 						// Custom tooltip content
-						return `${project.name} - Status: ${project.status} - Completion Rate: ${project.completionRate}`;
+						return `${project.name} - Status: ${project.status} - Rating: ${project.completionRate}`;
 						}
 					}
 					}

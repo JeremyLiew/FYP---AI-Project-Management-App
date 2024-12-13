@@ -109,15 +109,15 @@ class ReportController extends Controller
                 $updatedAt = \Carbon\Carbon::parse($project->updated_at);
                 $diffInDays = $endDate->diffInDays($updatedAt);
 
-                if ($diffInDays <= 3) {
+                if ($diffInDays <= 6) {
                     $rating = 'Very Good';
-                } elseif ($diffInDays <= 6) {
+                } elseif ($diffInDays <= 3 && $diffInDays > 6) {
                     $rating = 'Good';
                 } elseif ($diffInDays == 0) {
                     $rating = 'Well';
-                } elseif ($diffInDays > 3) {
+                } elseif ($diffInDays > 3 && $diffInDays < 6) {
                     $rating = 'Bad';
-                } elseif ($diffInDays > 6) {
+                } elseif ($diffInDays >= 6) {
                     $rating = 'Poor';
                 }
             } elseif ($project->status == 'Ongoing' || $project->status == 'Pending') {
@@ -135,24 +135,24 @@ class ReportController extends Controller
         $taskStats = $tasks->map(function ($task) {
             $rating = '';
 
-            if ($task->project->status == 'Completed') {
+            if ($task->status == 'Completed') {
                 // Check the difference between due_date and updated_at
                 $dueDate = \Carbon\Carbon::parse($task->due_date);
                 $updatedAt = \Carbon\Carbon::parse($task->updated_at);
                 $diffInDays = $dueDate->diffInDays($updatedAt);
 
-                if ($diffInDays <= 3) {
+                if ($diffInDays <= 6) {
                     $rating = 'Very Good';
-                } elseif ($diffInDays <= 6) {
+                } elseif ($diffInDays <= 3 && $diffInDays > 6) {
                     $rating = 'Good';
                 } elseif ($diffInDays == 0) {
                     $rating = 'Well';
-                } elseif ($diffInDays > 3) {
+                } elseif ($diffInDays > 3 && $diffInDays < 6) {
                     $rating = 'Bad';
-                } elseif ($diffInDays > 6) {
+                } elseif ($diffInDays >= 6) {
                     $rating = 'Poor';
                 }
-            } elseif ($task->project->status == 'Ongoing' || $task->project->status == 'Pending') {
+            } elseif ($task->status == 'Ongoing' || $task->status == 'Pending') {
                 $rating = 'In Progress';
             }
 
