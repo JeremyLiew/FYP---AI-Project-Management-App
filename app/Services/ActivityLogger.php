@@ -20,7 +20,7 @@ class ActivityLogger
     public function logActivity(string $action, string $modelType, int $modelId, ?array $changes = null, string $logLevel = 'info')
     {
         ActivityLog::create([
-            'user_id' => Auth::id(),
+            'user_id' => Auth::check() ? Auth::id() : 0,
             'model_id' => $modelId,
             'model_type' => $modelType,
             'ip_address' => Request::ip(),

@@ -199,6 +199,9 @@ export default {
 				})
 				.catch((err) => {
 					this.errors = err.response.data.errors
+					if(err.response.data.message === "Email has been taken"){
+						this.$toast.error("Email not available");
+					}
 				})
 				.finally(() => {
 					this.is_loading = false;

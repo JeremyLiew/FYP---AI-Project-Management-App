@@ -93,6 +93,7 @@ class ProjectController extends Controller
             'project' => $project,
             'members' => $members,
             'roles' => $roles,
+            'budget' => $project->budget
         ]);
     }
 

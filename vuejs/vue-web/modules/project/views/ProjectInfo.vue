@@ -55,7 +55,7 @@
 								color="red"
 								small
 								depressed
-								class="mt-4"
+								class="mt-4 ml-4"
 								@click="rejectTask(task)"
 							>
 								Reject
@@ -138,7 +138,7 @@
 					<h3>Additional Information</h3>
 					<p>
 						<strong>Budget: </strong>
-						<span v-if="project.budget">{{ project.budget.amount }}</span>
+						<span v-if="budget">{{ budget.name }} - RM {{ budget.total_budget }}</span>
 						<span v-else>N/A</span>
 					</p>
 				</v-container>
@@ -175,6 +175,7 @@ export default {
 			suggestedTasks: [],
 			isLoading: false,
 			dateFormat: 'DD/MM/YYYY',
+			budget: {},
 		};
 	},
 	computed: {
@@ -257,6 +258,7 @@ export default {
 					this.project = response.data.project;
 					this.projectMembers = response.data.members;
 					this.roles = response.data.roles;
+					this.budget = response.data.budget;
 				})
 				.catch((error) => {
 					console.error("Error fetching project details:", error);

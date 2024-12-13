@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Models\User;
 use Swift_TransportException;
+use App\Services\ActivityLogger;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -18,8 +19,8 @@ use Illuminate\Support\Facades\RateLimiter;
 use App\Http\Requests\Auth\LoginFormRequest;
 use Illuminate\Auth\Passwords\PasswordBroker;
 use Symfony\Component\HttpFoundation\Response;
-use App\Http\Requests\Auth\RegisterFormRequest;
 
+use App\Http\Requests\Auth\RegisterFormRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\ForgotPasswordRequest;
 use App\Http\Requests\Auth\AuthProfileUpdateFormRequest;
@@ -29,6 +30,13 @@ use App\Http\Requests\Auth\AuthPasswordUpdateFormRequest;
 
 class AuthController extends Controller
 {
+    protected $activityLogger;
+
+    public function __construct(ActivityLogger $activityLogger)
+    {
+        $this->activityLogger = $activityLogger;
+    }
+
     public function login(LoginFormRequest $request)
     {
         $payload = $request->validated();
@@ -56,6 +64,7 @@ class AuthController extends Controller
 
             if (!Auth::attempt($payload['credentials'], $payload['remember'] ?? false)) {
                 RateLimiter::hit($key, 60);
+                $this->activityLogger->logActivity('Failed login attempt', User::class, 0, ['email' => $payload['email']] , 'warning');
                 return self::errorResponse('Credentials not match', null, Response::HTTP_UNAUTHORIZED);
             }
 
@@ -64,6 +73,8 @@ class AuthController extends Controller
 
             $user = auth()->user();
             $token = $user->createToken('personal-token', expiresAt: now()->addHour());
+
+            $this->activityLogger->logActivity('User logged in', User::class, $user->id);
 
             return self::successResponse('Success', [
                 'token' => $token->plainTextToken,
@@ -74,7 +85,10 @@ class AuthController extends Controller
 
     public function logout()
     {
+        $user = auth()->user();
         $result = auth()->user()->currentAccessToken()->delete();
+
+        $this->activityLogger->logActivity('User logged out', User::class, $user->id);
 
         return self::successResponse('Success', $result);
     }
@@ -84,6 +98,7 @@ class AuthController extends Controller
 
         if (User::where('email', $payload['email'])->exists())
 		{
+            $this->activityLogger->logActivity('Failed registration attempt - email taken', User::class, 0, ['email' => $payload['email']] , 'warning');
 			return self::errorResponse('Email has been taken');
 		}
 
@@ -103,6 +118,8 @@ class AuthController extends Controller
             $verificationUrl = $user->generateVerificationUrl();
             Mail::to($user->email)->send(new CustomVerificationEmail($verificationUrl));
 
+            $this->activityLogger->logActivity('New user registered', User::class, $user->id);
+
 			return $user;
 		});
 
@@ -112,6 +129,8 @@ class AuthController extends Controller
     public function user()
 	{
 		$result = auth()->user();
+
+        $this->activityLogger->logActivity('User accessed profile', User::class, $result->id);
 
 		return self::successResponse('Success', [
 			'user' => $result,
@@ -123,6 +142,15 @@ class AuthController extends Controller
 		$payload = $request->validated();
 
         $result = Password::broker()->sendResetLink(['email' => $payload['email']]);
+
+        $this->activityLogger->logActivity(
+            $result === Password::RESET_LINK_SENT
+                ? 'Password reset email sent'
+                : 'Failed to send password reset email',
+            User::class,
+            0,
+            ['email' => $payload['email']]
+        );
 
         return $result === Password::RESET_LINK_SENT
                 ? self::successResponse('Success', [
@@ -143,14 +171,18 @@ class AuthController extends Controller
 			$user->password = Hash::make($password);
 			$user->email_verified_at = now();
 			$user->save();
+
+            $this->activityLogger->logActivity('Password reset', User::class, $user->id);
 		});
 
 		switch ($result)
 		{
 			case PasswordBroker::INVALID_TOKEN:
+                $this->activityLogger->logActivity('Invalid password reset token', User::class, 0);
 				self::errorResponse('The token is invalid');
 				break;
 			case PasswordBroker::INVALID_USER:
+                $this->activityLogger->logActivity('Invalid user for password reset', User::class, 0);
 				self::errorResponse('The user is invalid');
 				break;
 			default:
@@ -161,6 +193,7 @@ class AuthController extends Controller
     }
 
     public function showResetForm(){
+        $this->activityLogger->logActivity('Viewed password reset form', User::class, 0);
         return view('welcome-vue-web');
     }
 

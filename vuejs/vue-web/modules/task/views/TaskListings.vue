@@ -194,6 +194,7 @@
 						dense
 						required
 						:error-messages="errors.assigned_to"
+						placeholder="Select Member"
 					/>
 				</v-card-text>
 				<v-card-actions>
@@ -512,6 +513,12 @@ export default {
 				.then((response) => {
 					let data = response.data.tasks;
 					this.tasks = data;
+					this.tasks = response.data.tasks.map(task => {
+						if (!this.members.find(member => member.id === task.assigned_to)) {
+							task.assigned_to = 'Unassigned';
+						}
+						return task;
+					});
 					this.hasData = data.length > 0;
 					this.totalTasks = data.length;
 				})
