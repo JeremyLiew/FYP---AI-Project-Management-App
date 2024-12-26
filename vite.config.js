@@ -16,9 +16,6 @@ export default defineConfig({
 				'resources/sass/app.scss',
 				'vuejs/vue-web/main.js',
 			],
-			// refresh: ['**'],
-			// exclude: ['storage/**'],
-			// include: ['**'],
 			refresh: true,
 		}),
 		vue({
